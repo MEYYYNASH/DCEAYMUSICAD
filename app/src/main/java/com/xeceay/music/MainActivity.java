@@ -2,6 +2,9 @@ package com.xeceay.music;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private DownloadManagerEngine downloadManager;
     private GitHubAutoUpdater githubUpdater;
     private LinkAnalyzerService linkAnalyzer;
+    private MusicCatalogService catalogService;
 
     private final ActivityResultLauncher<String[]> permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         downloadManager = new DownloadManagerEngine(getApplicationContext(), database, dlJson -> pushEventToUi("download_update", dlJson));
         githubUpdater = new GitHubAutoUpdater(getApplicationContext(), updateJson -> pushEventToUi("github_update", updateJson));
         linkAnalyzer = new LinkAnalyzerService(analysisJson -> pushEventToUi("link_analysis", analysisJson));
+        catalogService = new MusicCatalogService(searchJson -> pushEventToUi("catalog_results", searchJson));
 
         MusicPlaybackService.actionCallback = action -> runOnUiThread(() -> {
             if (MusicPlaybackService.ACTION_TOGGLE.equals(action)) {
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView = new WebView(this);
-        webView.setBackgroundColor(0xFF0B0D12);
+        webView.setBackgroundColor(0xFF0D1017);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -97,8 +102,9 @@ public class MainActivity extends AppCompatActivity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
@@ -293,6 +299,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void searchCatalog(String query, String requestType) {
+            catalogService.searchCatalog(query, requestType);
+        }
+
+        @JavascriptInterface
+        public String getClipboardText() {
+            try {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cm != null && cm.hasPrimaryClip()) {
+                    ClipData clip = cm.getPrimaryClip();
+                    if (clip != null && clip.getItemCount() > 0) {
+                        CharSequence cs = clip.getItemAt(0).coerceToText(MainActivity.this);
+                        if (cs != null) return cs.toString();
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            return "";
+        }
+
+        @JavascriptInterface
         public void playSong(String songId, String title, String artist, String album, String artworkUri, String sourceRef, int startPosMs) {
             runOnUiThread(() -> playerEngine.loadAndPlay(songId, title, artist, album, artworkUri, sourceRef, startPosMs));
         }
@@ -456,11 +483,6 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public boolean installDownloadedApkNow() {
             return githubUpdater.installDownloadedApk(null);
-        }
-
-        @JavascriptInterface
-        public void testSelfApkInstaller() {
-            githubUpdater.stageCurrentApkAndLaunchInstaller();
         }
 
         @JavascriptInterface

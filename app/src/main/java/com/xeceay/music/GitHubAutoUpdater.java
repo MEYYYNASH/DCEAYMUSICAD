@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,17 +50,12 @@ public class GitHubAutoUpdater {
                     : pkgInfo.versionCode;
             boolean canInstall = Build.VERSION.SDK_INT < Build.VERSION_CODES.O
                     || context.getPackageManager().canRequestPackageInstalls();
-            File updatesDir = new File(context.getExternalFilesDir(null), "updates");
-            File existingApk = new File(updatesDir, "XECEAY-update.apk");
 
             obj.put("appName", "XECEAY");
             obj.put("packageName", context.getPackageName());
-            obj.put("versionName", pkgInfo.versionName != null ? pkgInfo.versionName : "1.0.0");
+            obj.put("versionName", pkgInfo.versionName != null ? pkgInfo.versionName : "1.0.1");
             obj.put("versionCode", vCode);
             obj.put("canInstallPackages", canInstall);
-            obj.put("hasDownloadedApk", existingApk.exists() && existingApk.length() > 10_000L);
-            obj.put("downloadedApkPath", existingApk.exists() ? existingApk.getAbsolutePath() : "");
-            obj.put("downloadedApkSize", existingApk.exists() ? existingApk.length() : 0L);
         } catch (Exception ignored) {
         }
         return obj;
@@ -92,6 +86,7 @@ public class GitHubAutoUpdater {
 
         executor.execute(() -> {
             try {
+                String installedVersion = getInstalledVersionInfo().optString("versionName", "1.0.1");
                 String latestUrl = "https://api.github.com/repos/" + targetSlug + "/releases/latest";
                 JSONObject releaseJson = fetchJsonObject(latestUrl);
 
@@ -102,44 +97,22 @@ public class GitHubAutoUpdater {
                     }
                 }
 
-                String installedVersion = getInstalledVersionInfo().optString("versionName", "1.0.0");
-
-                // Also fallback to raw APK in main branch if no formal GitHub Release exists yet!
+                // If no GitHub release exists yet, the installed app is up to date
                 if (releaseJson == null) {
-                    String rawMainApkUrl = "https://raw.githubusercontent.com/" + targetSlug + "/main/XECEAY-release.apk";
-                    long rawSize = checkUrlContentLength(rawMainApkUrl);
-                    if (rawSize > 10_000L) {
-                        JSONObject evt = new JSONObject();
-                        evt.put("type", "release_info");
-                        evt.put("repo", targetSlug);
-                        evt.put("tagName", "v1.0.0-main");
-                        evt.put("releaseTitle", "XECEAY Main Branch APK (MEYYYNASH/XECEAY)");
-                        evt.put("changelog", "Direct APK from repository https://github.com/" + targetSlug + " ready for in-app download & installation.");
-                        evt.put("publishedAt", "Latest Push");
-                        evt.put("htmlUrl", "https://github.com/" + targetSlug);
-                        evt.put("apkName", "XECEAY-release.apk");
-                        evt.put("apkUrl", rawMainApkUrl);
-                        evt.put("apkSize", rawSize);
-                        evt.put("installedVersion", installedVersion);
-                        evt.put("isNewer", true);
-                        callback.onUpdateEvent(evt);
-                        return;
-                    }
-
-                    callback.onUpdateEvent(
-                            new JSONObject()
-                                    .put("type", "no_release_found")
-                                    .put("repo", targetSlug)
-                                    .put("message", "No published GitHub Release found yet in '" + targetSlug + "'. Push a tag or run the GitHub Actions workflow to publish XECEAY-release.apk!")
-                    );
+                    JSONObject evt = new JSONObject();
+                    evt.put("type", "up_to_date");
+                    evt.put("repo", targetSlug);
+                    evt.put("installedVersion", installedVersion);
+                    evt.put("tagName", "v" + installedVersion);
+                    evt.put("isNewer", false);
+                    callback.onUpdateEvent(evt);
                     return;
                 }
 
-                String tagName = releaseJson.optString("tag_name", "v1.0.0");
+                String tagName = releaseJson.optString("tag_name", "v" + installedVersion);
                 String releaseTitle = releaseJson.optString("name", tagName);
-                String body = releaseJson.optString("body", "Bug fixes and performance improvements.");
+                String body = releaseJson.optString("body", "");
                 String publishedAt = releaseJson.optString("published_at", "");
-                String htmlUrl = releaseJson.optString("html_url", "https://github.com/" + targetSlug + "/releases");
 
                 String apkUrl = "";
                 String apkName = "";
@@ -158,18 +131,18 @@ public class GitHubAutoUpdater {
                     }
                 }
 
-                // Fallback to raw main APK if release has no asset attached yet
-                if (apkUrl.isEmpty()) {
-                    String rawMainApkUrl = "https://raw.githubusercontent.com/" + targetSlug + "/main/XECEAY-release.apk";
-                    long rawSize = checkUrlContentLength(rawMainApkUrl);
-                    if (rawSize > 10_000L) {
-                        apkName = "XECEAY-release.apk";
-                        apkUrl = rawMainApkUrl;
-                        apkSize = rawSize;
-                    }
-                }
+                boolean isNewer = compareVersions(tagName, installedVersion) > 0 && !apkUrl.isEmpty();
 
-                boolean isNewer = compareVersions(tagName, installedVersion) > 0;
+                if (!isNewer) {
+                    JSONObject evt = new JSONObject();
+                    evt.put("type", "up_to_date");
+                    evt.put("repo", targetSlug);
+                    evt.put("installedVersion", installedVersion);
+                    evt.put("tagName", tagName);
+                    evt.put("isNewer", false);
+                    callback.onUpdateEvent(evt);
+                    return;
+                }
 
                 JSONObject evt = new JSONObject();
                 evt.put("type", "release_info");
@@ -178,15 +151,14 @@ public class GitHubAutoUpdater {
                 evt.put("releaseTitle", releaseTitle);
                 evt.put("changelog", body);
                 evt.put("publishedAt", publishedAt);
-                evt.put("htmlUrl", htmlUrl);
                 evt.put("apkName", apkName);
                 evt.put("apkUrl", apkUrl);
                 evt.put("apkSize", apkSize);
                 evt.put("installedVersion", installedVersion);
-                evt.put("isNewer", isNewer);
+                evt.put("isNewer", true);
                 callback.onUpdateEvent(evt);
             } catch (Exception e) {
-                emitError("check_error", "GitHub API check failed: " + (e.getMessage() != null ? e.getMessage() : "Network error"));
+                emitError("check_error", "Unable to check updates: " + (e.getMessage() != null ? e.getMessage() : "Network error"));
             }
         });
     }
@@ -291,39 +263,6 @@ public class GitHubAutoUpdater {
         });
     }
 
-    public void stageCurrentApkAndLaunchInstaller() {
-        executor.execute(() -> {
-            try {
-                File sourceApk = new File(context.getApplicationInfo().sourceDir);
-                File updatesDir = new File(context.getExternalFilesDir(null), "updates");
-                if (!updatesDir.exists()) updatesDir.mkdirs();
-                File targetApk = new File(updatesDir, "XECEAY-update.apk");
-
-                try (FileInputStream in = new FileInputStream(sourceApk);
-                     FileOutputStream out = new FileOutputStream(targetApk)) {
-                    byte[] buf = new byte[16 * 1024];
-                    int r;
-                    while ((r = in.read(buf)) != -1) {
-                        out.write(buf, 0, r);
-                    }
-                    out.flush();
-                }
-
-                lastDownloadedApk = targetApk;
-                callback.onUpdateEvent(
-                        new JSONObject()
-                                .put("type", "download_complete")
-                                .put("progress", 100)
-                                .put("apkPath", targetApk.getAbsolutePath())
-                                .put("apkSize", targetApk.length())
-                );
-                installDownloadedApk(targetApk);
-            } catch (Exception e) {
-                emitError("download_error", "Could not stage APK: " + e.getMessage());
-            }
-        });
-    }
-
     public void cancelApkDownload() {
         cancelRequested = true;
     }
@@ -332,7 +271,7 @@ public class GitHubAutoUpdater {
         File updatesDir = new File(context.getExternalFilesDir(null), "updates");
         File target = apkFile != null ? apkFile : (lastDownloadedApk != null ? lastDownloadedApk : new File(updatesDir, "XECEAY-update.apk"));
         if (!target.exists() || target.length() < 1024L) {
-            emitError("install_error", "No downloaded APK found to install. Download the update first.");
+            emitError("install_error", "No downloaded APK found to install.");
             return false;
         }
 
@@ -348,7 +287,7 @@ public class GitHubAutoUpdater {
                     callback.onUpdateEvent(
                             new JSONObject()
                                     .put("type", "permission_required")
-                                    .put("message", "Please enable 'Allow from this source' for XECEAY, then tap 'Install APK Now'.")
+                                    .put("message", "Please enable 'Allow from this source' for XECEAY, then tap 'Install Update Now'.")
                     );
                 } catch (Exception ignored) {
                 }
@@ -384,25 +323,6 @@ public class GitHubAutoUpdater {
             callback.onUpdateEvent(new JSONObject().put("type", type).put("error", message));
         } catch (Exception ignored) {
         }
-    }
-
-    private long checkUrlContentLength(String urlStr) {
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) new URL(urlStr).openConnection();
-            conn.setRequestMethod("HEAD");
-            conn.setConnectTimeout(8000);
-            conn.setReadTimeout(8000);
-            conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", "XECEAY-Music-Android/1.0");
-            if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-                return Math.max(20_000L, conn.getContentLengthLong());
-            }
-        } catch (Exception ignored) {
-        } finally {
-            if (conn != null) conn.disconnect();
-        }
-        return -1L;
     }
 
     private JSONObject fetchJsonObject(String urlStr) {

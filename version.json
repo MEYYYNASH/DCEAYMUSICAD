@@ -1,8 +1,8 @@
 {
-  "versionName": "1.1.2",
-  "versionCode": 112,
-  "tagName": "v1.1.2",
-  "releaseTitle": "XECEAY v1.1.2 — New Brand Emblem Icon & Full-Length Song Downloader",
-  "changelog": "Replaced app launcher icon and in-app brand logo with the new luxury geometric star/diamond emblem; enabled direct full-length MP3/MP4 downloading for pasted YouTube and media links without restrictions or duplicates.",
+  "versionName": "1.1.3",
+  "versionCode": 113,
+  "tagName": "v1.1.3",
+  "releaseTitle": "XECEAY v1.1.3 — Geometric Emblem Covers & Custom Photo Album Art",
+  "changelog": "Removed all text font initials (ME, VD, SP, TN, SS) from album covers; default covers now render the luxury geometric emblem; added custom album cover photo picker allowing users to choose photos directly from device gallery.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

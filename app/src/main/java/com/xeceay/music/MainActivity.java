@@ -36,9 +36,13 @@ import android.widget.FrameLayout;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
             }
     );
 
+    private String pendingArtworkSongId = null;
+
     private final ActivityResultLauncher<String[]> filePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
             uri -> {
@@ -73,6 +79,22 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception ignored) {
                     }
                     importPickedUri(uri, false);
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<String[]> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+                if (uri != null && pendingArtworkSongId != null) {
+                    try {
+                        getContentResolver().takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        );
+                    } catch (Exception ignored) {
+                    }
+                    saveCustomArtwork(pendingArtworkSongId, uri);
                 }
             }
     );
@@ -295,6 +317,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void saveCustomArtwork(String songId, Uri uri) {
+        try {
+            File artDir = new File(getFilesDir(), "custom_art");
+            if (!artDir.exists()) artDir.mkdirs();
+            File dest = new File(artDir, "art_" + songId + ".jpg");
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (InputStream in = getContentResolver().openInputStream(uri)) {
+                if (in != null) {
+                    android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeStream(in);
+                    if (bmp != null) {
+                        int maxDim = 600;
+                        int w = bmp.getWidth();
+                        int h = bmp.getHeight();
+                        if (w > maxDim || h > maxDim) {
+                            float scale = Math.min((float) maxDim / w, (float) maxDim / h);
+                            w = Math.round(w * scale);
+                            h = Math.round(h * scale);
+                            bmp = android.graphics.Bitmap.createScaledBitmap(bmp, w, h, true);
+                        }
+                        bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, baos);
+                        try (FileOutputStream out = new FileOutputStream(dest)) {
+                            out.write(baos.toByteArray());
+                        }
+                    }
+                }
+            }
+
+            byte[] imageBytes = baos.toByteArray();
+            String localArtUri;
+            if (imageBytes.length > 0) {
+                localArtUri = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            } else {
+                localArtUri = Uri.fromFile(dest).toString();
+            }
+
+            database.updateSongArtwork(songId, localArtUri);
+            pushEventToUi("artwork_updated", new JSONObject()
+                    .put("songId", songId)
+                    .put("artworkUri", localArtUri));
+        } catch (Exception ignored) {
+        }
+    }
+
     private void requestAudioAndNotificationPermissionsIfNeeded() {
         List<String> perms = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -464,6 +530,23 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void updateSongTags(String songId, String title, String artist, String album, String genre) {
             database.updateSongMetadata(songId, title, artist, album, genre);
+        }
+
+        @JavascriptInterface
+        public void pickSongArtwork(String songId) {
+            pendingArtworkSongId = songId;
+            runOnUiThread(() -> imagePickerLauncher.launch(new String[]{"image/*"}));
+        }
+
+        @JavascriptInterface
+        public void updateSongArtwork(String songId, String artworkUri) {
+            database.updateSongArtwork(songId, artworkUri);
+            try {
+                pushEventToUi("artwork_updated", new JSONObject()
+                        .put("songId", songId)
+                        .put("artworkUri", artworkUri));
+            } catch (Exception ignored) {
+            }
         }
 
         @JavascriptInterface

@@ -130,6 +130,10 @@ public class XeceayDatabase extends SQLiteOpenHelper {
                 db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_3', 1, ?)", new Object[]{now});
                 db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_4', 2, ?)", new Object[]{now});
                 db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_6', 3, ?)", new Object[]{now});
+
+                // Upgrade legacy artwork with letters to clean geometric emblem
+                db.execSQL("UPDATE Songs SET artworkUri = ? WHERE artworkUri LIKE '%data:image/svg+xml%'",
+                        new Object[]{buildGradientArtworkDataUri("XECEAY", "Hi-Fi", "#8B5CF6", "#22D3EE")});
             }
         } catch (Throwable ignored) {
         }
@@ -632,25 +636,27 @@ public class XeceayDatabase extends SQLiteOpenHelper {
         }
     }
 
+    public void updateSongArtwork(String songId, String artworkUri) {
+        ContentValues cv = new ContentValues();
+        cv.put("artworkUri", artworkUri != null ? artworkUri.trim() : "");
+        getWritableDatabase().update("Songs", cv, "id = ?", new String[]{songId});
+    }
+
     public static String buildGradientArtworkDataUri(String title, String artist, String color1, String color2) {
-        String clean = title != null ? title.trim() : "XC";
-        String[] parts = clean.split("\\s+");
-        StringBuilder initials = new StringBuilder();
-        for (int i = 0; i < Math.min(2, parts.length); i++) {
-            if (!parts[i].isEmpty()) {
-                initials.append(Character.toUpperCase(parts[i].charAt(0)));
-            }
-        }
-        String safeInitials = initials.length() > 0 ? initials.toString() : "XC";
         String svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 300\">"
                 + "<defs><linearGradient id=\"g\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">"
                 + "<stop offset=\"0%\" stop-color=\"" + color1 + "\"/>"
                 + "<stop offset=\"100%\" stop-color=\"" + color2 + "\"/>"
                 + "</linearGradient></defs>"
-                + "<rect width=\"300\" height=\"300\" rx=\"32\" fill=\"url(#g)\"/>"
-                + "<circle cx=\"150\" cy=\"150\" r=\"92\" fill=\"#0B0D12\" fill-opacity=\"0.38\"/>"
-                + "<circle cx=\"150\" cy=\"150\" r=\"24\" fill=\"#0B0D12\" fill-opacity=\"0.65\"/>"
-                + "<text x=\"150\" y=\"164\" font-family=\"sans-serif\" font-weight=\"800\" font-size=\"44\" fill=\"#F8FAFC\" text-anchor=\"middle\">" + safeInitials + "</text>"
+                + "<rect width=\"300\" height=\"300\" rx=\"36\" fill=\"#0C0E15\"/>"
+                + "<circle cx=\"150\" cy=\"150\" r=\"122\" fill=\"#05070A\" stroke=\"url(#g)\" stroke-width=\"3.5\"/>"
+                + "<circle cx=\"150\" cy=\"150\" r=\"96\" fill=\"none\" stroke=\"#FFFFFF\" stroke-opacity=\"0.08\" stroke-width=\"1.5\"/>"
+                + "<circle cx=\"150\" cy=\"150\" r=\"72\" fill=\"none\" stroke=\"#FFFFFF\" stroke-opacity=\"0.08\" stroke-width=\"1.5\"/>"
+                + "<circle cx=\"150\" cy=\"150\" r=\"48\" fill=\"url(#g)\" fill-opacity=\"0.35\"/>"
+                + "<g transform=\"translate(150, 150) scale(0.65) translate(-150, -150)\">"
+                + "<path d=\"M150,56 C150,110 110,150 56,150 C110,150 150,190 150,244 C150,190 190,150 244,150 C190,150 150,110 150,56 Z\" fill=\"#FFFFFF\" fill-opacity=\"0.95\"/>"
+                + "<circle cx=\"150\" cy=\"150\" r=\"16\" fill=\"#05070A\"/>"
+                + "</g>"
                 + "</svg>";
         String encoded = Base64.encodeToString(svg.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
         return "data:image/svg+xml;base64," + encoded;

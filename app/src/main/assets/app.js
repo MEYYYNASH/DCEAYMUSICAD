@@ -50,31 +50,35 @@
   function makeVinylArtworkSvg(title, artist, c1, c2) {
     const col1 = c1 || "#8B5CF6";
     const col2 = c2 || "#22D3EE";
-    const initials = (title || "X").slice(0, 2).toUpperCase();
+    const gradId = "vg_" + Math.random().toString(36).substring(2, 8);
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
       <defs>
-        <linearGradient id="vg_${initials}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="${col1}"/>
           <stop offset="100%" stop-color="${col2}"/>
         </linearGradient>
       </defs>
-      <rect width="300" height="300" rx="36" fill="#131826"/>
-      <circle cx="150" cy="150" r="115" fill="#0B0D13" stroke="url(#vg_${initials})" stroke-width="4"/>
-      <circle cx="150" cy="150" r="90" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5"/>
-      <circle cx="150" cy="150" r="65" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5"/>
-      <circle cx="150" cy="150" r="42" fill="url(#vg_${initials})"/>
-      <circle cx="150" cy="150" r="12" fill="#131826"/>
-      <text x="150" y="240" font-family="-apple-system, sans-serif" font-weight="800" font-size="14" fill="#94A3B8" text-anchor="middle" letter-spacing="1.5">XECEAY HI-FI</text>
+      <rect width="300" height="300" rx="36" fill="#0C0E15"/>
+      <circle cx="150" cy="150" r="122" fill="#05070A" stroke="url(#${gradId})" stroke-width="3.5"/>
+      <circle cx="150" cy="150" r="96" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.5"/>
+      <circle cx="150" cy="150" r="72" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.5"/>
+      <circle cx="150" cy="150" r="48" fill="url(#${gradId})" fill-opacity="0.35"/>
+      <g transform="translate(150, 150) scale(0.65) translate(-150, -150)">
+        <path d="M150,56 C150,110 110,150 56,150 C110,150 150,190 150,244 C150,190 190,150 244,150 C190,150 150,110 150,56 Z" fill="#FFFFFF" fill-opacity="0.95"/>
+        <circle cx="150" cy="150" r="16" fill="#05070A"/>
+      </g>
     </svg>`;
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
 
-  function makeSvgUri(initials, c1, c2) {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="300" height="300" rx="36" fill="url(#g)"/><circle cx="150" cy="150" r="88" fill="#12151E" fill-opacity="0.38"/><text x="150" y="165" font-family="sans-serif" font-weight="800" font-size="48" fill="#F8FAFC" text-anchor="middle">${initials}</text></svg>`;
-    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  function makeSvgUri(a, b, c) {
+    // Zero text initials - uses app emblem icon on dark vinyl
+    const c1 = c ? b : (a || "#8B5CF6");
+    const c2 = c ? c : (b || "#22D3EE");
+    return makeVinylArtworkSvg("", "", c1, c2);
   }
 
-  const DEFAULT_ART = makeVinylArtworkSvg("XECEAY", "Khmer & Global", "#8B5CF6", "#22D3EE");
+  const DEFAULT_ART = makeVinylArtworkSvg("", "", "#8B5CF6", "#22D3EE");
 
   // Full-Length Khmer & Global Default Catalog
   const AUTHORIZED_CATALOG = [
@@ -90,7 +94,7 @@
       fileSize: 6120000,
       sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/5/c/2/0/5c26795026d5bddd4907dbd824879ab0.mp3",
       downloadable: true,
-      artworkUri: makeSvgUri("VD", "#4C1D95", "#F59E0B")
+      artworkUri: makeVinylArtworkSvg("", "", "#4C1D95", "#F59E0B")
     },
     {
       id: "seed_3",
@@ -104,7 +108,7 @@
       fileSize: 4150000,
       sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/8e/e3/de8ee354-32fb-b6b5-a84f-67b9f025977b/mzaf_6944166431844471136.plus.aac.p.m4a",
       downloadable: true,
-      artworkUri: makeSvgUri("SP", "#0F172A", "#3B82F6")
+      artworkUri: makeVinylArtworkSvg("", "", "#0F172A", "#3B82F6")
     },
     {
       id: "seed_4",
@@ -118,7 +122,7 @@
       fileSize: 4320000,
       sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/bf/16/a7/bf16a7f3-d02f-5eb6-7b56-787be0995111/mzaf_8407481109986968037.plus.aac.p.m4a",
       downloadable: true,
-      artworkUri: makeSvgUri("TN", "#1E1B4B", "#EC4899")
+      artworkUri: makeVinylArtworkSvg("", "", "#1E1B4B", "#EC4899")
     },
     {
       id: "seed_6",
@@ -132,7 +136,7 @@
       fileSize: 4650000,
       sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/3/d/9/0/3d9718f6fe348b75f3ea606b55a05f82.mp3",
       downloadable: true,
-      artworkUri: makeSvgUri("SS", "#064E3B", "#10B981")
+      artworkUri: makeVinylArtworkSvg("", "", "#064E3B", "#10B981")
     }
   ];
 
@@ -286,7 +290,9 @@
           s.title !== "Insects" &&
           s.title !== "Heaven"
         ).map(s => {
-          if (!s.artworkUri) s.artworkUri = DEFAULT_ART;
+          if (!s.artworkUri || s.artworkUri.includes("%3Ctext") || s.artworkUri.includes("<text")) {
+            s.artworkUri = DEFAULT_ART;
+          }
           return s;
         });
       }
@@ -1803,12 +1809,63 @@
     openTagEditor(songId) {
       const s = state.songs.find(x => x.id === songId);
       if (!s) return;
+      this._pendingArtworkSongId = s.id;
       document.getElementById("tag-song-id").value = s.id;
+      const preview = document.getElementById("tag-art-preview");
+      if (preview) preview.src = s.artworkUri || DEFAULT_ART;
       document.getElementById("tag-title").value = s.title || "";
       document.getElementById("tag-artist").value = s.artist || "";
       document.getElementById("tag-album").value = s.album || "";
       document.getElementById("tag-genre").value = s.genre || "Khmer Music";
       document.getElementById("tag-modal").classList.add("open");
+    },
+
+    chooseCustomArtwork(songId) {
+      const targetId = songId || this._pendingArtworkSongId || (state.player && state.player.songId);
+      if (!targetId) {
+        showToast("Select a song first");
+        return;
+      }
+      this._pendingArtworkSongId = targetId;
+      if (isNative) {
+        window.XeceayNative.pickSongArtwork(targetId);
+      } else {
+        const inp = document.getElementById("custom-art-file-input");
+        if (inp) inp.click();
+      }
+    },
+
+    onCustomArtFileSelected(event) {
+      const file = event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const songId = this._pendingArtworkSongId || (state.player && state.player.songId);
+      if (!songId) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        if (isNative) {
+          window.XeceayNative.updateSongArtwork(songId, dataUrl);
+        } else {
+          const s = state.songs.find(x => x.id === songId);
+          if (s) s.artworkUri = dataUrl;
+          if (state.player && state.player.songId === songId) {
+            state.player.artworkUri = dataUrl;
+            const mArt = document.getElementById("mini-art");
+            if (mArt) mArt.src = dataUrl;
+            const fpArt = document.getElementById("fp-art");
+            if (fpArt) fpArt.src = dataUrl;
+            const bgBlur = document.getElementById("fp-bg-blur");
+            if (bgBlur) bgBlur.style.backgroundImage = `url("${dataUrl}")`;
+          }
+          const preview = document.getElementById("tag-art-preview");
+          if (preview) preview.src = dataUrl;
+          renderAll();
+          showToast("Cover photo updated!");
+        }
+      };
+      reader.readAsDataURL(file);
+      event.target.value = "";
     },
 
     saveTagEdits() {
@@ -2022,6 +2079,22 @@
           if (inp) inp.value = p.sharedText;
           this.analyzeLinkInput();
         }
+      } else if (evt.eventType === "artwork_updated") {
+        const s = state.songs.find(x => x.id === p.songId);
+        if (s) s.artworkUri = p.artworkUri;
+        if (state.player && state.player.songId === p.songId) {
+          state.player.artworkUri = p.artworkUri;
+          const mArt = document.getElementById("mini-art");
+          if (mArt) mArt.src = p.artworkUri;
+          const fpArt = document.getElementById("fp-art");
+          if (fpArt) fpArt.src = p.artworkUri;
+          const bgBlur = document.getElementById("fp-bg-blur");
+          if (bgBlur) bgBlur.style.backgroundImage = `url("${p.artworkUri}")`;
+        }
+        const tagPreview = document.getElementById("tag-art-preview");
+        if (tagPreview) tagPreview.src = p.artworkUri;
+        renderAll();
+        showToast("Cover photo updated!");
       }
     },
 

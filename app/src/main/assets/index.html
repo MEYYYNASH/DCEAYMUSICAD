@@ -327,7 +327,7 @@
                 <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>App Version & Updates</span>
               </div>
-              <span id="installed-version-badge" class="badge green">v1.1.2</span>
+              <span id="installed-version-badge" class="badge green">v1.1.3</span>
             </div>
             <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
               Automatically checks <strong>github.com/MEYYYNASH/XECEAY</strong>. Update button only appears when a newer version is released.
@@ -512,8 +512,12 @@
       </button>
     </div>
 
-    <div class="fp-art-container">
+    <div class="fp-art-container" style="position:relative;cursor:pointer;" onclick="XeceayApp.chooseCustomArtwork()" title="Tap to change album cover">
       <img id="fp-art" src="" alt="Album Art" />
+      <div style="position:absolute;bottom:12px;right:12px;background:rgba(12,14,21,0.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:700;color:#FFFFFF;display:flex;align-items:center;gap:5px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);">
+        <svg class="ico ico-sm" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Change Cover</span>
+      </div>
     </div>
 
     <!-- Heart + Centered Title/Artist + 3-Dots Row (Matches Left Phone: Unstable / Mr. Kitty) -->
@@ -657,6 +661,20 @@
     <div class="modal-box">
       <div style="font-size:18px;font-weight:800;margin-bottom:12px;">Song Options & Tag Editor</div>
       <input type="hidden" id="tag-song-id" />
+
+      <!-- Custom Album Cover Selection -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+        <img id="tag-art-preview" src="" alt="Album Cover" style="width:68px;height:68px;border-radius:14px;object-fit:cover;background:#0C0E15;box-shadow:0 4px 16px rgba(0,0,0,0.4);" />
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:800;margin-bottom:3px;">Cover Photo</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">Custom image from your device gallery</div>
+          <button type="button" class="pill-btn white-pill" style="font-size:11px;padding:5px 12px;" onclick="XeceayApp.chooseCustomArtwork(document.getElementById('tag-song-id').value)">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>Choose Photo</span>
+          </button>
+        </div>
+      </div>
+
       <label style="font-size:11px;color:#94A3B8;">Title</label>
       <input id="tag-title" class="yt-url-input" type="text" />
       <label style="font-size:11px;color:#94A3B8;">Artist</label>
@@ -674,6 +692,8 @@
       </div>
     </div>
   </div>
+
+  <input type="file" id="custom-art-file-input" accept="image/*" style="display:none;" onchange="XeceayApp.onCustomArtFileSelected(event)" />
 
   <script src="app.js"></script>
 </body>

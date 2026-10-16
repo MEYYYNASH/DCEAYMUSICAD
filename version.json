@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.6",
-  "versionCode": 106,
-  "tagName": "v1.0.6",
-  "releaseTitle": "XECEAY v1.0.6 — Crash Fix for Recommended Songs & Clean Khmer Home Screen",
-  "changelog": "Fixed Android 14/15/16 playback crash on Recommended for You songs, removed static Fragments/Mr. Kitty demo block from Home Screen, and upgraded Home with clean Khmer & Global music discovery.",
+  "versionName": "1.0.7",
+  "versionCode": 107,
+  "tagName": "v1.0.7",
+  "releaseTitle": "XECEAY v1.0.7 — Loading Crash Fix & Fast Smooth Startup",
+  "changelog": "Fixed loading screen startup error, verified 100% clean JavaScript parsing, added resilient splash screen dismissal, and ensured zero-crash playback.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

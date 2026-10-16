@@ -433,28 +433,6 @@
       </div>
     `;
   }
-    const dur = item.duration && item.duration >= 60000 ? item.duration : 196000;
-    return `
-      <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur})">
-        <div class="track-num-col">${isPlaying ? SVG.eqBars : numStr}</div>
-        <div class="song-info">
-          <div class="song-name">${escapeHtml(item.title)}</div>
-          <div class="song-meta">
-            <span>${escapeHtml(item.artist)}  •  ${formatDuration(dur)}</span>
-          </div>
-        </div>
-        <div class="song-actions" onclick="event.stopPropagation()">
-          <button class="dl-format-pill" title="Download Full MP3" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP3','audio')">
-            ${SVG.download}
-            <span>MP3</span>
-          </button>
-          <button class="icon-btn" title="More Options" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP4','video')">
-            ${SVG.moreDots}
-          </button>
-        </div>
-      </div>
-    `;
-  }
 
   function getSongsForPlaylist(pl) {
     if (!pl) return [];
@@ -1877,16 +1855,23 @@
   };
 
   window.addEventListener("DOMContentLoaded", () => {
-    refreshFromNative();
+    try {
+      refreshFromNative();
+    } catch (e) {
+      console.error("Startup error:", e);
+    }
     // Pre-fetch Khmer & Global songs on startup
     setTimeout(() => {
-      requestNativeOrWebSearch("VannDa Tena Suly Pheng", "discovery");
-      requestNativeOrWebSearch("VannDa វណ្ណដា", "search");
-      window.XeceayApp.checkGitHubReleaseNow(true);
-    }, 550);
+      try {
+        requestNativeOrWebSearch("VannDa Tena Suly Pheng", "discovery");
+        requestNativeOrWebSearch("VannDa វណ្ណដា", "search");
+        if (window.XeceayApp) window.XeceayApp.checkGitHubReleaseNow(true);
+      } catch (e) {
+      }
+    }, 500);
     setTimeout(() => {
       const splash = document.getElementById("splash-screen");
       if (splash) splash.classList.add("hidden");
-    }, 900);
+    }, 650);
   });
 })();

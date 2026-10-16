@@ -78,7 +78,7 @@ public class MusicPlaybackService extends Service {
         );
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_monochrome)
                 .setContentTitle(title)
                 .setContentText(artist)
                 .setSubText("XECEAY Hi-Fi")

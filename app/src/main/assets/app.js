@@ -3,22 +3,22 @@
 
   const isNative = typeof window.XeceayNative !== "undefined";
 
-  // Vector SVG Icons
+  // Vector SVG Icons (Refined Rounded Audiophile Geometry)
   const SVG = {
-    play: '<svg class="ico ico-fill ico-sm" viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"/></svg>',
-    pause: '<svg class="ico ico-fill ico-sm" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
-    playLg: '<svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>',
-    pauseLg: '<svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    play: '<svg class="ico ico-fill ico-sm" viewBox="0 0 24 24"><path d="M7.5 5.6c0-.9 1-1.5 1.8-1l9.8 6.4c.7.5.7 1.5 0 2L9.3 19.4c-.8.5-1.8-.1-1.8-1V5.6z"/></svg>',
+    pause: '<svg class="ico ico-fill ico-sm" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4.4" height="15" rx="2"/><rect x="13.6" y="4.5" width="4.4" height="15" rx="2"/></svg>',
+    playLg: '<svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><path d="M8.5 5.4c0-.9 1-1.5 1.8-1l10.2 6.6c.7.5.7 1.5 0 2L10.3 19.6c-.8.5-1.8-.1-1.8-1V5.4z"/></svg>',
+    pauseLg: '<svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4.5" height="15" rx="2.2"/><rect x="13.5" y="4.5" width="4.5" height="15" rx="2.2"/></svg>',
     heartOutline: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
     heartFill: '<svg class="ico ico-fill ico-sm" style="color:#EF4444;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
-    download: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-    video: '<svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>',
-    musicNote: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-    trash: '<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-    moreDots: '<svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></svg>',
-    eqBars: '<svg class="ico ico-sm" style="color:#FFFFFF;" viewBox="0 0 24 24"><line x1="5" y1="20" x2="5" y2="11" stroke-width="2.5"/><line x1="10" y1="20" x2="10" y2="5" stroke-width="2.5"/><line x1="15" y1="20" x2="15" y2="13" stroke-width="2.5"/><line x1="20" y1="20" x2="20" y2="16" stroke-width="2.5"/></svg>',
+    download: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M12 3.5v11.5"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M4 17.5v1.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"/></svg>',
+    video: '<svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="4.5" width="20" height="15" rx="4.5"/><path d="M10 8.8l5.5 3.2L10 15.2V8.8z" fill="currentColor" stroke="none"/></svg>',
+    musicNote: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M9 17.5V5.5l11-2v12"/><circle cx="6.2" cy="17.5" r="2.8"/><circle cx="17.2" cy="15.5" r="2.8"/></svg>',
+    trash: '<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M3.5 6h17"/><path d="M8.5 6V4.2A1.7 1.7 0 0 1 10.2 2.5h3.6a1.7 1.7 0 0 1 1.7 1.7V6"/><path d="M18.5 6l-.8 13.2a2 2 0 0 1-2 1.8H8.3a2 2 0 0 1-2-1.8L5.5 6"/><line x1="10" y1="10.5" x2="10" y2="16.5"/><line x1="14" y1="10.5" x2="14" y2="16.5"/></svg>',
+    moreDots: '<svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg>',
+    eqBars: '<svg class="ico ico-sm" style="color:#FFFFFF;" viewBox="0 0 24 24"><line x1="5" y1="19" x2="5" y2="11" stroke="#22D3EE" stroke-width="2.6"/><line x1="10" y1="19" x2="10" y2="5" stroke="#FFFFFF" stroke-width="2.6"/><line x1="15" y1="19" x2="15" y2="12" stroke="#C084FC" stroke-width="2.6"/><line x1="20" y1="19" x2="20" y2="15" stroke="#22D3EE" stroke-width="2.6"/></svg>',
     retry: '<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
-    check: '<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    check: '<svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke-width="2.4"/></svg>',
     close: '<svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
   };
 

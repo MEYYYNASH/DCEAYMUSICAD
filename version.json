@@ -1,8 +1,8 @@
 {
-  "versionName": "1.1.1",
-  "versionCode": 111,
-  "tagName": "v1.1.1",
-  "releaseTitle": "XECEAY v1.1.1 — Full-Length YouTube Player & Eliminated 30s Preview Cutoffs",
-  "changelog": "Fixed pasted YouTube links playing wrong songs by removing misleading 30s Deezer/iTunes fallback matching; integrated in-app embedded YouTube player for full-length playback of original videos with zero 30-second cutoffs.",
+  "versionName": "1.1.2",
+  "versionCode": 112,
+  "tagName": "v1.1.2",
+  "releaseTitle": "XECEAY v1.1.2 — New Brand Emblem Icon & Full-Length Song Downloader",
+  "changelog": "Replaced app launcher icon and in-app brand logo with the new luxury geometric star/diamond emblem; enabled direct full-length MP3/MP4 downloading for pasted YouTube and media links without restrictions or duplicates.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

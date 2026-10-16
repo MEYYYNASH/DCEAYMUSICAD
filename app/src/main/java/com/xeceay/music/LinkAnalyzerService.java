@@ -116,7 +116,7 @@ public class LinkAnalyzerService {
                                         JSONObject af = adaptive.getJSONObject(i);
                                         String mime = af.optString("mimeType", "");
                                         String uStr = af.optString("url", "");
-                                        if (mime.startsWith("audio/mp4") && !uStr.isEmpty()) {
+                                        if (mime.contains("audio/") && !uStr.isEmpty()) {
                                             resolvedAudioUrl = uStr;
                                             break;
                                         }
@@ -126,37 +126,24 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    // 3. Try Piped stream endpoints if InnerTube required login
-                    if (videoId != null && resolvedAudioUrl.isEmpty()) {
-                        for (String instance : PIPED_INSTANCES) {
-                            JSONObject piped = fetchJson(instance + "/streams/" + videoId, 4500);
-                            if (piped != null) {
-                                title = piped.optString("title", title);
-                                author = piped.optString("uploader", author);
-                                long dur = piped.optLong("duration", 0L);
-                                if (dur > 0) durationSec = dur;
-                                JSONArray audioStreams = piped.optJSONArray("audioStreams");
-                                if (audioStreams != null && audioStreams.length() > 0) {
-                                    resolvedAudioUrl = audioStreams.getJSONObject(0).optString("url", "");
-                                }
-                                JSONArray videoStreams = piped.optJSONArray("videoStreams");
-                                if (videoStreams != null) {
-                                    for (int i = 0; i < videoStreams.length(); i++) {
-                                        JSONObject vs = videoStreams.getJSONObject(i);
-                                        if (!vs.optBoolean("videoOnly", true)) {
-                                            resolvedVideoUrl = vs.optString("url", "");
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!resolvedAudioUrl.isEmpty()) break;
-                            }
+                    // 3. If direct InnerTube audio was restricted (common for official music tracks),
+                    // resolve full-length MP3 & MP4 conversion streams
+                    String targetYt = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : cleanUrl;
+                    if (resolvedAudioUrl.isEmpty()) {
+                        String streamMp3 = resolveLoaderStream(targetYt, "mp3");
+                        if (streamMp3 != null && !streamMp3.isEmpty()) {
+                            resolvedAudioUrl = streamMp3;
+                        }
+                    }
+                    if (resolvedVideoUrl.isEmpty()) {
+                        String streamMp4 = resolveLoaderStream(targetYt, "720");
+                        if (streamMp4 != null && !streamMp4.isEmpty()) {
+                            resolvedVideoUrl = streamMp4;
+                        } else {
+                            resolvedVideoUrl = resolvedAudioUrl;
                         }
                     }
 
-                    // Note: We deliberately do NOT fallback to Deezer or iTunes for YouTube links
-                    // because Deezer/iTunes search queries return mismatched songs and only supply
-                    // 30-second promotional preview snippets (468KB) rather than the genuine YouTube track.
                     if (resolvedVideoUrl.isEmpty()) {
                         resolvedVideoUrl = resolvedAudioUrl;
                     }
@@ -247,7 +234,84 @@ public class LinkAnalyzerService {
         });
     }
 
-    private JSONObject fetchInnerTubeAndroidVr(String videoId) {
+    public static String resolveDirectYouTubeStream(String youtubeUrl, String format) {
+        String videoId = extractYouTubeId(youtubeUrl);
+        // 1. Try InnerTube ANDROID_VR first (direct Googlevideo stream)
+        if (videoId != null) {
+            JSONObject vr = fetchInnerTubeAndroidVr(videoId);
+            if (vr != null) {
+                JSONObject sd = vr.optJSONObject("streamingData");
+                if (sd != null) {
+                    if ("video".equalsIgnoreCase(format) || "720".equals(format) || "1080".equals(format)) {
+                        JSONArray formats = sd.optJSONArray("formats");
+                        if (formats != null && formats.length() > 0) {
+                            String u = formats.optJSONObject(0).optString("url", "");
+                            if (!u.isEmpty()) return u;
+                        }
+                    } else {
+                        JSONArray adaptive = sd.optJSONArray("adaptiveFormats");
+                        if (adaptive != null) {
+                            for (int i = 0; i < adaptive.length(); i++) {
+                                JSONObject af = adaptive.optJSONObject(i);
+                                if (af != null) {
+                                    String mime = af.optString("mimeType", "");
+                                    String uStr = af.optString("url", "");
+                                    if (mime.contains("audio/") && !uStr.isEmpty()) {
+                                        return uStr;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Fallback to high-speed dedicated conversion engine (Loader)
+        String targetUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : youtubeUrl;
+        return resolveLoaderStream(targetUrl, ("video".equalsIgnoreCase(format) || "720".equals(format)) ? "720" : "mp3");
+    }
+
+    public static String resolveLoaderStream(String targetUrl, String format) {
+        try {
+            String initUrl = "https://loader.to/ajax/download.php?format=" + format + "&url=" + URLEncoder.encode(targetUrl, "UTF-8");
+            JSONObject initResp = fetchJson(initUrl, 8000);
+            if (initResp == null) return null;
+
+            String dlUrl = initResp.optString("download_url", "");
+            if (!dlUrl.isEmpty() && dlUrl.startsWith("http")) {
+                return dlUrl;
+            }
+
+            String progressUrl = initResp.optString("progress_url", "");
+            if (progressUrl.isEmpty() || !progressUrl.startsWith("http")) {
+                return null;
+            }
+
+            for (int i = 0; i < 7; i++) {
+                try {
+                    Thread.sleep(1100);
+                } catch (InterruptedException ignored) {
+                }
+                JSONObject progResp = fetchJson(progressUrl, 5000);
+                if (progResp != null) {
+                    String u = progResp.optString("download_url", "");
+                    if (!u.isEmpty() && u.startsWith("http")) {
+                        return u;
+                    }
+                    int success = progResp.optInt("success", 0);
+                    int progress = progResp.optInt("progress", 0);
+                    if ((success == 1 || progress >= 1000) && !u.isEmpty()) {
+                        return u;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    public static JSONObject fetchInnerTubeAndroidVr(String videoId) {
         HttpURLConnection conn = null;
         try {
             URL url = new URL("https://www.youtube.com/youtubei/v1/player?prettyPrint=false");
@@ -296,7 +360,7 @@ public class LinkAnalyzerService {
         }
     }
 
-    private JSONObject fetchJson(String urlStr, int timeoutMs) {
+    public static JSONObject fetchJson(String urlStr, int timeoutMs) {
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) new URL(urlStr).openConnection();

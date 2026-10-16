@@ -1601,26 +1601,16 @@
 
             <div id="yt-embed-box-${escapeAttr(info.videoId)}" style="display:none;width:100%;margin-top:12px;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9;"></div>
 
-            ${canDownload ? `
-              <div class="dual-action-row" style="margin-top:12px;margin-bottom:0;">
-                <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url)}','MP4','video')">
-                  ${SVG.video}
-                  <span>Download MP4</span>
-                </button>
-                <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url)}','MP3','audio')">
-                  ${SVG.musicNote}
-                  <span>Download MP3</span>
-                </button>
-              </div>
-            ` : `
-              <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:10px;font-size:11px;color:var(--text-secondary);line-height:1.45;">
-                <div style="font-weight:700;color:var(--text-primary);margin-bottom:2px;display:flex;align-items:center;gap:6px;">
-                  <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#00e5ff;"></span>
-                  Full Video & Audio Stream Ready
-                </div>
-                Tap <b>Play Full YouTube Song</b> above to listen without 30s limits. (Direct offline saving from YouTube is restricted by DRM; for offline downloads, paste direct MP3/M4A/Audius links).
-              </div>
-            `}
+            <div class="dual-action-row" style="margin-top:12px;margin-bottom:0;">
+              <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url || mp3Url || info.url)}','MP4','video')">
+                ${SVG.video}
+                <span>Download MP4</span>
+              </button>
+              <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}','MP3','audio')">
+                ${SVG.musicNote}
+                <span>Download MP3</span>
+              </button>
+            </div>
           </div>
         `;
         return;

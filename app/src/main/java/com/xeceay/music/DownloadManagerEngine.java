@@ -60,14 +60,13 @@ public class DownloadManagerEngine {
             SQLiteDatabase db = database.getWritableDatabase();
             if (!cleanUrl.isEmpty()) {
                 try (Cursor c = db.rawQuery(
-                        "SELECT id, status FROM Downloads WHERE (sourceReference = ? OR (title = ? AND artist = ?)) AND status IN ('Waiting', 'Downloading', 'Completed')",
-                        new String[]{cleanUrl, title != null ? title : "", artist != null ? artist : ""}
+                        "SELECT id, status FROM Downloads WHERE sourceReference = ? AND status IN ('Waiting', 'Downloading')",
+                        new String[]{cleanUrl}
                 )) {
                     if (c.moveToFirst()) {
                         String existingId = c.getString(0);
-                        String existingStatus = c.getString(1);
                         return response.put("ok", false)
-                                .put("error", "This track is already " + existingStatus + " in your Download Manager (" + existingId + ").");
+                                .put("error", "This download is already in progress (" + existingId + ").");
                     }
                 }
             }
@@ -221,6 +220,14 @@ public class DownloadManagerEngine {
             FileOutputStream output = null;
             String streamUrl = sourceUrl != null ? sourceUrl.trim() : "";
             try {
+                // If stream URL is a YouTube link, resolve the real direct audio/video stream
+                if (streamUrl.contains("youtube.com") || streamUrl.contains("youtu.be")) {
+                    String directYt = LinkAnalyzerService.resolveDirectYouTubeStream(streamUrl, "MP4".equalsIgnoreCase(format) ? "720" : "mp3");
+                    if (directYt != null && !directYt.isEmpty()) {
+                        streamUrl = directYt;
+                    }
+                }
+
                 // If stream URL is empty or invalid, resolve the real audio stream for this exact track
                 if (streamUrl.isEmpty() || !streamUrl.startsWith("https://")) {
                     streamUrl = resolveRealAudioUrl(title, artist);

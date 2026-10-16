@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -561,6 +562,42 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void saveUserProfile(String displayName, String email, String preferencesJson) {
             database.updateUserProfile(displayName, email, preferencesJson);
+        }
+
+        @JavascriptInterface
+        public boolean clearAppCache() {
+            try {
+                File cacheDir = getCacheDir();
+                if (cacheDir != null && cacheDir.isDirectory()) {
+                    deleteDir(cacheDir);
+                }
+                File externalCacheDir = getExternalCacheDir();
+                if (externalCacheDir != null && externalCacheDir.isDirectory()) {
+                    deleteDir(externalCacheDir);
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private boolean deleteDir(File dir) {
+            if (dir != null && dir.isDirectory()) {
+                String[] children = dir.list();
+                if (children != null) {
+                    for (String child : children) {
+                        boolean success = deleteDir(new File(dir, child));
+                        if (!success) {
+                            return false;
+                        }
+                    }
+                }
+                return dir.delete();
+            } else if (dir != null && dir.isFile()) {
+                return dir.delete();
+            } else {
+                return false;
+            }
         }
     }
 }

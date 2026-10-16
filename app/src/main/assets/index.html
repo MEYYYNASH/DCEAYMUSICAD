@@ -348,17 +348,18 @@
         <!-- 5. SETTINGS & GITHUB AUTO-UPDATER SCREEN -->
         <section id="screen-settings" class="screen">
           <div style="margin:4px 0 14px;">
-            <div style="font-size:22px;font-weight:800;">Settings & Updates</div>
-            <div style="font-size:12px;color:var(--text-secondary);">Audio Engine, Storage & GitHub Release Auto-Updater</div>
+            <div style="font-size:22px;font-weight:800;">Settings & Preferences</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Audio Engine, Theme Studio & GitHub Auto-Updater</div>
           </div>
 
+          <!-- APP UPDATE CARD -->
           <div class="yt-downloader-card" style="border-color:rgba(255,255,255,0.12);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
               <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;">
                 <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>App Version & Auto-Update</span>
+                <span>App Version & Updates</span>
               </div>
-              <span id="installed-version-badge" class="badge green">v1.0.2</span>
+              <span id="installed-version-badge" class="badge green">v1.0.8</span>
             </div>
             <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
               Automatically checks <strong>github.com/MEYYYNASH/XECEAY</strong>. Update button only appears when a newer version is released.
@@ -370,16 +371,77 @@
             <div id="github-update-status-box" style="margin-top:12px;display:none;"></div>
           </div>
 
-          <div id="settings-storage-card" class="yt-downloader-card"></div>
-
+          <!-- THEME SELECTOR CARD (5 Curated Themes) -->
           <div class="yt-downloader-card">
-            <div style="font-weight:800;font-size:15px;margin-bottom:10px;">Theme & Audio Processing</div>
-            <div class="chip-row">
-              <div class="chip active" onclick="XeceayApp.setTheme('dark', this)">Midnight Dark</div>
-              <div class="chip" onclick="XeceayApp.setTheme('glass', this)">Glassmorphism</div>
-              <div class="chip" onclick="XeceayApp.setTheme('light', this)">Clean Light</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;">
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 1 0 6 10 10 0 0 0 0-20z"/></svg>
+                <span>App Themes & Visuals</span>
+              </div>
+              <span id="active-theme-pill" class="badge" style="font-size:11px;">Midnight Slate</span>
             </div>
-            <div class="song-row" style="margin-top:8px;background:rgba(255,255,255,0.04);" onclick="XeceayApp.openEqualizerModal()">
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Select your preferred color palette and atmospheric glow:</p>
+            <div class="theme-grid" id="theme-selector-grid">
+              <div class="theme-card active" data-theme="dark" onclick="XeceayApp.setTheme('dark', this)">
+                <div class="theme-preview-dots">
+                  <div class="theme-dot" style="background:#12151E;"></div>
+                  <div class="theme-dot" style="background:#8B5CF6;"></div>
+                </div>
+                <div class="theme-name">Midnight Slate</div>
+              </div>
+              <div class="theme-card" data-theme="cyberpunk" onclick="XeceayApp.setTheme('cyberpunk', this)">
+                <div class="theme-preview-dots">
+                  <div class="theme-dot" style="background:#FF00FF;"></div>
+                  <div class="theme-dot" style="background:#00FFFF;"></div>
+                </div>
+                <div class="theme-name">Cyberpunk Neon</div>
+              </div>
+              <div class="theme-card" data-theme="glass" onclick="XeceayApp.setTheme('glass', this)">
+                <div class="theme-preview-dots">
+                  <div class="theme-dot" style="background:rgba(20,20,30,0.9);"></div>
+                  <div class="theme-dot" style="background:#38BDF8;"></div>
+                </div>
+                <div class="theme-name">Glassmorphism</div>
+              </div>
+              <div class="theme-card" data-theme="emerald" onclick="XeceayApp.setTheme('emerald', this)">
+                <div class="theme-preview-dots">
+                  <div class="theme-dot" style="background:#06110D;"></div>
+                  <div class="theme-dot" style="background:#10B981;"></div>
+                </div>
+                <div class="theme-name">Emerald Forest</div>
+              </div>
+              <div class="theme-card" data-theme="light" onclick="XeceayApp.setTheme('light', this)">
+                <div class="theme-preview-dots">
+                  <div class="theme-dot" style="background:#FFFFFF;"></div>
+                  <div class="theme-dot" style="background:#6366F1;"></div>
+                </div>
+                <div class="theme-name">Clean Light</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AUDIO ENGINE & QUALITY CARD -->
+          <div class="yt-downloader-card">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:8px;">
+              <svg class="ico" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span>Audio Processing & Quality</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Streaming & Download Bitrate:</div>
+            <div class="chip-row" id="audio-quality-chips" style="margin-top:2px;margin-bottom:12px;">
+              <div class="chip active" onclick="XeceayApp.setAudioQuality('Hi-Res FLAC Lossless (24-bit/96kHz)', this)">Hi-Res FLAC</div>
+              <div class="chip" onclick="XeceayApp.setAudioQuality('Extreme Quality (320kbps MP3)', this)">Extreme 320k</div>
+              <div class="chip" onclick="XeceayApp.setAudioQuality('Standard (192kbps MP3)', this)">Standard 192k</div>
+            </div>
+
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Gapless Crossfade Transition:</div>
+            <div class="chip-row" id="crossfade-chips" style="margin-top:2px;margin-bottom:12px;">
+              <div class="chip active" onclick="XeceayApp.setCrossfade(0, this)">Off</div>
+              <div class="chip" onclick="XeceayApp.setCrossfade(2, this)">2s</div>
+              <div class="chip" onclick="XeceayApp.setCrossfade(4, this)">4s</div>
+              <div class="chip" onclick="XeceayApp.setCrossfade(8, this)">8s</div>
+            </div>
+
+            <div class="song-row" style="margin-top:4px;background:rgba(255,255,255,0.04);" onclick="XeceayApp.openEqualizerModal()">
               <div class="song-info">
                 <div class="song-name">10-Band Equalizer & Bass Boost</div>
                 <div id="settings-eq-summary" class="song-meta">Preset: Normal • Hardware DSP</div>
@@ -387,6 +449,37 @@
               <span class="badge">Configure</span>
             </div>
           </div>
+
+          <!-- NETWORK & DATA PREFERENCES CARD -->
+          <div class="yt-downloader-card">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:6px;">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              <span>Network & Offline Preferences</span>
+            </div>
+            <div class="setting-item-row">
+              <div>
+                <div class="setting-label-title">Download Over Wi-Fi Only</div>
+                <div class="setting-label-sub">Prevent large music and video downloads over mobile data</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-wifi" onchange="XeceayApp.toggleWifiOnly(this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-item-row">
+              <div>
+                <div class="setting-label-title">Ultra HD Artwork Preload</div>
+                <div class="setting-label-sub">Fetch high-resolution cover arts for lockscreen and player</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-hd-art" checked onchange="XeceayApp.toggleHdArt(this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- STORAGE & MAINTENANCE CARD -->
+          <div id="settings-storage-card" class="yt-downloader-card"></div>
         </section>
 
       </main>

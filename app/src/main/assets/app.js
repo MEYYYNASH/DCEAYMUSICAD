@@ -168,7 +168,10 @@
       email: "listener@xeceay.app",
       preferences: {
         theme: "dark",
-        audioQuality: "High Quality (320kbps)",
+        audioQuality: "Hi-Res FLAC Lossless (24-bit/96kHz)",
+        crossfade: 0,
+        wifiOnly: false,
+        hdArt: true,
         eqPreset: "Normal",
         githubRepo: "MEYYYNASH/XECEAY"
       }
@@ -195,6 +198,14 @@
     },
     analyzedLink: null
   };
+
+  // Apply saved theme immediately
+  try {
+    const savedTheme = localStorage.getItem("xeceay_theme");
+    if (savedTheme && savedTheme !== "dark") {
+      document.body.classList.add("theme-" + savedTheme);
+    }
+  } catch (_e) {}
 
   let webAudio = null;
   if (!isNative) {
@@ -285,7 +296,14 @@
       if (data.downloads) state.downloads = data.downloads;
       if (data.storage) state.storage = data.storage;
       if (data.versionInfo) state.versionInfo = data.versionInfo;
-      if (data.user) state.user = data.user;
+      if (data.user) {
+        state.user = data.user;
+        if (state.user.preferences && state.user.preferences.theme) {
+          if (window.XeceayApp && window.XeceayApp.setTheme) {
+            window.XeceayApp.setTheme(state.user.preferences.theme, null);
+          }
+        }
+      }
       if (data.playerState && data.playerState.songId) {
         Object.assign(state.player, data.playerState);
         if (state.player.title === "Unstable" || state.player.album === "Fragments" || (state.player.artist && state.player.artist.includes("Mr. Kitty"))) {
@@ -324,6 +342,7 @@
     renderEqualizerModal();
     renderStorageCard();
     updateVersionBadge();
+    syncSettingsUi();
     updatePlayerUiOnly();
   }
 
@@ -783,7 +802,60 @@
         <div>Video: <strong style="color:var(--text-primary);">${formatBytes(st.videoBytes)}</strong></div>
         <div>Tracks: <strong style="color:var(--text-primary);">${st.songCount || state.songs.length}</strong></div>
       </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border-color);">
+        <div style="font-size:11px;color:var(--text-secondary);">Clean temporary artwork and audio buffer</div>
+        <button class="pill-btn" style="font-size:11px;padding:6px 12px;display:flex;align-items:center;gap:6px;" onclick="XeceayApp.clearAppCache()">
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Clear Cache</span>
+        </button>
+      </div>
     `;
+  }
+
+  function syncSettingsUi() {
+    const p = state.user.preferences || {};
+    const currentTheme = p.theme || localStorage.getItem("xeceay_theme") || "dark";
+    const themeGrid = document.getElementById("theme-selector-grid");
+    if (themeGrid) {
+      themeGrid.querySelectorAll(".theme-card").forEach(c => {
+        c.classList.toggle("active", c.getAttribute("data-theme") === currentTheme);
+      });
+    }
+    const pill = document.getElementById("active-theme-pill");
+    const themeLabels = {
+      dark: "Midnight Slate",
+      cyberpunk: "Cyberpunk Neon",
+      glass: "Glassmorphism",
+      emerald: "Emerald Forest",
+      light: "Clean Light"
+    };
+    if (pill) pill.textContent = themeLabels[currentTheme] || "Midnight Slate";
+
+    const qualityChips = document.getElementById("audio-quality-chips");
+    if (qualityChips && p.audioQuality) {
+      qualityChips.querySelectorAll(".chip").forEach(c => {
+        const text = c.textContent.trim().toLowerCase();
+        const pref = (p.audioQuality || "").toLowerCase();
+        c.classList.toggle("active", pref.includes(text.replace(" ", "")));
+      });
+    }
+
+    const crossfadeChips = document.getElementById("crossfade-chips");
+    if (crossfadeChips && p.crossfade !== undefined) {
+      crossfadeChips.querySelectorAll(".chip").forEach(c => {
+        const val = parseInt(c.textContent) || 0;
+        c.classList.toggle("active", val === Number(p.crossfade));
+      });
+    }
+
+    const wifiToggle = document.getElementById("setting-toggle-wifi");
+    if (wifiToggle && p.wifiOnly !== undefined) {
+      wifiToggle.checked = Boolean(p.wifiOnly);
+    }
+    const hdToggle = document.getElementById("setting-toggle-hd-art");
+    if (hdToggle && p.hdArt !== undefined) {
+      hdToggle.checked = Boolean(p.hdArt);
+    }
   }
 
   function updateVersionBadge() {
@@ -977,6 +1049,7 @@
       });
       if (tab === "settings") {
         this.refreshStorageCard();
+        syncSettingsUi();
       }
     },
 
@@ -1349,6 +1422,9 @@
         ? sourceUrl
         : "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY";
       if (isNative) {
+        const prefQuality = (state.user && state.user.preferences && state.user.preferences.audioQuality) || "320kbps";
+        const qualityStr = prefQuality.includes("FLAC") ? "Lossless FLAC" : (prefQuality.includes("192") ? "192kbps" : "320kbps");
+        const chosenFormat = (prefQuality.includes("FLAC") && (!mediaType || mediaType === "audio")) ? "FLAC" : (format || "MP3");
         const res = JSON.parse(
           window.XeceayNative.enqueueDownload(
             title || "Track",
@@ -1357,8 +1433,8 @@
             "Khmer & Global",
             artworkUri || DEFAULT_ART,
             safeSource,
-            format || "MP3",
-            "320kbps",
+            chosenFormat,
+            qualityStr,
             mediaType || "audio"
           )
         );
@@ -1703,14 +1779,99 @@
     },
 
     setTheme(themeName, el) {
-      document.body.classList.remove("theme-light", "theme-glass");
-      if (themeName === "light") document.body.classList.add("theme-light");
-      if (themeName === "glass") document.body.classList.add("theme-glass");
+      document.body.classList.remove("theme-light", "theme-glass", "theme-cyberpunk", "theme-emerald");
+      if (themeName && themeName !== "dark") {
+        document.body.classList.add("theme-" + themeName);
+      }
+      const grid = document.getElementById("theme-selector-grid");
+      if (grid) {
+        grid.querySelectorAll(".theme-card").forEach(c => {
+          c.classList.toggle("active", c.getAttribute("data-theme") === themeName);
+        });
+      }
+      const pill = document.getElementById("active-theme-pill");
+      const themeLabels = {
+        dark: "Midnight Slate",
+        cyberpunk: "Cyberpunk Neon",
+        glass: "Glassmorphism",
+        emerald: "Emerald Forest",
+        light: "Clean Light"
+      };
+      const label = themeLabels[themeName] || "Midnight Slate";
+      if (pill) pill.textContent = label;
+
+      state.user.preferences.theme = themeName;
+      try {
+        localStorage.setItem("xeceay_theme", themeName);
+        if (isNative && window.XeceayNative && window.XeceayNative.saveUserProfile) {
+          window.XeceayNative.saveUserProfile(state.user.displayName, state.user.email, JSON.stringify(state.user.preferences));
+        }
+      } catch (_e) {}
+      if (el) {
+        showToast(`Theme applied: ${label}`);
+      }
+    },
+
+    setAudioQuality(quality, el) {
+      state.user.preferences.audioQuality = quality;
       if (el && el.parentElement) {
         el.parentElement.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
         el.classList.add("active");
       }
-      state.user.preferences.theme = themeName;
+      try {
+        localStorage.setItem("xeceay_audio_quality", quality);
+        if (isNative && window.XeceayNative && window.XeceayNative.saveUserProfile) {
+          window.XeceayNative.saveUserProfile(state.user.displayName, state.user.email, JSON.stringify(state.user.preferences));
+        }
+      } catch (_e) {}
+      showToast(`Audio quality: ${quality.split(" ")[0] || quality}`);
+    },
+
+    setCrossfade(seconds, el) {
+      state.user.preferences.crossfade = Number(seconds);
+      if (el && el.parentElement) {
+        el.parentElement.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        el.classList.add("active");
+      }
+      try {
+        localStorage.setItem("xeceay_crossfade", String(seconds));
+        if (isNative && window.XeceayNative && window.XeceayNative.saveUserProfile) {
+          window.XeceayNative.saveUserProfile(state.user.displayName, state.user.email, JSON.stringify(state.user.preferences));
+        }
+      } catch (_e) {}
+      showToast(seconds > 0 ? `Gapless Crossfade: ${seconds}s` : "Crossfade disabled");
+    },
+
+    toggleWifiOnly(checked) {
+      state.user.preferences.wifiOnly = checked;
+      try {
+        localStorage.setItem("xeceay_wifi_only", String(checked));
+        if (isNative && window.XeceayNative && window.XeceayNative.saveUserProfile) {
+          window.XeceayNative.saveUserProfile(state.user.displayName, state.user.email, JSON.stringify(state.user.preferences));
+        }
+      } catch (_e) {}
+      showToast(checked ? "Download Wi-Fi Only: ON" : "Download Wi-Fi Only: OFF");
+    },
+
+    toggleHdArt(checked) {
+      state.user.preferences.hdArt = checked;
+      try {
+        localStorage.setItem("xeceay_hd_art", String(checked));
+        if (isNative && window.XeceayNative && window.XeceayNative.saveUserProfile) {
+          window.XeceayNative.saveUserProfile(state.user.displayName, state.user.email, JSON.stringify(state.user.preferences));
+        }
+      } catch (_e) {}
+      showToast(checked ? "Ultra HD Artwork: ON" : "Ultra HD Artwork: OFF");
+    },
+
+    clearAppCache() {
+      if (isNative && window.XeceayNative && window.XeceayNative.clearAppCache) {
+        try {
+          window.XeceayNative.clearAppCache();
+        } catch (_e) {}
+      }
+      this.refreshStorageCard();
+      showToast("Cache cleared! Device storage optimized.");
     },
 
     refreshStorageCard() {

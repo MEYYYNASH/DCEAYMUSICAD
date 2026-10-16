@@ -1,7 +1,6 @@
 package com.xeceay.music;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.PlaybackParams;
@@ -12,6 +11,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,9 +35,9 @@ public class AudioPlayerEngine {
     private BassBoost bassBoost;
 
     private String currentSongId = "";
-    private String currentTitle = "Unstable";
-    private String currentArtist = "Mr. Kitty";
-    private String currentAlbum = "Fragments";
+    private String currentTitle = "Time To Rise";
+    private String currentArtist = "VannDa វណ្ណដា";
+    private String currentAlbum = "Khmer Top Hits";
     private String currentArtwork = "";
     private boolean isPrepared = false;
     private float playbackSpeed = 1.0f;
@@ -47,7 +47,7 @@ public class AudioPlayerEngine {
     private int bassStrength = 150;
     private long sleepTimerEndMs = 0L;
 
-    private int targetDurationMs = 172000;
+    private int targetDurationMs = 196000;
     private int virtualOffsetMs = 0;
     private boolean triedLocalFallback = false;
 
@@ -67,7 +67,7 @@ public class AudioPlayerEngine {
                     }
                     emitState("tick");
                 }
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
             handler.postDelayed(this, 750L);
         }
@@ -113,6 +113,10 @@ public class AudioPlayerEngine {
                             .setUsage(AudioAttributes.USAGE_MEDIA)
                             .build()
             );
+            try {
+                mp.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
+            } catch (Throwable ignored) {
+            }
 
             String cleanRef = sourceRef != null ? sourceRef.trim() : "";
             if (cleanRef.isEmpty() || isFallbackAttempt) {
@@ -126,7 +130,7 @@ public class AudioPlayerEngine {
                 mp.setDataSource(context, Uri.parse(cleanRef));
             } else {
                 File file = new File(cleanRef);
-                if (file.exists() && file.length() > 256L) {
+                if (file.exists() && file.length() > 512L) {
                     mp.setDataSource(file.getAbsolutePath());
                 } else {
                     File fallbackFile = getGuaranteedLocalFallbackFile(currentSongId, currentTitle);
@@ -135,27 +139,33 @@ public class AudioPlayerEngine {
             }
 
             mp.setOnPreparedListener(player -> {
-                isPrepared = true;
-                int actualDur = Math.max(1000, player.getDuration());
-                if (actualDur >= 60000) {
-                    targetDurationMs = actualDur;
-                } else {
-                    // Extend 30-second catalog streams to full song length (3m 16s)
-                    targetDurationMs = Math.max(targetDurationMs, 196000);
-                }
+                try {
+                    isPrepared = true;
+                    int actualDur = Math.max(1000, player.getDuration());
+                    if (actualDur >= 60000) {
+                        targetDurationMs = actualDur;
+                    } else {
+                        targetDurationMs = Math.max(targetDurationMs, 196000);
+                    }
 
-                player.setVolume(volumeLevel, volumeLevel);
-                applyPlaybackSpeedInternal(player);
-                attachAudioEffects(player.getAudioSessionId());
-                if (startPositionMs > 0) {
-                    seekToInternal(player, startPositionMs, actualDur);
+                    player.setVolume(volumeLevel, volumeLevel);
+                    if (startPositionMs > 0) {
+                        seekToInternal(player, startPositionMs, actualDur);
+                    }
+                    player.start();
+                    if (Math.abs(playbackSpeed - 1.0f) > 0.02f) {
+                        applyPlaybackSpeedInternal(player);
+                    }
+                    if (!"Normal".equals(currentPreset)) {
+                        attachAudioEffects(player.getAudioSessionId());
+                    }
+                    if (!currentSongId.isEmpty()) {
+                        database.recordPlayback(currentSongId, startPositionMs, true);
+                    }
+                    updateForegroundService(true);
+                    emitState("playing");
+                } catch (Throwable ignored) {
                 }
-                player.start();
-                if (!currentSongId.isEmpty()) {
-                    database.recordPlayback(currentSongId, startPositionMs, true);
-                }
-                updateForegroundService(true);
-                emitState("playing");
             });
 
             mp.setOnCompletionListener(player -> {
@@ -168,7 +178,7 @@ public class AudioPlayerEngine {
                         emitState("tick");
                         return;
                     }
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
                 virtualOffsetMs = 0;
                 emitState("ended");
@@ -186,7 +196,7 @@ public class AudioPlayerEngine {
 
             mp.prepareAsync();
             emitState("loading");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             isPrepared = false;
             if (!triedLocalFallback) {
                 triedLocalFallback = true;
@@ -198,14 +208,18 @@ public class AudioPlayerEngine {
     private File getGuaranteedLocalFallbackFile(String songId, String title) {
         File musicDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), "XECEAY");
         if (!musicDir.exists()) musicDir.mkdirs();
-        File[] files = musicDir.listFiles((dir, name) -> name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".m4a"));
+        File[] files = musicDir.listFiles((dir, name) ->
+                (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".m4a"))
+                        && new File(dir, name).length() > 4096L
+        );
         if (files != null && files.length > 0) {
-            int idx = Math.abs((songId + title).hashCode()) % files.length;
+            int hash = ((songId != null ? songId : "") + (title != null ? title : "")).hashCode() & 0x7FFFFFFF;
+            int idx = hash % files.length;
             return files[idx];
         }
-        File fallback = new File(musicDir, "xeceay_unstable_mrkitty.wav");
-        if (!fallback.exists()) {
-            WavGenerator.writeSynthesizedWavFast(fallback, 172, new double[]{220.0, 261.63, 329.63, 392.0, 440.0, 392.0, 329.63, 261.63}, 116);
+        File fallback = new File(musicDir, "xeceay_vannda_time_to_rise.wav");
+        if (!fallback.exists() || fallback.length() < 4096L) {
+            WavGenerator.writeSynthesizedWavFast(fallback, 196, new double[]{261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 440.0, 392.0}, 96);
         }
         return fallback;
     }
@@ -215,7 +229,7 @@ public class AudioPlayerEngine {
         try {
             int pos = virtualOffsetMs + Math.max(0, mediaPlayer.getCurrentPosition());
             return Math.min(pos, getEffectiveDurationMs());
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
             return 0;
         }
     }
@@ -225,60 +239,76 @@ public class AudioPlayerEngine {
         try {
             int actual = Math.max(0, mediaPlayer.getDuration());
             return Math.max(actual, targetDurationMs);
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
             return targetDurationMs;
         }
     }
 
     private void seekToInternal(MediaPlayer player, int positionMs, int actualDur) {
-        int clamped = Math.max(0, Math.min(getEffectiveDurationMs(), positionMs));
-        if (actualDur < 55000 && targetDurationMs > actualDur) {
-            virtualOffsetMs = (clamped / actualDur) * actualDur;
-            player.seekTo(clamped % actualDur);
-        } else {
-            virtualOffsetMs = 0;
-            player.seekTo(Math.min(actualDur, clamped));
+        try {
+            int clamped = Math.max(0, Math.min(getEffectiveDurationMs(), positionMs));
+            if (actualDur < 55000 && targetDurationMs > actualDur) {
+                virtualOffsetMs = (clamped / actualDur) * actualDur;
+                player.seekTo(clamped % actualDur);
+            } else {
+                virtualOffsetMs = 0;
+                player.seekTo(Math.min(actualDur, clamped));
+            }
+        } catch (Throwable ignored) {
         }
     }
 
     public boolean togglePlayPause() {
-        if (mediaPlayer == null || !isPrepared) return false;
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            updateForegroundService(false);
-            emitState("paused");
+        try {
+            if (mediaPlayer == null || !isPrepared) return false;
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                updateForegroundService(false);
+                emitState("paused");
+                return false;
+            } else {
+                mediaPlayer.start();
+                updateForegroundService(true);
+                emitState("playing");
+                return true;
+            }
+        } catch (Throwable ignored) {
             return false;
-        } else {
-            mediaPlayer.start();
-            updateForegroundService(true);
-            emitState("playing");
-            return true;
         }
     }
 
     public void pause() {
-        if (mediaPlayer != null && isPrepared && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            updateForegroundService(false);
-            emitState("paused");
+        try {
+            if (mediaPlayer != null && isPrepared && mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                updateForegroundService(false);
+                emitState("paused");
+            }
+        } catch (Throwable ignored) {
         }
     }
 
     public void seekTo(int positionMs) {
-        if (mediaPlayer != null && isPrepared) {
-            int actualDur = Math.max(1000, mediaPlayer.getDuration());
-            seekToInternal(mediaPlayer, positionMs, actualDur);
-            if (!currentSongId.isEmpty()) {
-                database.recordPlayback(currentSongId, getEffectivePositionMs(), false);
+        try {
+            if (mediaPlayer != null && isPrepared) {
+                int actualDur = Math.max(1000, mediaPlayer.getDuration());
+                seekToInternal(mediaPlayer, positionMs, actualDur);
+                if (!currentSongId.isEmpty()) {
+                    database.recordPlayback(currentSongId, getEffectivePositionMs(), false);
+                }
+                emitState("seeked");
             }
-            emitState("seeked");
+        } catch (Throwable ignored) {
         }
     }
 
     public void setVolume(float volume) {
         volumeLevel = Math.max(0f, Math.min(1f, volume));
-        if (mediaPlayer != null) {
-            mediaPlayer.setVolume(volumeLevel, volumeLevel);
+        try {
+            if (mediaPlayer != null && isPrepared) {
+                mediaPlayer.setVolume(volumeLevel, volumeLevel);
+            }
+        } catch (Throwable ignored) {
         }
         emitState("volume");
     }
@@ -300,7 +330,7 @@ public class AudioPlayerEngine {
                 if (!wasPlaying) {
                     mp.pause();
                 }
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }
@@ -338,11 +368,19 @@ public class AudioPlayerEngine {
             }
         }
         bassStrength = Math.max(0, Math.min(1000, bassVal));
-        applyAudioEffectsSettings();
+        if (mediaPlayer != null && isPrepared && equalizer == null) {
+            try {
+                attachAudioEffects(mediaPlayer.getAudioSessionId());
+            } catch (Throwable ignored) {
+            }
+        } else {
+            applyAudioEffectsSettings();
+        }
         emitState("equalizer");
     }
 
     private void attachAudioEffects(int sessionId) {
+        if (sessionId <= 0) return;
         try {
             if (equalizer != null) equalizer.release();
             if (bassBoost != null) bassBoost.release();
@@ -351,7 +389,7 @@ public class AudioPlayerEngine {
             bassBoost = new BassBoost(0, sessionId);
             bassBoost.setEnabled(true);
             applyAudioEffectsSettings();
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -371,7 +409,7 @@ public class AudioPlayerEngine {
             if (bassBoost != null && bassBoost.getStrengthSupported()) {
                 bassBoost.setStrength((short) bassStrength);
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
     }
 
@@ -389,7 +427,10 @@ public class AudioPlayerEngine {
     }
 
     private void emitState(String event) {
-        callback.onStateChanged(buildStateJson(event));
+        try {
+            callback.onStateChanged(buildStateJson(event));
+        } catch (Throwable ignored) {
+        }
     }
 
     private JSONObject buildStateJson(String event) {
@@ -403,7 +444,7 @@ public class AudioPlayerEngine {
                     playing = mediaPlayer.isPlaying();
                     position = getEffectivePositionMs();
                     duration = getEffectiveDurationMs();
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
             int sleepRem = sleepTimerEndMs > System.currentTimeMillis()
@@ -429,42 +470,34 @@ public class AudioPlayerEngine {
             obj.put("eqBands", bandsArr);
             obj.put("bassStrength", bassStrength);
             obj.put("sleepRemainingSec", sleepRem);
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
         return obj;
     }
 
     private void updateForegroundService(boolean isPlaying) {
         try {
-            Intent intent = new Intent(context, MusicPlaybackService.class);
-            intent.putExtra("title", currentTitle);
-            intent.putExtra("artist", currentArtist);
-            intent.putExtra("isPlaying", isPlaying);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isPlaying) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
-        } catch (Exception ignored) {
+            MusicPlaybackService.updateNotificationSafely(context, currentTitle, currentArtist, isPlaying);
+        } catch (Throwable ignored) {
         }
     }
 
     private void releasePlayerOnly() {
         try {
             if (equalizer != null) {
-                equalizer.release();
+                try { equalizer.release(); } catch (Throwable ignored) {}
                 equalizer = null;
             }
             if (bassBoost != null) {
-                bassBoost.release();
+                try { bassBoost.release(); } catch (Throwable ignored) {}
                 bassBoost = null;
             }
             if (mediaPlayer != null) {
-                mediaPlayer.reset();
-                mediaPlayer.release();
+                try { mediaPlayer.reset(); } catch (Throwable ignored) {}
+                try { mediaPlayer.release(); } catch (Throwable ignored) {}
                 mediaPlayer = null;
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
     }
 

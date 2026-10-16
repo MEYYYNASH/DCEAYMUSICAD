@@ -59,11 +59,9 @@ public final class WavGenerator {
         }
         List<SeedTrack> list = new ArrayList<>();
         Object[][] specs = new Object[][]{
-                {"seed_1", "xeceay_unstable_mrkitty.wav", "Unstable", "Mr. Kitty", "Fragments", "Electronic", 172, new double[]{220.0, 261.63, 329.63, 392.0, 440.0, 392.0, 329.63, 261.63}, 116, "#1E293B", "#64748B"},
                 {"seed_2", "xeceay_vannda_time_to_rise.wav", "Time To Rise (feat. Master Kong Nay)", "VannDa វណ្ណដា", "Khmer Top Hits", "Khmer Music", 196, new double[]{261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 440.0, 392.0}, 96, "#4C1D95", "#F59E0B"},
                 {"seed_3", "xeceay_sulypheng_pi_neak.wav", "ពីរនាក់បានហើយ (Two Of Us)", "Suly Pheng ស៊ូលីផេង", "Khmer Acoustic Vibes", "Khmer Music", 184, new double[]{196.0, 246.94, 293.66, 349.23, 392.0, 349.23, 293.66, 246.94}, 84, "#0F172A", "#3B82F6"},
                 {"seed_4", "xeceay_tena_kong_sakour.wav", "កង់សាគួរ (Spare Wheel)", "Tena ថេណា", "Khmer Modern Pop", "Khmer Music", 192, new double[]{246.94, 293.66, 329.63, 392.0, 440.0, 392.0, 329.63, 293.66}, 90, "#1E1B4B", "#EC4899"},
-                {"seed_5", "xeceay_insects_mrkitty.wav", "Insects", "Mr. Kitty", "Fragments", "Electronic", 236, new double[]{164.81, 196.0, 246.94, 293.66, 329.63, 293.66, 246.94, 196.0}, 124, "#111827", "#6366F1"},
                 {"seed_6", "xeceay_sinn_sisamouth_champa.wav", "ចំប៉ាបាត់ដំបង (Champa Battambang)", "Sinn Sisamouth ស៊ីន ស៊ីសាមុត", "Golden Khmer Classics", "Khmer Music", 204, new double[]{293.66, 329.63, 392.0, 440.0, 493.88, 440.0, 392.0, 329.63}, 88, "#064E3B", "#10B981"}
         };
 

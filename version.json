@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.5",
-  "versionCode": 105,
-  "tagName": "v1.0.5",
-  "releaseTitle": "XECEAY v1.0.5 — New Luxury Adaptive Launcher Icon & Audiophile UI Icons",
-  "changelog": "Upgraded Android Adaptive Launcher Icon (gradient studio headphones + harmonic equalizer core), Android 13-16 monochrome themed icon, and sleek rounded in-app SVG icons.",
+  "versionName": "1.0.6",
+  "versionCode": 106,
+  "tagName": "v1.0.6",
+  "releaseTitle": "XECEAY v1.0.6 — Crash Fix for Recommended Songs & Clean Khmer Home Screen",
+  "changelog": "Fixed Android 14/15/16 playback crash on Recommended for You songs, removed static Fragments/Mr. Kitty demo block from Home Screen, and upgraded Home with clean Khmer & Global music discovery.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

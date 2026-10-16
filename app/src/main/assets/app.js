@@ -24,7 +24,7 @@
 
   const GENRES = [
     "All", "🇰🇭 Khmer Top Hits", "វណ្ណដា VannDa", "ថេណា Tena", "ស៊ូលីផេង Suly Pheng",
-    "ស៊ីន ស៊ីសាមុត", "ខេមរៈ សិរីមន្ត", "មាស សុខសោភា", "G-Devith", "Mr. Kitty", "Electronic", "Lo-fi"
+    "ស៊ីន ស៊ីសាមុត", "ខេមរៈ សិរីមន្ត", "មាស សុខសោភា", "G-Devith", "Acoustic", "Pop", "Lo-fi"
   ];
 
   const EQ_PRESETS = {
@@ -47,13 +47,24 @@
     8, 22, 38, 28, 16, 26, 36, 20, 12, 18, 28, 22, 14, 20, 26, 16, 10, 16, 22, 14, 8, 5, 3, 3, 3, 3
   ];
 
-  // Silhouette Artwork matching "Fragments / Unstable - Mr. Kitty" in Reference Image
-  function makeFragmentsCatUri() {
+  function makeVinylArtworkSvg(title, artist, c1, c2) {
+    const col1 = c1 || "#8B5CF6";
+    const col2 = c2 || "#22D3EE";
+    const initials = (title || "X").slice(0, 2).toUpperCase();
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
-      <rect width="300" height="300" rx="36" fill="#FFFFFF"/>
-      <path d="M110 295 C115 215 128 175 138 158 C122 152 115 138 118 124 C95 124 85 112 88 95 C92 80 105 72 118 65 C124 48 145 42 175 46 C205 50 225 72 224 102 C223 122 214 136 204 146 C218 178 232 230 238 295 Z" fill="#181C24"/>
-      <path d="M88 95 C92 84 106 76 120 75 C118 92 118 110 122 122 C102 122 87 110 88 95 Z" fill="#CBD5E1"/>
-      <circle cx="104" cy="96" r="5" fill="#0F172A"/>
+      <defs>
+        <linearGradient id="vg_${initials}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${col1}"/>
+          <stop offset="100%" stop-color="${col2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="300" height="300" rx="36" fill="#131826"/>
+      <circle cx="150" cy="150" r="115" fill="#0B0D13" stroke="url(#vg_${initials})" stroke-width="4"/>
+      <circle cx="150" cy="150" r="90" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5"/>
+      <circle cx="150" cy="150" r="65" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5"/>
+      <circle cx="150" cy="150" r="42" fill="url(#vg_${initials})"/>
+      <circle cx="150" cy="150" r="12" fill="#131826"/>
+      <text x="150" y="240" font-family="-apple-system, sans-serif" font-weight="800" font-size="14" fill="#94A3B8" text-anchor="middle" letter-spacing="1.5">XECEAY HI-FI</text>
     </svg>`;
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
@@ -63,52 +74,10 @@
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
 
-  const FRAGMENTS_ART = makeFragmentsCatUri();
+  const DEFAULT_ART = makeVinylArtworkSvg("XECEAY", "Khmer & Global", "#8B5CF6", "#22D3EE");
 
-  // Full-Length Khmer & Global Default Catalog (Matches Reference Screenshot + Khmer Top Hits!)
+  // Full-Length Khmer & Global Default Catalog
   const AUTHORIZED_CATALOG = [
-    {
-      id: "seed_5",
-      title: "Insects",
-      artist: "Mr. Kitty",
-      album: "Fragments",
-      genre: "Electronic",
-      duration: 236000,
-      format: "MP3",
-      quality: "320kbps",
-      fileSize: 4820000,
-      sourceReference: "",
-      downloadable: true,
-      artworkUri: FRAGMENTS_ART
-    },
-    {
-      id: "cat_heaven",
-      title: "Heaven",
-      artist: "Mr. Kitty",
-      album: "Fragments",
-      genre: "Electronic",
-      duration: 283000,
-      format: "MP3",
-      quality: "320kbps",
-      fileSize: 5420000,
-      sourceReference: "",
-      downloadable: true,
-      artworkUri: FRAGMENTS_ART
-    },
-    {
-      id: "seed_1",
-      title: "Unstable",
-      artist: "Mr. Kitty",
-      album: "Fragments",
-      genre: "Electronic",
-      duration: 172000,
-      format: "MP3",
-      quality: "320kbps",
-      fileSize: 3980000,
-      sourceReference: "",
-      downloadable: true,
-      artworkUri: FRAGMENTS_ART
-    },
     {
       id: "seed_2",
       title: "Time To Rise (feat. Master Kong Nay)",
@@ -205,15 +174,15 @@
       }
     },
     player: {
-      songId: "seed_1",
-      title: "Unstable",
-      artist: "Mr. Kitty",
-      album: "Fragments",
-      artworkUri: FRAGMENTS_ART,
-      format: "WAV",
+      songId: "seed_2",
+      title: "Time To Rise",
+      artist: "VannDa វណ្ណដា",
+      album: "Khmer Top Hits",
+      artworkUri: DEFAULT_ART,
+      format: "MP3",
       isPlaying: false,
-      positionMs: 64000,
-      durationMs: 172000,
+      positionMs: 0,
+      durationMs: 302000,
       speed: 1.0,
       volume: 0.9,
       shuffle: false,
@@ -299,22 +268,35 @@
       const raw = window.XeceayNative.getBootstrapData();
       const data = JSON.parse(raw);
       if (data.songs) {
-        state.songs = data.songs.map(s => {
-          if (s.title === "Unstable" || s.title === "Insects") {
-            s.artworkUri = FRAGMENTS_ART;
-          }
+        state.songs = data.songs.filter(s =>
+          s.album !== "Fragments" &&
+          !(s.artist && s.artist.includes("Mr. Kitty")) &&
+          s.title !== "Unstable" &&
+          s.title !== "Insects" &&
+          s.title !== "Heaven"
+        ).map(s => {
+          if (!s.artworkUri) s.artworkUri = DEFAULT_ART;
           return s;
         });
       }
-      if (data.playlists) state.playlists = data.playlists;
+      if (data.playlists) {
+        state.playlists = data.playlists.filter(p => !p.name.includes("Fragments"));
+      }
       if (data.downloads) state.downloads = data.downloads;
       if (data.storage) state.storage = data.storage;
       if (data.versionInfo) state.versionInfo = data.versionInfo;
       if (data.user) state.user = data.user;
       if (data.playerState && data.playerState.songId) {
         Object.assign(state.player, data.playerState);
-        if (state.player.title === "Unstable" || state.player.title === "Insects") {
-          state.player.artworkUri = FRAGMENTS_ART;
+        if (state.player.title === "Unstable" || state.player.album === "Fragments" || (state.player.artist && state.player.artist.includes("Mr. Kitty"))) {
+          const first = state.songs[0] || AUTHORIZED_CATALOG[0];
+          state.player.songId = first.id;
+          state.player.title = first.title;
+          state.player.artist = first.artist;
+          state.player.album = first.album || "Khmer & Global Hi-Fi";
+          state.player.artworkUri = first.artworkUri || DEFAULT_ART;
+          state.player.durationMs = first.duration || 196000;
+          state.player.format = first.format || "MP3";
         }
       } else if (state.songs.length > 0 && !state.player.songId) {
         const first = state.songs[0];
@@ -322,9 +304,9 @@
         state.player.title = first.title;
         state.player.artist = first.artist;
         state.player.album = first.album;
-        state.player.artworkUri = first.artworkUri || FRAGMENTS_ART;
-        state.player.durationMs = first.duration || 172000;
-        state.player.format = first.format || "WAV";
+        state.player.artworkUri = first.artworkUri || DEFAULT_ART;
+        state.player.durationMs = first.duration || 196000;
+        state.player.format = first.format || "MP3";
       }
       renderAll();
     } catch (e) {
@@ -378,44 +360,12 @@
   }
 
   function renderHomeSections() {
-    // Update Featured Hero Header (Matches Right Phone in Reference!)
-    const heroArt = document.getElementById("home-hero-art");
-    const heroTitle = document.getElementById("home-hero-title");
-    const heroArtist = document.getElementById("home-hero-artist");
-    const heroMeta = document.getElementById("home-hero-meta");
-
-    const activeList = state.liveDiscovery.length > 0
-      ? state.liveDiscovery
-      : [...AUTHORIZED_CATALOG, ...state.songs.filter(s => !AUTHORIZED_CATALOG.some(a => a.id === s.id))];
-
-    if (heroArt) {
-      heroArt.src = state.player.artworkUri || FRAGMENTS_ART;
-    }
-    if (heroTitle) {
-      heroTitle.textContent = state.selectedGenre === "All" ? "Fragments" : state.selectedGenre;
-    }
-    if (heroArtist) {
-      heroArtist.textContent = state.selectedGenre === "All" ? "Mr. Kitty • VannDa វណ្ណដា" : (state.player.artist || "Khmer & Global Server");
-    }
-    if (heroMeta) {
-      heroMeta.textContent = `Album • ${activeList.length} songs • 2026`;
-    }
-
-    // 1. Numbered Tracklist directly under Play/Shuffle (Matches Right Phone: 01 Insects, 02 Heaven, 03 Unstable with equalizer bars!)
-    const dlListEl = document.getElementById("home-downloadable-list");
-    if (dlListEl) {
-      const topTracks = state.selectedGenre === "All"
-        ? [...AUTHORIZED_CATALOG, ...state.liveDiscovery.slice(0, 6)]
-        : (state.liveDiscovery.length > 0 ? state.liveDiscovery.slice(0, 12) : AUTHORIZED_CATALOG);
-      dlListEl.innerHTML = topTracks.map((item, idx) => renderDownloadableTrackRow(item, idx)).join("");
-    }
-
-    // 2. Recommended for You (Khmer & Global Server — Zero Error Playback!)
+    // 1. Recommended for You (Khmer & Global Server — Zero Error Playback!)
     const trendEl = document.getElementById("home-trending-carousel");
     if (trendEl) {
       const items = state.liveDiscovery.length > 0 ? state.liveDiscovery : AUTHORIZED_CATALOG;
       trendEl.innerHTML = items.map((item, idx) => {
-        const art = item.artworkUri || FRAGMENTS_ART;
+        const art = item.artworkUri || DEFAULT_ART;
         return `
           <div class="media-card" onclick="XeceayApp.playDiscoveryItem(${idx})">
             <div class="media-art-wrap">
@@ -431,14 +381,14 @@
       }).join("");
     }
 
-    // 3. Continue Listening Large Horizontal Cards
+    // 2. Continue Listening Large Horizontal Cards
     const contEl = document.getElementById("home-continue-carousel");
     if (contEl) {
       const list = state.songs.length > 0 ? state.songs.slice(0, 8) : AUTHORIZED_CATALOG;
       contEl.innerHTML = list.map(song => `
         <div class="continue-card" onclick="XeceayApp.playSongById('${escapeAttr(song.id)}')">
           <div class="continue-art-wrap">
-            <img src="${song.artworkUri || FRAGMENTS_ART}" alt="" />
+            <img src="${song.artworkUri || DEFAULT_ART}" alt="" />
             <div class="white-play-fab">
               ${state.player.songId === song.id && state.player.isPlaying ? SVG.pause : SVG.play}
             </div>
@@ -448,12 +398,41 @@
         </div>
       `).join("");
     }
+
+    // 3. Popular Khmer & Global Songs List
+    const popEl = document.getElementById("home-popular-list");
+    if (popEl) {
+      const topTracks = state.liveDiscovery.length > 0 ? state.liveDiscovery : AUTHORIZED_CATALOG;
+      popEl.innerHTML = topTracks.map((item, idx) => renderDownloadableTrackRow(item, idx)).join("");
+    }
   }
 
   function renderDownloadableTrackRow(item, idx) {
     const isPlaying = state.player.songId === item.id || (state.player.title === item.title && state.player.artist === item.artist);
     const numStr = String(idx + 1).padStart(2, "0");
-    const art = item.artworkUri || FRAGMENTS_ART;
+    const art = item.artworkUri || DEFAULT_ART;
+    const dur = item.duration && item.duration >= 60000 ? item.duration : 196000;
+    return `
+      <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur})">
+        <div class="track-num-col">${isPlaying ? SVG.eqBars : numStr}</div>
+        <div class="song-info">
+          <div class="song-name">${escapeHtml(item.title)}</div>
+          <div class="song-meta">
+            <span>${escapeHtml(item.artist)}  •  ${formatDuration(dur)}</span>
+          </div>
+        </div>
+        <div class="song-actions" onclick="event.stopPropagation()">
+          <button class="dl-format-pill" title="Download Full MP3" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP3','audio')">
+            ${SVG.download}
+            <span>MP3</span>
+          </button>
+          <button class="icon-btn" title="More Options" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP4','video')">
+            ${SVG.moreDots}
+          </button>
+        </div>
+      </div>
+    `;
+  }
     const dur = item.duration && item.duration >= 60000 ? item.duration : 196000;
     return `
       <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur})">
@@ -601,7 +580,7 @@
     const heroArt = document.getElementById("lib-hero-art");
     const heroCount = document.getElementById("lib-hero-count");
     if (heroArt) {
-      heroArt.src = (state.songs[0] && state.songs[0].artworkUri) || FRAGMENTS_ART;
+      heroArt.src = (state.songs[0] && state.songs[0].artworkUri) || DEFAULT_ART;
     }
     if (heroCount) {
       heroCount.textContent = `Library • ${state.songs.length} songs • 2026`;
@@ -654,7 +633,7 @@
       });
       area.innerHTML = Object.values(byAlbum).map(alb => `
         <div class="song-row" onclick="XeceayApp.playSongById('${escapeAttr(alb.songs[0].id)}')">
-          <img class="song-thumb" src="${alb.artworkUri || FRAGMENTS_ART}" alt="" />
+          <img class="song-thumb" src="${alb.artworkUri || DEFAULT_ART}" alt="" />
           <div class="song-info">
             <div class="song-name">${escapeHtml(alb.album)}</div>
             <div class="song-meta">${escapeHtml(alb.artist)} • ${alb.songs.length} tracks</div>
@@ -741,7 +720,7 @@
           return `
             <div class="song-row" style="flex-direction:column;align-items:stretch;cursor:default;background:var(--card-bg);">
               <div style="display:flex;align-items:center;gap:12px;">
-                <img class="song-thumb" src="${d.artworkUri || FRAGMENTS_ART}" alt="" />
+                <img class="song-thumb" src="${d.artworkUri || DEFAULT_ART}" alt="" />
                 <div class="song-info">
                   <div class="song-name">${escapeHtml(d.title)}</div>
                   <div class="song-meta">
@@ -859,9 +838,9 @@
     const mPlay = document.getElementById("mini-play-btn");
     const mFav = document.getElementById("mini-fav-btn");
     const mFill = document.getElementById("mini-progress-fill");
-    if (mTitle) mTitle.textContent = p.title || "Unstable";
-    if (mArtist) mArtist.textContent = p.artist || "Mr. Kitty";
-    if (mArt) mArt.src = p.artworkUri || FRAGMENTS_ART;
+    if (mTitle) mTitle.textContent = p.title || "Time To Rise";
+    if (mArtist) mArtist.textContent = p.artist || "VannDa វណ្ណដា";
+    if (mArt) mArt.src = p.artworkUri || DEFAULT_ART;
     if (mPlay) mPlay.innerHTML = p.isPlaying ? SVG.pause : SVG.play;
     if (mFav) mFav.innerHTML = isFav ? SVG.heartFill : SVG.heartOutline;
     if (mFill) mFill.style.width = pct + "%";
@@ -878,9 +857,9 @@
     const fpSleep = document.getElementById("fp-sleep-btn");
     const fpFav = document.getElementById("fp-fav-btn");
 
-    if (fpTitle) fpTitle.textContent = p.title || "Unstable";
-    if (fpArtist) fpArtist.textContent = p.artist || "Mr. Kitty";
-    if (fpArt) fpArt.src = p.artworkUri || FRAGMENTS_ART;
+    if (fpTitle) fpTitle.textContent = p.title || "Time To Rise";
+    if (fpArtist) fpArtist.textContent = p.artist || "VannDa វណ្ណដា";
+    if (fpArt) fpArt.src = p.artworkUri || DEFAULT_ART;
     if (fpPlay) fpPlay.innerHTML = p.isPlaying ? SVG.pauseLg : SVG.playLg;
     if (fpCur) fpCur.textContent = formatDuration(p.positionMs);
     if (fpTot) fpTot.textContent = formatDuration(dur);
@@ -905,8 +884,8 @@
     state.player.songId = song.id;
     state.player.title = song.title;
     state.player.artist = song.artist;
-    state.player.album = song.album || "Fragments";
-    state.player.artworkUri = song.artworkUri || FRAGMENTS_ART;
+    state.player.album = song.album || "Khmer & Global Hi-Fi";
+    state.player.artworkUri = song.artworkUri || DEFAULT_ART;
     state.player.durationMs = song.duration && song.duration >= 60000 ? song.duration : 196000;
     state.player.positionMs = 0;
     state.player.format = song.format || "MP3";
@@ -1144,7 +1123,7 @@
         title,
         artist,
         album: "XECEAY Khmer & Global Server",
-        artworkUri: artworkUri || FRAGMENTS_ART,
+        artworkUri: artworkUri || DEFAULT_ART,
         duration: durationMs && durationMs >= 60000 ? durationMs : 196000,
         format: "MP3",
         sourceReference: sourceUrl || ""
@@ -1158,7 +1137,7 @@
                   state.searchResultsCatalog.find(x => x.id === p.songId) ||
                   AUTHORIZED_CATALOG.find(c => c.id === p.songId);
       const src = (cur && cur.sourceReference) || p.sourceReference || "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY";
-      this.downloadDirectTrack(p.title || "Track", p.artist || "Artist", p.artworkUri || FRAGMENTS_ART, src, "MP3", "audio");
+      this.downloadDirectTrack(p.title || "Track", p.artist || "Artist", p.artworkUri || DEFAULT_ART, src, "MP3", "audio");
     },
 
     openCurrentSongMenu() {
@@ -1398,7 +1377,7 @@
             artist || "Artist",
             "XECEAY Downloads",
             "Khmer & Global",
-            artworkUri || FRAGMENTS_ART,
+            artworkUri || DEFAULT_ART,
             safeSource,
             format || "MP3",
             "320kbps",
@@ -1475,7 +1454,7 @@
           artist: "VannDa Official",
           durationText: "5:02",
           durationMs: 302000,
-          thumbnail: FRAGMENTS_ART,
+          thumbnail: DEFAULT_ART,
           downloadUrlMp3: "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY",
           downloadUrlMp4: "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY"
         });
@@ -1494,7 +1473,7 @@
         return;
       }
       state.analyzedLink = info;
-      const thumb = info.thumbnail || FRAGMENTS_ART;
+      const thumb = info.thumbnail || DEFAULT_ART;
       const mp3Url = info.downloadUrlMp3 || info.url;
       const mp4Url = info.downloadUrlMp4 || mp3Url;
       const durMs = info.durationMs || 212000;
@@ -1772,7 +1751,7 @@
       if (evt.eventType === "player_state") {
         Object.assign(state.player, p);
         if (state.player.title === "Unstable" || state.player.title === "Insects") {
-          state.player.artworkUri = FRAGMENTS_ART;
+          state.player.artworkUri = DEFAULT_ART;
         }
         updatePlayerUiOnly();
         renderHomeSections();

@@ -116,46 +116,10 @@
       <!-- Scrollable Screens -->
       <main class="screen-container">
 
-        <!-- 1. HOME SCREEN (Matches Right Phone in Reference Screenshot!) -->
+        <!-- 1. HOME SCREEN (Clean, Modern, Real Khmer & Global Server Discovery) -->
         <section id="screen-home" class="screen active">
-          <!-- Featured Album / Khmer Server Header (Matches "Fragments - Mr. Kitty" Right Phone!) -->
-          <div class="album-hero-header">
-            <img id="home-hero-art" class="album-hero-art" src="" alt="Featured Artwork" onclick="XeceayApp.openFullPlayer()" style="cursor:pointer;" />
-            <div class="album-hero-info">
-              <div id="home-hero-meta" class="album-hero-meta">Featured • Full Length • 2026</div>
-              <div id="home-hero-title" class="album-hero-title">Fragments</div>
-              <div id="home-hero-artist" class="album-hero-artist">Mr. Kitty • VannDa វណ្ណដា</div>
-              <div class="album-hero-icons">
-                <button class="hero-mini-icon" onclick="XeceayApp.promptAddCurrentToPlaylist()" title="Add to Playlist">
-                  <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M3 6h12M3 12h9M3 18h9"/><path d="M18 13v8M14 17h8"/></svg>
-                </button>
-                <button class="hero-mini-icon" onclick="XeceayApp.downloadCurrentPlayingTrack()" title="Download Full MP3">
-                  <svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v8"/><path d="M8.5 12.5L12 16l3.5-3.5"/></svg>
-                </button>
-                <button class="hero-mini-icon" onclick="XeceayApp.openYouTubeLinkMode()" title="YouTube Link Downloader">
-                  <svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="5"/><polygon points="10,9 15.5,12 10,15" fill="currentColor" stroke="none"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- White [Play] & Dark [Shuffle] Buttons (Matches Right Phone!) -->
-          <div class="dual-action-row">
-            <button class="dual-pill-btn white-solid" onclick="XeceayApp.playAllLibrary(false)">
-              <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M10.2 8.4L16.2 12l-6 3.6V8.4z" fill="currentColor" stroke="none"/></svg>
-              <span>Play</span>
-            </button>
-            <button class="dual-pill-btn" onclick="XeceayApp.playAllLibrary(true)">
-              <svg class="ico" viewBox="0 0 24 24"><polyline points="17 3 21 3 21 7"/><path d="M4 20L21 3"/><polyline points="21 17 21 21 17 21"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
-              <span>Shuffle</span>
-            </button>
-          </div>
-
           <!-- Khmer Server & Singer Quick Chips -->
-          <div id="home-genre-chips" class="chip-row"></div>
-
-          <!-- Numbered Tracklist (01, 02, 03 Unstable with Equalizer Icon!) -->
-          <div id="home-downloadable-list" class="song-list"></div>
+          <div id="home-genre-chips" class="chip-row" style="margin-top:2px;margin-bottom:14px;"></div>
 
           <!-- Recommended for You (Full-Length Khmer & Global Server) -->
           <div class="section-header">
@@ -210,6 +174,13 @@
               </div>
             </div>
           </div>
+
+          <!-- Popular Khmer & Global Hits Live List -->
+          <div class="section-header" style="margin-top:18px;">
+            <span class="section-title">Popular Khmer & Global Songs</span>
+            <span class="section-link" onclick="XeceayApp.switchTab('search')">Search All</span>
+          </div>
+          <div id="home-popular-list" class="song-list"></div>
         </section>
 
         <!-- 2. SEARCH & YOUTUBE LINK DOWNLOADER SCREEN -->
@@ -284,7 +255,7 @@
             <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Meas Soksophea មាស សុខសោភា', this)">មាស សុខសោភា</div>
             <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Pich Solika ពេជ្រ សូលីកា', this)">ពេជ្រ សូលីកា</div>
             <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Kmeng Khmer ក្មេងខ្មែរ', this)">ក្មេងខ្មែរ</div>
-            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Mr. Kitty', this)">Mr. Kitty</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Aok Sokunkanha ឱក សុគន្ធកញ្ញា', this)">ឱក សុគន្ធកញ្ញា</div>
           </div>
 
           <div id="search-filter-chips" class="chip-row">
@@ -427,8 +398,8 @@
         </div>
         <img id="mini-art" class="song-thumb" src="" alt="" />
         <div class="song-info">
-          <div id="mini-title" class="song-name">Unstable</div>
-          <div id="mini-artist" class="song-meta">Mr. Kitty</div>
+          <div id="mini-title" class="song-name">Time To Rise</div>
+          <div id="mini-artist" class="song-meta">VannDa វណ្ណដា</div>
         </div>
         <div class="song-actions" onclick="event.stopPropagation()">
           <button id="mini-fav-btn" class="icon-btn" onclick="XeceayApp.toggleCurrentFavorite()">
@@ -490,8 +461,8 @@
         <svg class="ico" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
       <div class="fp-title-center">
-        <div id="fp-title" class="fp-song-title">Unstable</div>
-        <div id="fp-artist" class="fp-song-artist">Mr. Kitty</div>
+        <div id="fp-title" class="fp-song-title">Time To Rise</div>
+        <div id="fp-artist" class="fp-song-artist">VannDa វណ្ណដា</div>
       </div>
       <button class="fp-ghost-btn" onclick="XeceayApp.openCurrentSongMenu()" title="Options & Download">
         <svg class="ico" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="19" cy="12" r="1.7" fill="currentColor"/></svg>

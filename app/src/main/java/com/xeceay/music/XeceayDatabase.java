@@ -112,12 +112,20 @@ public class XeceayDatabase extends SQLiteOpenHelper {
                 );
             }
 
+            // Purge any legacy "Fragments" / "Mr. Kitty" demo tracks from previous versions
+            try {
+                db.execSQL("DELETE FROM Songs WHERE id IN ('seed_1', 'seed_5') OR artistName LIKE '%Mr. Kitty%' OR albumTitle LIKE '%Fragments%' OR title IN ('Unstable', 'Insects', 'Heaven')");
+                db.execSQL("DELETE FROM Albums WHERE title LIKE '%Fragments%'");
+                db.execSQL("DELETE FROM Artists WHERE name LIKE '%Mr. Kitty%'");
+                db.execSQL("DELETE FROM Playlists WHERE name LIKE '%Fragments%'");
+            } catch (Throwable ignored) {
+            }
+
             if (isFirstSetup) {
                 String[][] defaultPlaylists = new String[][]{
                         {"pl_favorites", "Favorites", "favorites"},
                         {"pl_khmer_gold", "Khmer Top Hits 🇰🇭", "custom"},
-                        {"pl_recent_played", "Recently Played", "recent_played"},
-                        {"pl_focus_study", "Fragments & Night Vibes", "focus"}
+                        {"pl_recent_played", "Recently Played", "recent_played"}
                 };
                 for (String[] pl : defaultPlaylists) {
                     int isSmart = "custom".equals(pl[2]) ? 0 : 1;
@@ -133,7 +141,7 @@ public class XeceayDatabase extends SQLiteOpenHelper {
                 db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_4', 2, ?)", new Object[]{now});
                 db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_6', 3, ?)", new Object[]{now});
             }
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
         }
     }
 

@@ -196,8 +196,13 @@ public class LinkAnalyzerService {
                             JSONArray data = aud.optJSONArray("data");
                             if (data != null && data.length() > 0) {
                                 JSONObject top = data.getJSONObject(0);
+                                String audTitle = top.optString("title", "").toLowerCase();
+                                JSONObject userObj = top.optJSONObject("user");
+                                String audArtist = userObj != null ? userObj.optString("name", "").toLowerCase() : "";
+                                String qLow = searchQuery.toLowerCase();
+                                boolean isRelevant = audTitle.contains(qLow) || qLow.contains(audTitle) || audArtist.contains(qLow);
                                 String audId = top.optString("id", "");
-                                if (!audId.isEmpty()) {
+                                if (isRelevant && !audId.isEmpty()) {
                                     resolvedAudioUrl = "https://discoveryprovider.audius.co/v1/tracks/" + audId + "/stream?app_name=XECEAY";
                                     durationSec = Math.max(180L, top.optLong("duration", 210L));
                                 }

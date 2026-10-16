@@ -78,7 +78,7 @@ public class MusicCatalogService {
         String q = rawQuery.trim();
         String lower = q.toLowerCase();
         for (String[] pair : KHMER_DICTIONARY) {
-            if (lower.equals(pair[0]) || lower.contains(pair[0])) {
+            if (lower.equals(pair[0])) {
                 return pair[1];
             }
         }
@@ -236,6 +236,14 @@ public class MusicCatalogService {
                 String title = r.optString("title", "Track");
                 JSONObject user = r.optJSONObject("user");
                 String artist = user != null ? user.optString("name", "Artist") : "Artist";
+
+                String tLow = title.toLowerCase();
+                String aLow = artist.toLowerCase();
+                String termLow = term.toLowerCase();
+                boolean matchesTerm = tLow.contains(termLow) || aLow.contains(termLow)
+                        || termLow.contains(tLow) || termLow.contains(aLow);
+                if (!matchesTerm) continue;
+
                 JSONObject artwork = r.optJSONObject("artwork");
                 String art = artwork != null ? artwork.optString("480x480", artwork.optString("150x150", "")) : "";
                 long durSec = Math.max(120L, r.optLong("duration", 195L));

@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.8",
-  "versionCode": 108,
-  "tagName": "v1.0.8",
-  "releaseTitle": "XECEAY v1.0.8 — Curated Themes & Advanced Settings Engine",
-  "changelog": "Added 5 curated color themes (Cyberpunk Neon, Glassmorphism, Emerald Forest, Midnight Slate, Clean Light), Hi-Res FLAC & 320k audio quality selector, gapless crossfade controls, Wi-Fi only download toggle, and one-tap cache cleaning.",
+  "versionName": "1.0.9",
+  "versionCode": 109,
+  "tagName": "v1.0.9",
+  "releaseTitle": "XECEAY v1.0.9 — Exact Song Download & Real Audio Stream Engine",
+  "changelog": "Fixed song download fetching wrong music. Now dynamically resolves the genuine matching audio stream for exact title and artist, eliminated hardcoded fallbacks and synthetic wave audio, and ensured 100% accurate Khmer and global music downloads.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

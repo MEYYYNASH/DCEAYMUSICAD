@@ -88,7 +88,7 @@
       format: "MP3",
       quality: "320kbps",
       fileSize: 6120000,
-      sourceReference: "",
+      sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/5/c/2/0/5c26795026d5bddd4907dbd824879ab0.mp3",
       downloadable: true,
       artworkUri: makeSvgUri("VD", "#4C1D95", "#F59E0B")
     },
@@ -102,7 +102,7 @@
       format: "MP3",
       quality: "320kbps",
       fileSize: 4150000,
-      sourceReference: "",
+      sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/8e/e3/de8ee354-32fb-b6b5-a84f-67b9f025977b/mzaf_6944166431844471136.plus.aac.p.m4a",
       downloadable: true,
       artworkUri: makeSvgUri("SP", "#0F172A", "#3B82F6")
     },
@@ -116,7 +116,7 @@
       format: "MP3",
       quality: "320kbps",
       fileSize: 4320000,
-      sourceReference: "",
+      sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/bf/16/a7/bf16a7f3-d02f-5eb6-7b56-787be0995111/mzaf_8407481109986968037.plus.aac.p.m4a",
       downloadable: true,
       artworkUri: makeSvgUri("TN", "#1E1B4B", "#EC4899")
     },
@@ -130,7 +130,7 @@
       format: "MP3",
       quality: "320kbps",
       fileSize: 4650000,
-      sourceReference: "",
+      sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/3/d/9/0/3d9718f6fe348b75f3ea606b55a05f82.mp3",
       downloadable: true,
       artworkUri: makeSvgUri("SS", "#064E3B", "#10B981")
     }
@@ -1187,8 +1187,8 @@
                   state.liveDiscovery.find(d => d.id === p.songId) ||
                   state.searchResultsCatalog.find(x => x.id === p.songId) ||
                   AUTHORIZED_CATALOG.find(c => c.id === p.songId);
-      const src = (cur && cur.sourceReference) || p.sourceReference || "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY";
-      this.downloadDirectTrack(p.title || "Track", p.artist || "Artist", p.artworkUri || DEFAULT_ART, src, "MP3", "audio");
+      const src = (cur && cur.sourceReference) || p.sourceReference || "";
+      this.downloadDirectTrack(p.title || "Track", p.artist || "Artist", p.artworkUri || DEFAULT_ART, src, p.format || "MP3", "audio");
     },
 
     openCurrentSongMenu() {
@@ -1417,10 +1417,27 @@
     },
 
     // Full-Length Track Downloader (MP3 & MP4)
-    downloadDirectTrack(title, artist, artworkUri, sourceUrl, format, mediaType) {
-      const safeSource = (sourceUrl && sourceUrl.startsWith("https://"))
-        ? sourceUrl
-        : "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY";
+    async downloadDirectTrack(title, artist, artworkUri, sourceUrl, format, mediaType) {
+      let safeSource = (sourceUrl && sourceUrl.startsWith("https://")) ? sourceUrl : "";
+
+      // If source URL is missing, resolve the genuine song audio stream from Deezer or iTunes
+      if (!safeSource && title) {
+        showToast(`Locating stream: ${title}...`);
+        try {
+          const q = encodeURIComponent(`${title} ${artist || ""}`.trim());
+          const dz = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`).then(r => r.json()).catch(() => null);
+          if (dz && dz.data && dz.data.length > 0 && dz.data[0].preview) {
+            safeSource = dz.data[0].preview;
+          }
+          if (!safeSource) {
+            const it = await fetch(`https://itunes.apple.com/search?term=${q}&country=KH&media=music&entity=song&limit=1`).then(r => r.json()).catch(() => null);
+            if (it && it.results && it.results.length > 0 && it.results[0].previewUrl) {
+              safeSource = it.results[0].previewUrl;
+            }
+          }
+        } catch (_e) {}
+      }
+
       if (isNative) {
         const prefQuality = (state.user && state.user.preferences && state.user.preferences.audioQuality) || "320kbps";
         const qualityStr = prefQuality.includes("FLAC") ? "Lossless FLAC" : (prefQuality.includes("192") ? "192kbps" : "320kbps");
@@ -1439,13 +1456,15 @@
           )
         );
         if (res.ok) {
-          showToast(`Downloading Full ${format}: ${title}`);
+          showToast(`Downloading: ${title}`);
           refreshFromNative();
         } else {
-          showToast(res.error || "Already in download queue");
+          showToast(res.error || "Could not start download");
         }
-      } else {
+      } else if (safeSource) {
         window.open(safeSource, "_blank");
+      } else {
+        showToast("No stream source found for this track.");
       }
     },
 

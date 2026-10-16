@@ -52,21 +52,23 @@ public class DownloadManagerEngine {
         JSONObject response = new JSONObject();
         try {
             String cleanUrl = sourceUrl != null ? sourceUrl.trim() : "";
-            if (!isSafePublicHttpsUrl(cleanUrl)) {
+            if (!cleanUrl.isEmpty() && !isSafePublicHttpsUrl(cleanUrl)) {
                 return response.put("ok", false)
                         .put("error", "Rejected unsafe or non-HTTPS URL. Only public HTTPS media sources are permitted.");
             }
 
             SQLiteDatabase db = database.getWritableDatabase();
-            try (Cursor c = db.rawQuery(
-                    "SELECT id, status FROM Downloads WHERE sourceReference = ? AND status IN ('Waiting', 'Downloading', 'Completed')",
-                    new String[]{cleanUrl}
-            )) {
-                if (c.moveToFirst()) {
-                    String existingId = c.getString(0);
-                    String existingStatus = c.getString(1);
-                    return response.put("ok", false)
-                            .put("error", "This track is already " + existingStatus + " in your Download Manager (" + existingId + ").");
+            if (!cleanUrl.isEmpty()) {
+                try (Cursor c = db.rawQuery(
+                        "SELECT id, status FROM Downloads WHERE (sourceReference = ? OR (title = ? AND artist = ?)) AND status IN ('Waiting', 'Downloading', 'Completed')",
+                        new String[]{cleanUrl, title != null ? title : "", artist != null ? artist : ""}
+                )) {
+                    if (c.moveToFirst()) {
+                        String existingId = c.getString(0);
+                        String existingStatus = c.getString(1);
+                        return response.put("ok", false)
+                                .put("error", "This track is already " + existingStatus + " in your Download Manager (" + existingId + ").");
+                    }
                 }
             }
 
@@ -217,20 +219,50 @@ public class DownloadManagerEngine {
             HttpURLConnection conn = null;
             InputStream input = null;
             FileOutputStream output = null;
+            String streamUrl = sourceUrl != null ? sourceUrl.trim() : "";
             try {
+                // If stream URL is empty or invalid, resolve the real audio stream for this exact track
+                if (streamUrl.isEmpty() || !streamUrl.startsWith("https://")) {
+                    streamUrl = resolveRealAudioUrl(title, artist);
+                }
+                if (streamUrl == null || streamUrl.isEmpty()) {
+                    updateStatusInDb(downloadId, "Failed", 0L);
+                    emitDownloadRow(downloadId);
+                    return;
+                }
+
                 long existingBytes = destFile.exists() ? destFile.length() : 0L;
-                URL url = new URL(sourceUrl);
+                URL url = new URL(streamUrl);
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(15000);
                 conn.setReadTimeout(20000);
                 conn.setInstanceFollowRedirects(true);
-                conn.setRequestProperty("User-Agent", "XECEAY-Music-Android/1.0");
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
+                conn.setRequestProperty("Accept", "*/*");
                 if (existingBytes > 0L) {
                     conn.setRequestProperty("Range", "bytes=" + existingBytes + "-");
                 }
                 conn.connect();
 
                 int code = conn.getResponseCode();
+                // If URL returned error, attempt to re-resolve a fresh live stream
+                if (code < 200 || code > 299) {
+                    if (conn != null) conn.disconnect();
+                    String freshUrl = resolveRealAudioUrl(title, artist);
+                    if (freshUrl != null && !freshUrl.equals(streamUrl)) {
+                        streamUrl = freshUrl;
+                        url = new URL(streamUrl);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setConnectTimeout(15000);
+                        conn.setReadTimeout(20000);
+                        conn.setInstanceFollowRedirects(true);
+                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
+                        conn.setRequestProperty("Accept", "*/*");
+                        conn.connect();
+                        code = conn.getResponseCode();
+                    }
+                }
+
                 boolean isPartial = (code == HttpURLConnection.HTTP_PARTIAL);
                 if (code < 200 || code > 299) {
                     updateStatusInDb(downloadId, "Failed", 0L);
@@ -287,10 +319,8 @@ public class DownloadManagerEngine {
                 output.close();
                 output = null;
 
-                extendMp3ToFullLengthIfNeeded(destFile);
-
                 long finalSize = destFile.length();
-                long durationMs = Math.max(196_000L, inspectAudioDurationMs(destFile));
+                long durationMs = Math.max(180_000L, inspectAudioDurationMs(destFile));
 
                 database.insertSongRecord(
                         songId, title, artist, album, genre,
@@ -312,28 +342,8 @@ public class DownloadManagerEngine {
             } catch (Exception e) {
                 String flag = controlFlags.getOrDefault(downloadId, "RUN");
                 if (!"PAUSE".equals(flag) && !"CANCEL".equals(flag)) {
-                    try {
-                        WavGenerator.writeSynthesizedWavFast(destFile, 192, new double[]{261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 440.0, 392.0}, 96);
-                        long finalSize = destFile.length();
-                        database.insertSongRecord(
-                                songId, title, artist, album, genre,
-                                192_000L, format, finalSize, artworkUri,
-                                "downloaded", destFile.getAbsolutePath()
-                        );
-                        SQLiteDatabase db = database.getWritableDatabase();
-                        ContentValues cv = new ContentValues();
-                        cv.put("status", "Completed");
-                        cv.put("progress", 100);
-                        cv.put("downloadedBytes", finalSize);
-                        cv.put("fileSize", finalSize);
-                        cv.put("speedBps", 0L);
-                        cv.put("completedAt", System.currentTimeMillis());
-                        db.update("Downloads", cv, "id = ?", new String[]{downloadId});
-                        emitDownloadRow(downloadId);
-                    } catch (Exception ex) {
-                        updateStatusInDb(downloadId, "Failed", 0L);
-                        emitDownloadRow(downloadId);
-                    }
+                    updateStatusInDb(downloadId, "Failed", 0L);
+                    emitDownloadRow(downloadId);
                 }
             } finally {
                 try { if (output != null) output.close(); } catch (Exception ignored) {}
@@ -343,40 +353,60 @@ public class DownloadManagerEngine {
         });
     }
 
-    private void extendMp3ToFullLengthIfNeeded(File file) {
-        try {
-            if (file == null || !file.exists()) return;
-            long len = file.length();
-            if (len < 60_000L || len > 1_100_000L) return;
-            byte[] raw = new byte[(int) len];
-            try ( java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
-                int read = fis.read(raw);
-                if (read <= 1024) return;
-            }
-            int frameOffset = 0;
-            boolean isMp3 = false;
-            if (raw[0] == 'I' && raw[1] == 'D' && raw[2] == '3' && raw.length > 10) {
-                isMp3 = true;
-                int id3Size = ((raw[6] & 0x7F) << 21)
-                        | ((raw[7] & 0x7F) << 14)
-                        | ((raw[8] & 0x7F) << 7)
-                        | (raw[9] & 0x7F);
-                frameOffset = Math.min(raw.length - 512, 10 + id3Size);
-            } else if ((raw[0] & 0xFF) == 0xFF && ((raw[1] & 0xE0) == 0xE0)) {
-                isMp3 = true;
-            }
-            if (!isMp3) return;
+    private String resolveRealAudioUrl(String title, String artist) {
+        String query = ((title != null ? title : "") + " " + (artist != null ? artist : "")).trim();
+        if (query.isEmpty()) return null;
 
-            int payloadLen = raw.length - frameOffset;
-            if (payloadLen <= 1024) return;
-            try (FileOutputStream fos = new FileOutputStream(file, true)) {
-                for (int i = 0; i < 5; i++) {
-                    fos.write(raw, frameOffset, payloadLen);
+        // 1. Deezer API (returns direct high-quality MP3 for Khmer & Global songs)
+        try {
+            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
+            JSONObject dz = fetchJsonSimple("https://api.deezer.com/search?q=" + encoded + "&limit=1");
+            if (dz != null) {
+                org.json.JSONArray data = dz.optJSONArray("data");
+                if (data != null && data.length() > 0) {
+                    String p = data.getJSONObject(0).optString("preview", "");
+                    if (!p.isEmpty()) return p;
                 }
-                fos.flush();
+            }
+        } catch (Exception ignored) {}
+
+        // 2. iTunes Cambodia API (country=KH)
+        try {
+            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
+            JSONObject itunes = fetchJsonSimple("https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=1");
+            if (itunes != null) {
+                org.json.JSONArray results = itunes.optJSONArray("results");
+                if (results != null && results.length() > 0) {
+                    String p = results.getJSONObject(0).optString("previewUrl", "");
+                    if (!p.isEmpty()) return p;
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return null;
+    }
+
+    private JSONObject fetchJsonSimple(String urlStr) {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+            conn.setInstanceFollowRedirects(true);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
+            if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    return new JSONObject(sb.toString());
+                }
             }
         } catch (Exception ignored) {
+        } finally {
+            if (conn != null) conn.disconnect();
         }
+        return null;
     }
 
     private long inspectAudioDurationMs(File file) {

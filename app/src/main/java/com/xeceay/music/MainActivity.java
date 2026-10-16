@@ -25,6 +25,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -130,7 +137,36 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.addJavascriptInterface(new XeceayBridge(), "XeceayNative");
-        setContentView(webView);
+
+        FrameLayout rootContainer = new FrameLayout(this);
+        rootContainer.setBackgroundColor(0xFF0F1218);
+        int initialTopInset = getStatusBarHeight();
+        rootContainer.setPadding(0, initialTopInset, 0, 0);
+        rootContainer.addView(webView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootContainer, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+            int topPad = Math.max(insets.top, getStatusBarHeight());
+            v.setPadding(insets.left, topPad, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+
+        setContentView(rootContainer);
+
+        try {
+            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), rootContainer);
+            if (controller != null) {
+                controller.setAppearanceLightStatusBars(false);
+                controller.setAppearanceLightNavigationBars(false);
+            }
+        } catch (Exception ignored) {
+        }
+
         webView.loadUrl("file:///android_asset/index.html");
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -148,6 +184,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         requestAudioAndNotificationPermissionsIfNeeded();
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        if (result <= 0) {
+            result = Math.round(28 * getResources().getDisplayMetrics().density);
+        }
+        return result;
     }
 
     @Override

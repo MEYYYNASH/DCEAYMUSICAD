@@ -90,27 +90,40 @@ public class MusicCatalogService {
         final String expandedQuery = expandKhmerQuery(rawClean);
 
         executor.execute(() -> {
-            JSONArray results = new JSONArray();
+            java.util.List<JSONObject> list = new java.util.ArrayList<>();
             Set<String> seenKeys = new HashSet<>();
 
             try {
-                // 1. Deezer Cambodia / Global MP3 Catalog (provides direct MP3 audio streams)
-                fetchDeezerTracks(rawClean, results, seenKeys);
-                if (!expandedQuery.equalsIgnoreCase(rawClean) && results.length() < 12) {
-                    fetchDeezerTracks(expandedQuery, results, seenKeys);
+                // 1. Deezer Cambodia / Global MP3 Catalog
+                fetchDeezerTracks(rawClean, list, seenKeys);
+                if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 12) {
+                    fetchDeezerTracks(expandedQuery, list, seenKeys);
                 }
 
-                // 2. iTunes Cambodia Server (country=KH) for official Khmer & Global releases
-                fetchItunesCambodiaTracks(rawClean, results, seenKeys);
-                if (!expandedQuery.equalsIgnoreCase(rawClean) && results.length() < 20) {
-                    fetchItunesCambodiaTracks(expandedQuery, results, seenKeys);
+                // 2. iTunes Cambodia Server (country=KH)
+                fetchItunesCambodiaTracks(rawClean, list, seenKeys);
+                if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 20) {
+                    fetchItunesCambodiaTracks(expandedQuery, list, seenKeys);
                 }
 
-                // 3. Audius Full-Track Streaming Server (full 3-5 min 320kbps MP3 streams)
-                if (results.length() < 25) {
-                    fetchAudiusFullTracks(rawClean, results, seenKeys);
+                // 3. Audius Full-Track Streaming Server
+                if (list.size() < 25) {
+                    fetchAudiusFullTracks(rawClean, list, seenKeys);
                 }
             } catch (Exception ignored) {
+            }
+
+            // Sort by relevance score against the user's raw query
+            final String qLower = rawClean.toLowerCase();
+            java.util.Collections.sort(list, (a, b) -> {
+                int scoreA = computeRelevanceScore(a.optString("title", ""), a.optString("artist", ""), qLower);
+                int scoreB = computeRelevanceScore(b.optString("title", ""), b.optString("artist", ""), qLower);
+                return Integer.compare(scoreB, scoreA);
+            });
+
+            JSONArray results = new JSONArray();
+            for (JSONObject item : list) {
+                results.put(item);
             }
 
             try {
@@ -124,7 +137,20 @@ public class MusicCatalogService {
         });
     }
 
-    private void fetchDeezerTracks(String term, JSONArray out, Set<String> seenKeys) {
+    private static int computeRelevanceScore(String title, String artist, String query) {
+        if (query == null || query.isEmpty()) return 0;
+        String t = (title != null ? title : "").toLowerCase();
+        String a = (artist != null ? artist : "").toLowerCase();
+        if (t.equals(query)) return 1000;
+        if (t.startsWith(query)) return 800;
+        if (t.contains(query)) return 500;
+        if (a.equals(query)) return 400;
+        if (a.startsWith(query)) return 300;
+        if (a.contains(query)) return 200;
+        return 0;
+    }
+
+    private void fetchDeezerTracks(String term, java.util.List<JSONObject> out, Set<String> seenKeys) {
         try {
             String encoded = URLEncoder.encode(term, "UTF-8");
             String deezerUrl = "https://api.deezer.com/search?q=" + encoded + "&limit=18";
@@ -152,7 +178,7 @@ public class MusicCatalogService {
                 if (seenKeys.contains(dedupKey)) continue;
                 seenKeys.add(dedupKey);
 
-                long durSec = Math.max(175L, r.optLong("duration", 205L));
+                long durSec = Math.max(30L, r.optLong("duration", 205L));
                 long durMs = durSec * 1000L;
 
                 JSONObject item = new JSONObject();
@@ -162,19 +188,21 @@ public class MusicCatalogService {
                 item.put("album", album);
                 item.put("genre", "Khmer & Global");
                 item.put("duration", durMs);
+                item.put("previewDuration", 30000L);
+                item.put("isPreview", true);
                 item.put("format", "MP3");
                 item.put("quality", "320kbps");
-                item.put("fileSize", durSec * 24000L);
+                item.put("fileSize", 480000L);
                 item.put("artworkUri", art);
                 item.put("sourceReference", previewUrl);
                 item.put("downloadable", true);
-                out.put(item);
+                out.add(item);
             }
         } catch (Exception ignored) {
         }
     }
 
-    private void fetchItunesCambodiaTracks(String term, JSONArray out, Set<String> seenKeys) {
+    private void fetchItunesCambodiaTracks(String term, java.util.List<JSONObject> out, Set<String> seenKeys) {
         try {
             String encoded = URLEncoder.encode(term, "UTF-8");
             String itunesUrl = "https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=18";
@@ -193,7 +221,7 @@ public class MusicCatalogService {
                 String artist = r.optString("artistName", "Artist");
                 String album = r.optString("collectionName", "Single");
                 String genre = r.optString("primaryGenreName", "Khmer Music");
-                long durationMs = Math.max(180000L, r.optLong("trackTimeMillis", 210000L));
+                long durationMs = Math.max(30000L, r.optLong("trackTimeMillis", 210000L));
                 String art = r.optString("artworkUrl100", "").replace("100x100bb", "400x400bb");
 
                 String dedupKey = (title + "|" + artist).toLowerCase();
@@ -207,19 +235,21 @@ public class MusicCatalogService {
                 item.put("album", album);
                 item.put("genre", genre);
                 item.put("duration", durationMs);
-                item.put("format", "MP3");
-                item.put("quality", "320kbps");
-                item.put("fileSize", (durationMs / 1000L) * 24000L);
+                item.put("previewDuration", 30000L);
+                item.put("isPreview", true);
+                item.put("format", "M4A");
+                item.put("quality", "256kbps AAC");
+                item.put("fileSize", 480000L);
                 item.put("artworkUri", art);
                 item.put("sourceReference", previewUrl);
                 item.put("downloadable", true);
-                out.put(item);
+                out.add(item);
             }
         } catch (Exception ignored) {
         }
     }
 
-    private void fetchAudiusFullTracks(String term, JSONArray out, Set<String> seenKeys) {
+    private void fetchAudiusFullTracks(String term, java.util.List<JSONObject> out, Set<String> seenKeys) {
         try {
             String encoded = URLEncoder.encode(term, "UTF-8");
             String audiusUrl = "https://discoveryprovider.audius.co/v1/tracks/search?query=" + encoded + "&app_name=XECEAY";
@@ -260,13 +290,15 @@ public class MusicCatalogService {
                 item.put("album", "Full Length Stream");
                 item.put("genre", r.optString("genre", "Music"));
                 item.put("duration", durSec * 1000L);
+                item.put("isPreview", false);
+                item.put("isFullTrack", true);
                 item.put("format", "MP3");
                 item.put("quality", "320kbps");
                 item.put("fileSize", durSec * 28000L);
                 item.put("artworkUri", art);
                 item.put("sourceReference", streamUrl);
                 item.put("downloadable", true);
-                out.put(item);
+                out.add(item);
             }
         } catch (Exception ignored) {
         }

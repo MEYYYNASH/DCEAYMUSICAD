@@ -430,20 +430,24 @@
     const isPlaying = state.player.songId === item.id || (state.player.title === item.title && state.player.artist === item.artist);
     const numStr = String(idx + 1).padStart(2, "0");
     const art = item.artworkUri || DEFAULT_ART;
-    const dur = item.duration && item.duration >= 60000 ? item.duration : 196000;
+    const dur = item.duration || 30000;
+    const isPreview = Boolean(item.isPreview || dur <= 45000);
+    const durBadge = isPreview ? `<span class="badge" style="opacity:0.75;font-size:10px;">PREVIEW</span>` : `<span class="badge green" style="font-size:10px;">FULL</span>`;
+    const formatTag = item.format || "MP3";
     return `
-      <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur})">
+      <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur},'${escapeAttr(formatTag)}')">
         <div class="track-num-col">${isPlaying ? SVG.eqBars : numStr}</div>
         <div class="song-info">
           <div class="song-name">${escapeHtml(item.title)}</div>
           <div class="song-meta">
             <span>${escapeHtml(item.artist)}  •  ${formatDuration(dur)}</span>
+            ${durBadge}
           </div>
         </div>
         <div class="song-actions" onclick="event.stopPropagation()">
-          <button class="dl-format-pill" title="Download Full MP3" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP3','audio')">
+          <button class="dl-format-pill" title="Download ${escapeAttr(formatTag)}" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','${escapeAttr(formatTag)}','audio')">
             ${SVG.download}
-            <span>MP3</span>
+            <span>${escapeHtml(formatTag)}</span>
           </button>
           <button class="icon-btn" title="More Options" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}','MP4','video')">
             ${SVG.moreDots}
@@ -876,7 +880,7 @@
 
   function updatePlayerUiOnly() {
     const p = state.player;
-    const dur = Math.max(1000, p.durationMs || 172000);
+    const dur = Math.max(1000, p.durationMs || 1000);
     const pct = Math.min(100, (p.positionMs * 100) / dur);
     const currentSongObj = state.songs.find(s => s.id === p.songId);
     const isFav = Boolean(currentSongObj && currentSongObj.isFavorite);
@@ -936,7 +940,7 @@
     state.player.artist = song.artist;
     state.player.album = song.album || "Khmer & Global Hi-Fi";
     state.player.artworkUri = song.artworkUri || DEFAULT_ART;
-    state.player.durationMs = song.duration && song.duration >= 60000 ? song.duration : 196000;
+    state.player.durationMs = song.duration || 30000;
     state.player.positionMs = 0;
     state.player.format = song.format || "MP3";
     state.player.sourceReference = song.sourceReference || "";
@@ -1163,7 +1167,7 @@
       }
     },
 
-    playAnyTrack(id, title, artist, artworkUri, sourceUrl, durationMs) {
+    playAnyTrack(id, title, artist, artworkUri, sourceUrl, durationMs, formatTag) {
       const localMatch = state.songs.find(s => s.id === id);
       if (localMatch) {
         playSongObject(localMatch);
@@ -1175,8 +1179,8 @@
         artist,
         album: "XECEAY Khmer & Global Server",
         artworkUri: artworkUri || DEFAULT_ART,
-        duration: durationMs && durationMs >= 60000 ? durationMs : 196000,
-        format: "MP3",
+        duration: durationMs || 30000,
+        format: formatTag || "MP3",
         sourceReference: sourceUrl || ""
       });
     },
@@ -1439,9 +1443,8 @@
       }
 
       if (isNative) {
-        const prefQuality = (state.user && state.user.preferences && state.user.preferences.audioQuality) || "320kbps";
-        const qualityStr = prefQuality.includes("FLAC") ? "Lossless FLAC" : (prefQuality.includes("192") ? "192kbps" : "320kbps");
-        const chosenFormat = (prefQuality.includes("FLAC") && (!mediaType || mediaType === "audio")) ? "FLAC" : (format || "MP3");
+        const chosenFormat = (format && format.toUpperCase() === "FLAC") ? "FLAC" : ((format && (format.toUpperCase() === "M4A" || format.toUpperCase() === "AAC")) ? "M4A" : "MP3");
+        const qualityStr = chosenFormat === "FLAC" ? "Lossless FLAC" : (chosenFormat === "M4A" ? "256kbps AAC" : "320kbps MP3");
         const res = JSON.parse(
           window.XeceayNative.enqueueDownload(
             title || "Track",
@@ -1915,6 +1918,7 @@
         renderHomeSections();
         renderLibraryContent();
         if (p.event === "ended") handleTrackEnded();
+        if (p.event === "error") showToast(p.error || "Cannot play track: stream unavailable");
       } else if (evt.eventType === "catalog_results") {
         state.isSearchingCatalog = false;
         const arr = p.results || [];
@@ -1937,7 +1941,7 @@
           else state.downloads.unshift(p);
           if (p.status === "Completed") {
             refreshFromNative();
-            showToast(`Downloaded Full Song: ${p.title}`);
+            showToast(`Downloaded: ${p.title} (${p.format || "MP3"})`);
           }
         }
         updateGreetingAndStats();

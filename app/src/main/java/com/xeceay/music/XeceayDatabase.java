@@ -89,27 +89,17 @@ public class XeceayDatabase extends SQLiteOpenHelper {
                     new Object[]{now, prefs.toString()}
             );
 
-            File musicDir = new File(appContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC), "XECEAY");
-            List<WavGenerator.SeedTrack> seeded = WavGenerator.ensureSeedTracks(musicDir);
-            for (WavGenerator.SeedTrack track : seeded) {
-                String artistId = "artist_" + track.id;
-                String albumId = "album_" + track.id;
-                String artworkSvg = buildGradientArtworkDataUri(track.title, track.artist, track.artworkColor1, track.artworkColor2);
-
-                db.execSQL("INSERT OR IGNORE INTO Artists (id, name, artworkUri, description) VALUES (?, ?, ?, ?)",
-                        new Object[]{artistId, track.artist, artworkSvg, track.genre + " recording artist on XECEAY"});
-                db.execSQL("INSERT OR IGNORE INTO Albums (id, title, artistId, artworkUri, releaseDate) VALUES (?, ?, ?, ?, ?)",
-                        new Object[]{albumId, track.album, artistId, artworkSvg, "2026"});
-                db.execSQL(
-                        "INSERT OR IGNORE INTO Songs (id, title, artistId, artistName, albumId, albumTitle, genre, duration, format, fileSize, artworkUri, sourceType, sourceReference, isFavorite, addedAt, fileHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        new Object[]{
-                                track.id, track.title, artistId, track.artist, albumId, track.album,
-                                track.genre, track.durationSec * 1000L, "WAV", track.file.length(),
-                                artworkSvg, "local", track.file.getAbsolutePath(),
-                                ("seed_1".equals(track.id) || "seed_2".equals(track.id)) ? 1 : 0,
-                                now, "hash_" + track.id + "_" + track.file.length()
-                        }
-                );
+            // Purge any fake synthesized WAV seed tracks from SQLite and disk
+            try {
+                db.execSQL("DELETE FROM Songs WHERE format = 'WAV' AND (id LIKE 'seed_%' OR sourceReference LIKE '%xeceay_%.wav')");
+                File musicDir = new File(appContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC), "XECEAY");
+                if (musicDir.exists()) {
+                    File[] fakeFiles = musicDir.listFiles((dir, name) -> name.startsWith("xeceay_") && name.endsWith(".wav"));
+                    if (fakeFiles != null) {
+                        for (File f : fakeFiles) f.delete();
+                    }
+                }
+            } catch (Throwable ignored) {
             }
 
             // Purge any legacy "Fragments" / "Mr. Kitty" demo tracks from previous versions

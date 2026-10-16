@@ -154,18 +154,29 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    // 4. Match via Deezer MP3 Server (so DownloadManagerEngine can save full-length MP3)
+                    // 4. Match via Deezer MP3 Server
                     String searchQuery = cleanTitleForSearch(title, author);
+                    String qLow = searchQuery.toLowerCase();
                     if (resolvedAudioUrl.isEmpty()) {
                         String dzUrl = "https://api.deezer.com/search?q=" + URLEncoder.encode(searchQuery, "UTF-8") + "&limit=3";
                         JSONObject dz = fetchJson(dzUrl, 6000);
                         if (dz != null) {
                             JSONArray data = dz.optJSONArray("data");
                             if (data != null && data.length() > 0) {
-                                JSONObject top = data.getJSONObject(0);
-                                resolvedAudioUrl = top.optString("preview", "");
-                                long dzDur = top.optLong("duration", 0L);
-                                if (dzDur > 60L) durationSec = dzDur;
+                                for (int i = 0; i < data.length(); i++) {
+                                    JSONObject item = data.getJSONObject(i);
+                                    String itemTitle = item.optString("title", "").toLowerCase();
+                                    JSONObject aObj = item.optJSONObject("artist");
+                                    String itemArtist = aObj != null ? aObj.optString("name", "").toLowerCase() : "";
+                                    boolean rel = itemTitle.contains(qLow) || qLow.contains(itemTitle) || itemArtist.contains(qLow);
+                                    String p = item.optString("preview", "");
+                                    if (rel && !p.isEmpty()) {
+                                        resolvedAudioUrl = p;
+                                        long dzDur = item.optLong("duration", 0L);
+                                        if (dzDur > 30L) durationSec = dzDur;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -177,12 +188,21 @@ public class LinkAnalyzerService {
                         if (itunes != null) {
                             JSONArray results = itunes.optJSONArray("results");
                             if (results != null && results.length() > 0) {
-                                JSONObject top = results.getJSONObject(0);
-                                resolvedAudioUrl = top.optString("previewUrl", "");
-                                long itDur = top.optLong("trackTimeMillis", 0L) / 1000L;
-                                if (itDur > 60L) durationSec = itDur;
-                                if (thumb.isEmpty()) {
-                                    thumb = top.optString("artworkUrl100", "").replace("100x100bb", "400x400bb");
+                                for (int i = 0; i < results.length(); i++) {
+                                    JSONObject item = results.getJSONObject(i);
+                                    String itemTitle = item.optString("trackName", "").toLowerCase();
+                                    String itemArtist = item.optString("artistName", "").toLowerCase();
+                                    boolean rel = itemTitle.contains(qLow) || qLow.contains(itemTitle) || itemArtist.contains(qLow);
+                                    String p = item.optString("previewUrl", "");
+                                    if (rel && !p.isEmpty()) {
+                                        resolvedAudioUrl = p;
+                                        long itDur = item.optLong("trackTimeMillis", 0L) / 1000L;
+                                        if (itDur > 30L) durationSec = itDur;
+                                        if (thumb.isEmpty()) {
+                                            thumb = item.optString("artworkUrl100", "").replace("100x100bb", "400x400bb");
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -199,7 +219,6 @@ public class LinkAnalyzerService {
                                 String audTitle = top.optString("title", "").toLowerCase();
                                 JSONObject userObj = top.optJSONObject("user");
                                 String audArtist = userObj != null ? userObj.optString("name", "").toLowerCase() : "";
-                                String qLow = searchQuery.toLowerCase();
                                 boolean isRelevant = audTitle.contains(qLow) || qLow.contains(audTitle) || audArtist.contains(qLow);
                                 String audId = top.optString("id", "");
                                 if (isRelevant && !audId.isEmpty()) {

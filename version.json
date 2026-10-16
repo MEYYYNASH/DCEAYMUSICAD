@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.9",
-  "versionCode": 109,
-  "tagName": "v1.0.9",
-  "releaseTitle": "XECEAY v1.0.9 — Exact Song Download & Real Audio Stream Engine",
-  "changelog": "Fixed song download fetching wrong music. Now dynamically resolves the genuine matching audio stream for exact title and artist, eliminated hardcoded fallbacks and synthetic wave audio, and ensured 100% accurate Khmer and global music downloads.",
+  "versionName": "1.1.0",
+  "versionCode": 110,
+  "tagName": "v1.1.0",
+  "releaseTitle": "XECEAY v1.1.0 — Fixed Wrong Song Playback, Looping & Real Stream Audio Engine",
+  "changelog": "Completely fixed wrong song playback caused by local fallback hashing, eliminated 30s audio looping and fake durations, fixed FLAC badge on MP3 downloads, sorted Khmer & Global search results by relevance, deleted synthetic sine-wave WAV generation, and added multi-hop HTTP/HTTPS redirect stream resolution.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

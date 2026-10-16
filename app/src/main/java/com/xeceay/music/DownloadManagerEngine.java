@@ -232,34 +232,64 @@ public class DownloadManagerEngine {
                 }
 
                 long existingBytes = destFile.exists() ? destFile.length() : 0L;
-                URL url = new URL(streamUrl);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(20000);
-                conn.setInstanceFollowRedirects(true);
-                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
-                conn.setRequestProperty("Accept", "*/*");
-                if (existingBytes > 0L) {
-                    conn.setRequestProperty("Range", "bytes=" + existingBytes + "-");
-                }
-                conn.connect();
+                int code = -1;
 
-                int code = conn.getResponseCode();
+                // Follow multi-hop redirects (301, 302, 303, 307, 308) up to 6 times
+                for (int hop = 0; hop < 6; hop++) {
+                    URL url = new URL(streamUrl);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(20000);
+                    conn.setInstanceFollowRedirects(false);
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
+                    conn.setRequestProperty("Accept", "*/*");
+                    if (existingBytes > 0L) {
+                        conn.setRequestProperty("Range", "bytes=" + existingBytes + "-");
+                    }
+                    conn.connect();
+                    code = conn.getResponseCode();
+
+                    if (code >= 300 && code <= 308) {
+                        String loc = conn.getHeaderField("Location");
+                        conn.disconnect();
+                        if (loc != null && !loc.isEmpty()) {
+                            if (!loc.startsWith("http")) {
+                                loc = new URL(url, loc).toString();
+                            }
+                            streamUrl = loc;
+                            continue;
+                        }
+                    }
+                    break;
+                }
+
                 // If URL returned error, attempt to re-resolve a fresh live stream
                 if (code < 200 || code > 299) {
                     if (conn != null) conn.disconnect();
                     String freshUrl = resolveRealAudioUrl(title, artist);
                     if (freshUrl != null && !freshUrl.equals(streamUrl)) {
                         streamUrl = freshUrl;
-                        url = new URL(streamUrl);
-                        conn = (HttpURLConnection) url.openConnection();
-                        conn.setConnectTimeout(15000);
-                        conn.setReadTimeout(20000);
-                        conn.setInstanceFollowRedirects(true);
-                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
-                        conn.setRequestProperty("Accept", "*/*");
-                        conn.connect();
-                        code = conn.getResponseCode();
+                        for (int hop = 0; hop < 6; hop++) {
+                            URL url = new URL(streamUrl);
+                            conn = (HttpURLConnection) url.openConnection();
+                            conn.setConnectTimeout(15000);
+                            conn.setReadTimeout(20000);
+                            conn.setInstanceFollowRedirects(false);
+                            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
+                            conn.setRequestProperty("Accept", "*/*");
+                            conn.connect();
+                            code = conn.getResponseCode();
+                            if (code >= 300 && code <= 308) {
+                                String loc = conn.getHeaderField("Location");
+                                conn.disconnect();
+                                if (loc != null && !loc.isEmpty()) {
+                                    if (!loc.startsWith("http")) loc = new URL(url, loc).toString();
+                                    streamUrl = loc;
+                                    continue;
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
 
@@ -270,6 +300,7 @@ public class DownloadManagerEngine {
                     return;
                 }
 
+                String contentType = conn.getContentType() != null ? conn.getContentType().toLowerCase() : "";
                 long contentLength = conn.getContentLengthLong();
                 long totalBytes = contentLength > 0 ? (isPartial ? existingBytes + contentLength : contentLength) : -1L;
 
@@ -319,13 +350,50 @@ public class DownloadManagerEngine {
                 output.close();
                 output = null;
 
-                long finalSize = destFile.length();
-                long durationMs = Math.max(180_000L, inspectAudioDurationMs(destFile));
+                // Detect true audio format from content-type or magic bytes
+                String detectedFormat = "MP3";
+                if (contentType.contains("flac")) {
+                    detectedFormat = "FLAC";
+                } else if (contentType.contains("mp4") || contentType.contains("m4a") || contentType.contains("aac")) {
+                    detectedFormat = "M4A";
+                } else if (contentType.contains("wav")) {
+                    detectedFormat = "WAV";
+                } else {
+                    byte[] magic = new byte[8];
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(destFile)) {
+                        int r = fis.read(magic);
+                        if (r >= 4 && magic[0] == 'f' && magic[1] == 'L' && magic[2] == 'a' && magic[3] == 'C') {
+                            detectedFormat = "FLAC";
+                        } else if (r >= 8 && magic[4] == 'f' && magic[5] == 't' && magic[6] == 'y' && magic[7] == 'p') {
+                            detectedFormat = "M4A";
+                        } else if (r >= 4 && magic[0] == 'R' && magic[1] == 'I' && magic[2] == 'F' && magic[3] == 'F') {
+                            detectedFormat = "WAV";
+                        } else {
+                            detectedFormat = "MP3";
+                        }
+                    } catch (Exception ignored) {}
+                }
+
+                // If destFile extension does not match true format, rename it
+                String trueExt = detectedFormat.toLowerCase();
+                File finalFile = destFile;
+                if (!destFile.getName().toLowerCase().endsWith("." + trueExt)) {
+                    String curName = destFile.getName();
+                    int dot = curName.lastIndexOf('.');
+                    String baseName = dot >= 0 ? curName.substring(0, dot) : curName;
+                    File renamed = new File(destFile.getParentFile(), baseName + "." + trueExt);
+                    if (destFile.renameTo(renamed)) {
+                        finalFile = renamed;
+                    }
+                }
+
+                long finalSize = finalFile.length();
+                long durationMs = inspectAudioDurationMs(finalFile);
 
                 database.insertSongRecord(
                         songId, title, artist, album, genre,
-                        durationMs, format, finalSize, artworkUri,
-                        "downloaded", destFile.getAbsolutePath()
+                        durationMs, detectedFormat, finalSize, artworkUri,
+                        "downloaded", finalFile.getAbsolutePath()
                 );
 
                 SQLiteDatabase db = database.getWritableDatabase();
@@ -334,6 +402,8 @@ public class DownloadManagerEngine {
                 cv.put("progress", 100);
                 cv.put("downloadedBytes", finalSize);
                 cv.put("fileSize", finalSize);
+                cv.put("format", detectedFormat);
+                cv.put("destinationUri", finalFile.getAbsolutePath());
                 cv.put("speedBps", 0L);
                 cv.put("completedAt", System.currentTimeMillis());
                 db.update("Downloads", cv, "id = ?", new String[]{downloadId});
@@ -357,15 +427,17 @@ public class DownloadManagerEngine {
         String query = ((title != null ? title : "") + " " + (artist != null ? artist : "")).trim();
         if (query.isEmpty()) return null;
 
-        // 1. Deezer API (returns direct high-quality MP3 for Khmer & Global songs)
+        // 1. Deezer API (returns direct preview for exact title/artist)
         try {
             String encoded = java.net.URLEncoder.encode(query, "UTF-8");
-            JSONObject dz = fetchJsonSimple("https://api.deezer.com/search?q=" + encoded + "&limit=1");
+            JSONObject dz = fetchJsonSimple("https://api.deezer.com/search?q=" + encoded + "&limit=3");
             if (dz != null) {
                 org.json.JSONArray data = dz.optJSONArray("data");
                 if (data != null && data.length() > 0) {
-                    String p = data.getJSONObject(0).optString("preview", "");
-                    if (!p.isEmpty()) return p;
+                    for (int i = 0; i < data.length(); i++) {
+                        String p = data.getJSONObject(i).optString("preview", "");
+                        if (!p.isEmpty()) return p;
+                    }
                 }
             }
         } catch (Exception ignored) {}
@@ -373,12 +445,29 @@ public class DownloadManagerEngine {
         // 2. iTunes Cambodia API (country=KH)
         try {
             String encoded = java.net.URLEncoder.encode(query, "UTF-8");
-            JSONObject itunes = fetchJsonSimple("https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=1");
+            JSONObject itunes = fetchJsonSimple("https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=3");
             if (itunes != null) {
                 org.json.JSONArray results = itunes.optJSONArray("results");
                 if (results != null && results.length() > 0) {
-                    String p = results.getJSONObject(0).optString("previewUrl", "");
-                    if (!p.isEmpty()) return p;
+                    for (int i = 0; i < results.length(); i++) {
+                        String p = results.getJSONObject(i).optString("previewUrl", "");
+                        if (!p.isEmpty()) return p;
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        // 3. Audius API
+        try {
+            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
+            JSONObject aud = fetchJsonSimple("https://discoveryprovider.audius.co/v1/tracks/search?query=" + encoded + "&app_name=XECEAY");
+            if (aud != null) {
+                org.json.JSONArray data = aud.optJSONArray("data");
+                if (data != null && data.length() > 0) {
+                    String id = data.getJSONObject(0).optString("id", "");
+                    if (!id.isEmpty()) {
+                        return "https://discoveryprovider.audius.co/v1/tracks/" + id + "/stream?app_name=XECEAY";
+                    }
                 }
             }
         } catch (Exception ignored) {}
@@ -414,12 +503,16 @@ public class DownloadManagerEngine {
         try {
             retriever.setDataSource(file.getAbsolutePath());
             String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            return durStr != null ? Long.parseLong(durStr) : 196_000L;
-        } catch (Exception e) {
-            return 196_000L;
+            if (durStr != null) {
+                long parsed = Long.parseLong(durStr);
+                if (parsed > 0) return parsed;
+            }
+        } catch (Exception ignored) {
         } finally {
             try { retriever.release(); } catch (Exception ignored) {}
         }
+        long bytes = file.length();
+        return Math.max(1000L, (bytes / 16000L) * 1000L);
     }
 
     private void updateStatusInDb(String downloadId, String status, long speedBps) {

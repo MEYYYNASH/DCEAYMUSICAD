@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>XECEAY — Music Downloader & Offline Player</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Screen 1: Animated Splash Screen -->
+
+  <!-- Splash Screen -->
   <div id="splash-screen">
     <div class="splash-logo-ring">
       <div class="wave-bar"></div>
@@ -20,614 +21,596 @@
     <div class="splash-tagline">Your Music. Your Quality. Your World.</div>
   </div>
 
-  <!-- Toast Banner -->
+  <!-- Toast Notification -->
   <div id="toast-box">Ready</div>
 
-  <!-- Main App Shell -->
   <div class="app-layout">
-    <!-- Desktop Left Sidebar (visible on screens >= 840px) -->
+    <!-- Desktop Sidebar -->
     <aside class="desktop-sidebar">
-      <div class="brand-pill" style="padding: 8px 6px 18px;">
+      <div class="brand-pill" style="padding: 8px 10px 18px;">
         <div class="brand-icon-box">
-          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
         </div>
-        <div>
-          <div class="brand-label-main">XECEAY</div>
-          <div class="brand-label-dot">Hi-Fi Offline & Stream</div>
-        </div>
+        <span class="brand-label-main">XECEAY</span>
+        <span class="brand-label-dot">• Hi-Fi</span>
       </div>
-      <button class="pill-btn" onclick="XeceayApp.switchTab('home')" style="justify-content:flex-start;padding:11px 14px;">
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="pill-btn" onclick="XeceayApp.switchTab('search')" style="justify-content:flex-start;padding:11px 14px;">
-        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <span>Search & YouTube</span>
-      </button>
-      <button class="pill-btn" onclick="XeceayApp.switchTab('library')" style="justify-content:flex-start;padding:11px 14px;">
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <span>Library</span>
-      </button>
-      <button class="pill-btn" onclick="XeceayApp.switchTab('downloads')" style="justify-content:flex-start;padding:11px 14px;">
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        <span>Downloads</span>
-      </button>
-      <button class="pill-btn" onclick="XeceayApp.switchTab('settings')" style="justify-content:flex-start;padding:11px 14px;">
-        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Settings</span>
-      </button>
+      <div class="song-row" onclick="XeceayApp.switchTab('home')">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+        <span style="font-weight:700;">Home</span>
+      </div>
+      <div class="song-row" onclick="XeceayApp.switchTab('search')">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span style="font-weight:700;">Search & Link</span>
+      </div>
+      <div class="song-row" onclick="XeceayApp.switchTab('library')">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span style="font-weight:700;">Library</span>
+      </div>
+      <div class="song-row" onclick="XeceayApp.switchTab('downloads')">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 2c1.5 3.5 4 5.5 4 9a4 4 0 1 1-8 0c0-2 1-3.5 2-5"/><path d="M12 22a7 7 0 0 0 7-7c0-4-3-7-5-9-1 2.5-2.5 4-4 4s-2.5-1.5-3-3c-1.5 2-2 4.5-2 8a7 7 0 0 0 7 7z"/></svg>
+        <span style="font-weight:700;">Hotlist & Downloads</span>
+      </div>
+      <div class="song-row" onclick="XeceayApp.switchTab('settings')">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span style="font-weight:700;">Settings</span>
+      </div>
     </aside>
 
-    <!-- Primary Content Area -->
+    <!-- Main Content Column -->
     <div class="main-column">
-      <!-- Top Bar (Screenshot 4 Style) -->
+      <!-- Top Bar (Matches Right Phone in Reference) -->
       <header class="top-bar">
-        <div class="brand-pill">
+        <div class="brand-pill" onclick="XeceayApp.switchTab('home')" style="cursor:pointer;">
           <div class="brand-icon-box">
-            <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           </div>
           <span class="brand-label-main">XECEAY</span>
-          <span class="brand-label-dot">• Hi-Fi</span>
+          <span class="brand-label-dot">• Khmer & Hi-Fi</span>
         </div>
+
         <div class="top-right-actions">
-          <!-- Hidden by default! Appears ONLY when a strictly NEWER release version exists on GitHub -->
-          <button class="pill-btn pulse-update" id="header-update-btn" style="display:none;" onclick="XeceayApp.openGitHubUpdateQuick()">
-            <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            <span id="header-update-label">Update Available</span>
+          <!-- ONLY visible when a strictly NEWER release exists on GitHub -->
+          <button id="top-update-pill" class="pill-btn pulse-update" style="display:none;" onclick="XeceayApp.openGitHubUpdateQuick()">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="top-update-text">Update</span>
           </button>
-          <button class="circle-icon-btn" onclick="XeceayApp.switchTab('settings')" aria-label="Settings">
-            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+
+          <button class="circle-icon-btn" onclick="XeceayApp.openSearchDownloadMode()" title="Search Khmer & Global Songs">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+
+          <button class="circle-icon-btn" onclick="XeceayApp.switchTab('settings')" title="Settings">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </button>
         </div>
       </header>
 
       <!-- Scrollable Screens -->
       <main class="screen-container">
-        <!-- SCREEN 2: HOME (Matches Screenshot 4) -->
+
+        <!-- 1. HOME SCREEN (Matches Right Phone in Reference Screenshot!) -->
         <section id="screen-home" class="screen active">
-          <h1 class="greeting-title" id="home-greeting">Good evening</h1>
-          <p class="greeting-sub">What do you want to listen to?</p>
+          <!-- Featured Album / Khmer Server Header (Matches "Fragments - Mr. Kitty" Right Phone!) -->
+          <div class="album-hero-header">
+            <img id="home-hero-art" class="album-hero-art" src="" alt="Featured Artwork" onclick="XeceayApp.openFullPlayer()" style="cursor:pointer;" />
+            <div class="album-hero-info">
+              <div id="home-hero-meta" class="album-hero-meta">Featured • Full Length • 2026</div>
+              <div id="home-hero-title" class="album-hero-title">Fragments</div>
+              <div id="home-hero-artist" class="album-hero-artist">Mr. Kitty • VannDa វណ្ណដា</div>
+              <div class="album-hero-icons">
+                <button class="hero-mini-icon" onclick="XeceayApp.promptAddCurrentToPlaylist()" title="Add to Playlist">
+                  <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><path d="M19 14v6"/><path d="M16 17h6"/></svg>
+                </button>
+                <button class="hero-mini-icon" onclick="XeceayApp.downloadCurrentPlayingTrack()" title="Download Full MP3">
+                  <svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><polyline points="9 13 12 16 15 13"/></svg>
+                </button>
+                <button class="hero-mini-icon" onclick="XeceayApp.openYouTubeLinkMode()" title="YouTube Link Downloader">
+                  <svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="6"/><circle cx="8" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="16" cy="12" r="1" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <!-- Dual Top Action Buttons: YouTube Link & Search & Download -->
+          <!-- White [Play] & Dark [Shuffle] Buttons (Matches Right Phone!) -->
           <div class="dual-action-row">
-            <button class="dual-pill-btn dark-navy" onclick="XeceayApp.openYouTubeLinkMode()">
-              <span class="yt-badge-icon">
-                <svg class="svg-icon fill-current" style="width:10px;height:10px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </span>
-              <span>YouTube Link</span>
-            </button>
-            <button class="dual-pill-btn" onclick="XeceayApp.openSearchDownloadMode()">
-              <svg class="svg-icon sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-              <span>Search & Download</span>
-            </button>
-          </div>
-
-          <!-- Continue Listening Horizontal Large Cards -->
-          <div class="section-header" style="margin-top:4px;">
-            <div class="section-title">Continue Listening</div>
-            <span class="section-link" onclick="XeceayApp.scanDeviceMusic()">
-              <span>Scan Device</span>
-            </span>
-          </div>
-          <div class="horizontal-scroll" id="home-continue-carousel"></div>
-
-          <!-- 2x2 Quick Stat Grid (Favorites, Downloads, Playlists, History) -->
-          <div class="stat-grid-2x2">
-            <div class="stat-tile" onclick="XeceayApp.openLibrarySubTab('favorites')">
-              <div class="stat-icon-box red">
-                <svg class="svg-icon fill-current" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </div>
-              <div>
-                <div class="stat-title">Favorites</div>
-                <div class="stat-sub" id="stat-fav-count">0</div>
-              </div>
-            </div>
-
-            <div class="stat-tile" onclick="XeceayApp.switchTab('downloads')">
-              <div class="stat-icon-box orange">
-                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              </div>
-              <div>
-                <div class="stat-title">Downloads</div>
-                <div class="stat-sub" id="stat-dl-count">Offline</div>
-              </div>
-            </div>
-
-            <div class="stat-tile" onclick="XeceayApp.openLibrarySubTab('playlists')">
-              <div class="stat-icon-box green">
-                <svg class="svg-icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-              </div>
-              <div>
-                <div class="stat-title">Playlists</div>
-                <div class="stat-sub" id="stat-pl-count">Curated</div>
-              </div>
-            </div>
-
-            <div class="stat-tile" onclick="XeceayApp.openLibrarySubTab('recent')">
-              <div class="stat-icon-box purple">
-                <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div>
-                <div class="stat-title">History</div>
-                <div class="stat-sub" id="stat-hist-count">0</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recommended For You -->
-          <div class="section-header">
-            <div class="section-title">Recommended for you</div>
-            <span class="section-link" onclick="XeceayApp.refreshLiveDiscovery()">Refresh</span>
-          </div>
-          <div class="horizontal-scroll" id="home-trending-carousel"></div>
-
-          <!-- Explore by Genre -->
-          <div class="section-header">
-            <div class="section-title">Explore by Genre</div>
-          </div>
-          <div class="chip-row" id="home-genre-chips" style="margin-bottom:10px;"></div>
-
-          <!-- Top Tracks & Downloadable Songs -->
-          <div class="section-header">
-            <div class="section-title">Top Tracks & Quick Download</div>
-          </div>
-          <div class="song-list" id="home-downloadable-list"></div>
-        </section>
-
-        <!-- SCREEN 3 & 7 UNIFIED: YOUTUBE DOWNLOADER & SONG SEARCH (Matches Screenshot 3) -->
-        <section id="screen-search" class="screen">
-          <h1 class="greeting-title" style="font-size:24px;">YouTube & Music Downloader</h1>
-          <p class="greeting-sub">Search any song or paste a YouTube video link</p>
-
-          <!-- Top Mode Switcher Pills (Screenshot 3) -->
-          <div class="dual-action-row" style="margin-bottom:16px;">
-            <button class="dual-pill-btn" id="mode-btn-search" onclick="XeceayApp.setDownloaderSubMode('search')">
-              <svg class="svg-icon sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-              <span>Search & Download</span>
-            </button>
-            <button class="dual-pill-btn dark-navy" id="mode-btn-yt" onclick="XeceayApp.setDownloaderSubMode('yt')">
-              <span class="yt-badge-icon">
-                <svg class="svg-icon fill-current" style="width:10px;height:10px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </span>
-              <span>YouTube Link</span>
-            </button>
-          </div>
-
-          <!-- YouTube Video & MP3 Link Downloader Card (Screenshot 3) -->
-          <div class="yt-downloader-card" id="yt-link-card">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span class="yt-badge-icon" style="width:26px;height:19px;">
-                <svg class="svg-icon fill-current" style="width:12px;height:12px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </span>
-              <span style="font-size:15px;font-weight:800;">YouTube Video & MP3 Link Downloader</span>
-            </div>
-
-            <div class="yt-input-box">
-              <svg class="svg-icon" style="color:#F59E0B;" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              <input
-                type="url"
-                id="link-importer-input"
-                class="search-input"
-                placeholder="Paste YouTube link (youtu.be/... or youtube.com/...)"
-              />
-              <button class="icon-btn" onclick="document.getElementById('link-importer-input').value=''" style="border:none;background:transparent;width:28px;height:28px;">
-                <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-              </button>
-            </div>
-
-            <!-- Paste Link & Analyze Link Side-by-Side Buttons (Screenshot 3) -->
-            <div class="dual-action-row" style="margin-bottom:12px;">
-              <button class="dual-pill-btn" onclick="XeceayApp.pasteFromClipboard()">
-                <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                <span>Paste Link</span>
-              </button>
-              <button class="dual-pill-btn dark-navy" onclick="XeceayApp.analyzeLinkInput()">
-                <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-                <span>Analyze Link</span>
-              </button>
-            </div>
-
-            <!-- Quick Try YouTube Links (Screenshot 3) -->
-            <div style="font-size:11px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;">Quick Try YouTube Links:</div>
-            <div class="chip-row">
-              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=dvgZkm1xWPE', 'Coldplay - Viva La Vida')">
-                <span class="yt-badge-icon" style="width:16px;height:12px;"><svg class="svg-icon fill-current" style="width:8px;height:8px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-                <span>Coldplay - Viva La Vida</span>
-              </div>
-              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=V9PVRfjEBTI', 'Billie Eilish - Birds of a Feather')">
-                <span class="yt-badge-icon" style="width:16px;height:12px;"><svg class="svg-icon fill-current" style="width:8px;height:8px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-                <span>Billie Eilish - Birds of a Feather</span>
-              </div>
-              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=rvje5oblrLw', 'VANNDA - Time To Rise')">
-                <span class="yt-badge-icon" style="width:16px;height:12px;"><svg class="svg-icon fill-current" style="width:8px;height:8px;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-                <span>VANNDA - Time To Rise</span>
-              </div>
-            </div>
-
-            <!-- Analyzed Result Area (Download MP4 & Download MP3 buttons) -->
-            <div id="link-analysis-result"></div>
-          </div>
-
-          <!-- Search Songs Bar -->
-          <div class="search-bar-wrap" id="search-box-container">
-            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-            <input
-              type="text"
-              id="search-input"
-              class="search-input"
-              placeholder="Search any song, artist, Khmer music, or album..."
-              oninput="XeceayApp.onSearchInput(this.value)"
-              onkeydown="if(event.key==='Enter') XeceayApp.triggerCatalogSearchNow()"
-            />
-            <button class="pill-btn accent" style="padding:6px 12px;" onclick="XeceayApp.triggerCatalogSearchNow()">Search</button>
-          </div>
-
-          <!-- Search Category Filters -->
-          <div class="chip-row" id="search-filter-chips" style="margin-bottom:12px;">
-            <div class="chip active" onclick="XeceayApp.setSearchFilter('all', this)">All Tracks</div>
-            <div class="chip" onclick="XeceayApp.setSearchFilter('downloadable', this)">Online Catalog</div>
-            <div class="chip" onclick="XeceayApp.setSearchFilter('local', this)">Offline Device</div>
-            <div class="chip" onclick="XeceayApp.setSearchFilter('playlists', this)">Playlists</div>
-          </div>
-
-          <!-- Search Results List (Matches Screenshot 3 rows with MP4 / MP3 download pills) -->
-          <div id="search-results-container" class="song-list"></div>
-        </section>
-
-        <!-- SCREEN 6: OFFLINE LIBRARY (Matches Screenshot 2 Right Side: Cover + Play/Shuffle + Numbered Tracks) -->
-        <section id="screen-library" class="screen">
-          <!-- Featured Album / Library Header (Screenshot 2 Right Side) -->
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-            <img id="lib-hero-art" src="" style="width:96px;height:96px;border-radius:20px;object-fit:cover;background:#141923;box-shadow:0 10px 26px rgba(0,0,0,0.4);" alt="" />
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:11px;color:var(--text-secondary);font-weight:600;" id="lib-hero-count">Offline Library • 2026</div>
-              <div style="font-size:24px;font-weight:800;margin-top:2px;">Your Library</div>
-              <div style="font-size:13px;color:var(--text-secondary);margin-top:2px;">100% Offline Ready</div>
-              <div style="display:flex;gap:8px;margin-top:10px;">
-                <button class="icon-btn" onclick="XeceayApp.scanDeviceMusic()" title="Scan Device Audio">
-                  <svg class="svg-icon sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"/></svg>
-                </button>
-                <button class="icon-btn" onclick="XeceayApp.importLocalFile()" title="Import File">
-                  <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-                </button>
-                <button class="icon-btn" onclick="XeceayApp.promptCreatePlaylist()" title="New Playlist">
-                  <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Play & Shuffle Dual Buttons (Screenshot 2 Right Side) -->
-          <div class="dual-action-row" style="margin-bottom:14px;">
-            <button class="dual-pill-btn" style="background:#FFFFFF;color:#0F1218;border:none;" onclick="XeceayApp.playAllLibrary(false)">
-              <svg class="svg-icon sm fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <button class="dual-pill-btn white-solid" onclick="XeceayApp.playAllLibrary(false)">
+              <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>
               <span>Play</span>
             </button>
-            <button class="dual-pill-btn dark-navy" onclick="XeceayApp.playAllLibrary(true)">
-              <svg class="svg-icon sm" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+            <button class="dual-pill-btn" onclick="XeceayApp.playAllLibrary(true)">
+              <svg class="ico" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
               <span>Shuffle</span>
             </button>
           </div>
 
-          <!-- Library Sub-Tabs -->
-          <div class="chip-row" id="library-subtabs" style="margin-bottom:14px;">
-            <div class="chip active" onclick="XeceayApp.setLibraryTab('all', this)">All Songs</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('downloaded', this)">Downloaded</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('favorites', this)">Favorites</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('playlists', this)">Playlists</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('albums', this)">Albums</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('recent', this)">History</div>
-            <div class="chip" onclick="XeceayApp.setLibraryTab('duplicates', this)">Duplicates</div>
+          <!-- Khmer Server & Singer Quick Chips -->
+          <div id="home-genre-chips" class="chip-row"></div>
+
+          <!-- Numbered Tracklist (01, 02, 03 Unstable with Equalizer Icon!) -->
+          <div id="home-downloadable-list" class="song-list"></div>
+
+          <!-- Recommended for You (Full-Length Khmer & Global Server) -->
+          <div class="section-header">
+            <span class="section-title">Recommended for You (Khmer & Global)</span>
+            <span class="section-link" onclick="XeceayApp.refreshLiveDiscovery()">Refresh</span>
+          </div>
+          <div id="home-trending-carousel" class="h-carousel"></div>
+
+          <!-- Continue Listening -->
+          <div class="section-header">
+            <span class="section-title">Continue Listening</span>
+            <span class="section-link" onclick="XeceayApp.switchTab('library')">See All</span>
+          </div>
+          <div id="home-continue-carousel" class="h-carousel"></div>
+
+          <!-- 2x2 Quick Stat Grid -->
+          <div class="stat-grid-2x2">
+            <div class="stat-card" onclick="XeceayApp.openLibrarySubTab('favorites')">
+              <div class="stat-icon-box pink">
+                <svg class="ico ico-fill" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <div>
+                <div id="stat-fav-count" class="stat-num">2</div>
+                <div class="stat-label">Favorites</div>
+              </div>
+            </div>
+            <div class="stat-card" onclick="XeceayApp.switchTab('downloads')">
+              <div class="stat-icon-box orange">
+                <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <div>
+                <div id="stat-dl-count" class="stat-num">Offline</div>
+                <div class="stat-label">Downloads</div>
+              </div>
+            </div>
+            <div class="stat-card" onclick="XeceayApp.openLibrarySubTab('playlists')">
+              <div class="stat-icon-box green">
+                <svg class="ico" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </div>
+              <div>
+                <div id="stat-pl-count" class="stat-num">4 Curated</div>
+                <div class="stat-label">Playlists</div>
+              </div>
+            </div>
+            <div class="stat-card" onclick="XeceayApp.openLibrarySubTab('recent')">
+              <div class="stat-icon-box purple">
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+              </div>
+              <div>
+                <div id="stat-hist-count" class="stat-num">6</div>
+                <div class="stat-label">History</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SEARCH & YOUTUBE LINK DOWNLOADER SCREEN -->
+        <section id="screen-search" class="screen">
+          <div class="dual-action-row" style="margin-top:4px;">
+            <button id="mode-btn-search" class="dual-pill-btn white-solid" onclick="XeceayApp.setDownloaderSubMode('search')">
+              <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <span>Search Khmer & Global</span>
+            </button>
+            <button id="mode-btn-yt" class="dual-pill-btn" onclick="XeceayApp.setDownloaderSubMode('yt')">
+              <svg class="ico" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>
+              <span>YouTube Link</span>
+            </button>
           </div>
 
-          <!-- Offline Filter Input -->
-          <div class="search-bar-wrap" style="margin-bottom:12px;">
-            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <!-- YouTube Video & MP3 Link Downloader Card -->
+          <div id="yt-link-card" class="yt-downloader-card">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;">
+              <svg class="ico" style="color:#EF4444;" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>
+              <span>YouTube Video & Full MP3 Link Downloader</span>
+            </div>
+
             <input
+              id="link-importer-input"
+              class="yt-url-input"
               type="text"
+              placeholder="Paste YouTube link (youtu.be/... or youtube.com/watch?v=...)"
+            />
+
+            <div class="dual-action-row" style="margin:6px 0 0;">
+              <button class="dual-pill-btn" onclick="XeceayApp.pasteFromClipboard()">
+                <svg class="ico" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                <span>Paste Link</span>
+              </button>
+              <button class="dual-pill-btn white-solid" onclick="XeceayApp.analyzeLinkInput()">
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <span>Analyze Link</span>
+              </button>
+            </div>
+
+            <div class="chip-row" style="margin:10px 0 0;">
+              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=xiw7Wjp9euk','VannDa - Time To Rise')">VannDa - Time To Rise</div>
+              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=dQw4w9WgXcQ','Full Song Stream')">Sample Full Track</div>
+              <div class="chip" onclick="XeceayApp.importLocalFile()">Import Local File</div>
+            </div>
+
+            <div id="link-analysis-result"></div>
+          </div>
+
+          <!-- Search Input Bar (Supports Khmer Unicode & Sing-Khmer!) -->
+          <div class="search-bar-wrap">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input
+              id="search-input"
+              class="search-input"
+              type="text"
+              placeholder="Search Khmer (វណ្ណដា, ថេណា, បទខ្មែរ) or English (VannDa, Tena, Suly Pheng)..."
+              oninput="XeceayApp.onSearchInput(this.value)"
+              onkeydown="if(event.key==='Enter') XeceayApp.triggerCatalogSearchNow()"
+            />
+            <button class="pill-btn white-pill" style="padding:6px 12px;" onclick="XeceayApp.triggerCatalogSearchNow()">Search</button>
+          </div>
+
+          <!-- Popular Khmer Singers & Server Quick Chips -->
+          <div class="chip-row" style="margin:4px 0 8px;">
+            <div class="chip active" onclick="XeceayApp.quickSearchKhmerArtist('VannDa វណ្ណដា', this)">🇰🇭 វណ្ណដា VannDa</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Tena ថេណា', this)">ថេណា Tena</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Suly Pheng ស៊ូលីផេង', this)">ស៊ូលីផេង Suly Pheng</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Sinn Sisamouth ស៊ីន ស៊ីសាមុត', this)">ស៊ីន ស៊ីសាមុត</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('G-Devith', this)">G-Devith</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Khemarak Sereymon ខេមរៈ សិរីមន្ត', this)">ខេមរៈ សិរីមន្ត</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Meas Soksophea មាស សុខសោភា', this)">មាស សុខសោភា</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Pich Solika ពេជ្រ សូលីកា', this)">ពេជ្រ សូលីកា</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Kmeng Khmer ក្មេងខ្មែរ', this)">ក្មេងខ្មែរ</div>
+            <div class="chip" onclick="XeceayApp.quickSearchKhmerArtist('Mr. Kitty', this)">Mr. Kitty</div>
+          </div>
+
+          <div id="search-filter-chips" class="chip-row">
+            <div class="chip active" onclick="XeceayApp.setSearchFilter('all', this)">All Results</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('downloadable', this)">Khmer & Online Server</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('local', this)">Offline Library</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('playlists', this)">Playlists</div>
+          </div>
+
+          <div id="search-results-container" class="song-list"></div>
+        </section>
+
+        <!-- 3. OFFLINE LIBRARY & PLAYLISTS SCREEN -->
+        <section id="screen-library" class="screen">
+          <!-- Featured Header matching Right Phone -->
+          <div class="album-hero-header">
+            <img id="lib-hero-art" class="album-hero-art" src="" alt="" />
+            <div class="album-hero-info">
+              <div id="lib-hero-count" class="album-hero-meta">Library • 6 songs • 2026</div>
+              <div class="album-hero-title">Offline Library</div>
+              <div class="album-hero-artist">XECEAY Collection</div>
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <button class="pill-btn" onclick="XeceayApp.scanDeviceMusic()">Scan Device</button>
+                <button class="pill-btn" onclick="XeceayApp.importLocalFile()">Import File</button>
+                <button class="pill-btn white-pill" onclick="XeceayApp.openCreatePlaylistModal()">+ Playlist</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dual-action-row">
+            <button class="dual-pill-btn white-solid" onclick="XeceayApp.playAllLibrary(false)">
+              <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>
+              <span>Play</span>
+            </button>
+            <button class="dual-pill-btn" onclick="XeceayApp.playAllLibrary(true)">
+              <svg class="ico" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+              <span>Shuffle</span>
+            </button>
+          </div>
+
+          <div id="library-subtabs" class="chip-row">
+            <div class="chip active" onclick="XeceayApp.setLibraryTab('all', this)">All Songs</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('playlists', this)">Playlists</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('downloaded', this)">Downloaded</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('favorites', this)">Favorites</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('recent', this)">History</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('albums', this)">Albums</div>
+          </div>
+
+          <div class="search-bar-wrap">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input
               id="library-filter-input"
               class="search-input"
-              placeholder="Filter your offline library..."
-              oninput="XeceayApp.renderLibraryContent()"
+              type="text"
+              placeholder="Filter your offline songs or playlists..."
+              oninput="XeceayApp.renderLibrary()"
             />
           </div>
 
           <div id="library-content-area" class="song-list"></div>
         </section>
 
-        <!-- SCREEN 5: MUSIC DOWNLOAD MANAGER -->
+        <!-- 4. HOTLIST & DOWNLOAD MANAGER SCREEN -->
         <section id="screen-downloads" class="screen">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px;">
             <div>
-              <h1 class="greeting-title" style="font-size:24px;">Downloads</h1>
-              <p class="greeting-sub" style="margin-bottom:4px;">Multi-threaded MP3 & MP4 queue with Pause, Resume & Offline Play</p>
+              <div style="font-size:22px;font-weight:800;">Hotlist & Downloads</div>
+              <div style="font-size:12px;color:var(--text-secondary);">Full-Length MP3 & MP4 Offline Queue</div>
             </div>
-            <button class="pill-btn accent" onclick="XeceayApp.openYouTubeLinkMode()">
-              <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-              <span>New Link</span>
-            </button>
+            <button class="pill-btn white-pill" onclick="XeceayApp.openYouTubeLinkMode()">+ Paste Link</button>
           </div>
 
-          <div class="chip-row" style="margin-bottom:14px;">
-            <div class="chip active" onclick="XeceayApp.setDownloadFilter('all', this)">All Queue</div>
+          <div class="chip-row">
+            <div class="chip active" onclick="XeceayApp.setDownloadFilter('all', this)">All Downloads</div>
             <div class="chip" onclick="XeceayApp.setDownloadFilter('active', this)">Downloading</div>
             <div class="chip" onclick="XeceayApp.setDownloadFilter('completed', this)">Completed</div>
             <div class="chip" onclick="XeceayApp.setDownloadFilter('audio', this)">MP3 Audio</div>
             <div class="chip" onclick="XeceayApp.setDownloadFilter('video', this)">MP4 Video</div>
           </div>
 
-          <div id="downloads-queue-list" class="song-list" style="margin-bottom:22px;"></div>
+          <div id="downloads-queue-list" class="song-list"></div>
 
-          <div class="section-header">
-            <div class="section-title">Quick Download Tracks</div>
+          <div class="section-header" style="margin-top:22px;">
+            <span class="section-title">Khmer & Global Hotlist (Full Length)</span>
           </div>
           <div id="authorized-catalog-downloads" class="song-list"></div>
         </section>
 
-        <!-- SCREEN 9: SETTINGS & AUTOMATIC GITHUB VERSION CHECKER -->
+        <!-- 5. SETTINGS & GITHUB AUTO-UPDATER SCREEN -->
         <section id="screen-settings" class="screen">
-          <h1 class="greeting-title" style="font-size:24px;margin-bottom:14px;">Settings</h1>
+          <div style="margin:4px 0 14px;">
+            <div style="font-size:22px;font-weight:800;">Settings & Updates</div>
+            <div style="font-size:12px;color:var(--text-secondary);">Audio Engine, Storage & GitHub Release Auto-Updater</div>
+          </div>
 
-          <!-- GITHUB AUTO-UPDATE CARD (Shows update button ONLY when a strictly newer version exists!) -->
+          <div class="yt-downloader-card" style="border-color:rgba(255,255,255,0.12);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;">
+                <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>App Version & Auto-Update</span>
+              </div>
+              <span id="installed-version-badge" class="badge green">v1.0.2</span>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
+              Automatically checks <strong>github.com/MEYYYNASH/XECEAY</strong>. Update button only appears when a newer version is released.
+            </p>
+            <button class="pill-btn white-pill" onclick="XeceayApp.checkGitHubReleaseNow(false)">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Check for Updates</span>
+            </button>
+            <div id="github-update-status-box" style="margin-top:12px;display:none;"></div>
+          </div>
+
+          <div id="settings-storage-card" class="yt-downloader-card"></div>
+
           <div class="yt-downloader-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-              <div>
-                <span class="badge cyan">OTA GITHUB RELEASE SYNC</span>
-                <h2 style="font-size:17px;font-weight:800;margin-top:4px;">Application Version & Auto-Update</h2>
-                <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">
-                  Repository: <strong>MEYYYNASH/XECEAY</strong>
-                </p>
-              </div>
-              <span class="badge green" id="installed-version-badge">v1.0.1</span>
+            <div style="font-weight:800;font-size:15px;margin-bottom:10px;">Theme & Audio Processing</div>
+            <div class="chip-row">
+              <div class="chip active" onclick="XeceayApp.setTheme('dark', this)">Midnight Dark</div>
+              <div class="chip" onclick="XeceayApp.setTheme('glass', this)">Glassmorphism</div>
+              <div class="chip" onclick="XeceayApp.setTheme('light', this)">Clean Light</div>
             </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;">
-              <div id="github-up-to-date-pill" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--success);font-weight:700;">
-                <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-                <span id="github-up-to-date-text">Latest version installed (No update needed)</span>
-              </div>
-              <button class="pill-btn" onclick="XeceayApp.checkGitHubReleaseNow()">
-                <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                <span>Check for Update</span>
-              </button>
-            </div>
-
-            <!-- Hidden unless a strictly NEWER version exists on GitHub -->
-            <div id="github-update-status-box" style="display:none;margin-top:12px;padding:12px;border-radius:14px;background:var(--surface-elevated);border:1px solid var(--accent-secondary);font-size:12px;"></div>
-          </div>
-
-          <!-- Audio & Equalizer -->
-          <div class="section-header">
-            <div class="section-title">Audio & Equalizer</div>
-          </div>
-          <div class="song-list">
-            <div class="song-row" onclick="XeceayApp.openEqualizerModal()">
-              <div class="stat-icon-box purple">
-                <svg class="svg-icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-              </div>
+            <div class="song-row" style="margin-top:8px;background:rgba(255,255,255,0.04);" onclick="XeceayApp.openEqualizerModal()">
               <div class="song-info">
-                <div class="song-name">5-Band Hardware Equalizer & Bass Boost</div>
-                <div class="song-meta" id="settings-eq-summary">Preset: Normal • 5 Bands Active</div>
+                <div class="song-name">10-Band Equalizer & Bass Boost</div>
+                <div id="settings-eq-summary" class="song-meta">Preset: Normal • Hardware DSP</div>
               </div>
-              <span class="badge cyan">Open</span>
+              <span class="badge">Configure</span>
             </div>
           </div>
-
-          <!-- Appearance & Theme -->
-          <div class="section-header">
-            <div class="section-title">Theme</div>
-          </div>
-          <div class="chip-row" style="margin-bottom:14px;">
-            <div class="chip active" onclick="XeceayApp.setTheme('dark', this)">Obsidian Dark (#0F1218)</div>
-            <div class="chip" onclick="XeceayApp.setTheme('light', this)">Clean Light (LUMO Style)</div>
-            <div class="chip" onclick="XeceayApp.setTheme('glass', this)">Glassmorphism</div>
-          </div>
-
-          <!-- Storage Manager -->
-          <div class="section-header">
-            <div class="section-title">Storage Manager</div>
-            <span class="section-link" onclick="XeceayApp.refreshStorageCard()">Refresh</span>
-          </div>
-          <div id="settings-storage-card" class="song-row" style="flex-direction:column;align-items:stretch;cursor:default;"></div>
         </section>
+
       </main>
+
+      <!-- WHITE FLOATING MINI-PLAYER CARD DOCKED ABOVE BOTTOM NAV (Matches Right Phone in Reference!) -->
+      <div id="mini-player" class="mini-player" onclick="XeceayApp.openFullPlayer()">
+        <div class="mini-progress-line">
+          <div id="mini-progress-fill" class="mini-progress-fill"></div>
+        </div>
+        <img id="mini-art" class="song-thumb" src="" alt="" />
+        <div class="song-info">
+          <div id="mini-title" class="song-name">Unstable</div>
+          <div id="mini-artist" class="song-meta">Mr. Kitty</div>
+        </div>
+        <div class="song-actions" onclick="event.stopPropagation()">
+          <button id="mini-fav-btn" class="icon-btn" onclick="XeceayApp.toggleCurrentFavorite()">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button id="mini-play-btn" class="mini-white-play-btn" onclick="XeceayApp.togglePlay()">
+            <svg class="ico ico-fill" viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- DARK CURVED BOTTOM NAVIGATION BAR WITH GLOWING ACTIVE ICON (Matches Both Phones in Reference!) -->
+      <div class="bottom-nav-wrap">
+        <nav class="bottom-nav">
+          <div id="nav-home" class="nav-item active" onclick="XeceayApp.switchTabFromNav('home')">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="nav-label">Home</span>
+          </div>
+          <div id="nav-search" class="nav-item" onclick="XeceayApp.switchTabFromNav('search')">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <span class="nav-label">Search</span>
+          </div>
+          <div id="nav-library" class="nav-item" onclick="XeceayApp.switchTabFromNav('library')">
+            <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 14V8l6-1v6"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="13.5" cy="13" r="1.5"/></svg>
+            <span class="nav-label">Library</span>
+          </div>
+          <div id="nav-downloads" class="nav-item" onclick="XeceayApp.switchTabFromNav('downloads')">
+            <span id="nav-dl-badge" class="nav-badge-dot">0</span>
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-4-3-7-5-9-1 2.5-2.5 4-4 4s-2.5-1.5-3-3c-1.5 2-2 4.5-2 8a7 7 0 0 0 7 7z"/></svg>
+            <span class="nav-label">Hotlist</span>
+          </div>
+        </nav>
+      </div>
+
     </div>
   </div>
 
-  <!-- Dark Floating Mini-Player Pill (Matches Screenshots 3 & 4) -->
-  <div class="mini-player" id="mini-player" onclick="XeceayApp.openFullPlayer(event)">
-    <img id="mini-art" class="song-thumb" src="" alt="Art" style="width:44px;height:44px;border-radius:11px;" />
-    <div class="song-info">
-      <div class="song-name" id="mini-title">Midnight Horizon</div>
-      <div class="song-meta" id="mini-artist">XECEAY Synth Ensemble</div>
-    </div>
-    <div class="song-actions" onclick="event.stopPropagation()" style="gap:10px;">
-      <button class="fp-ghost-btn" id="mini-fav-btn" onclick="XeceayApp.toggleCurrentFavorite()" style="width:34px;height:34px;" aria-label="Favorite"></button>
-      <button class="mini-white-play-btn" id="mini-play-btn" onclick="XeceayApp.togglePlay()" aria-label="Play/Pause"></button>
-    </div>
-    <div class="mini-progress-line">
-      <div class="mini-progress-fill" id="mini-progress-fill"></div>
-    </div>
-  </div>
-
-  <!-- Dynamic Morphing Pill Bottom Navigation Bar (Matches Screenshots 3 & 4) -->
-  <div class="bottom-nav-wrap">
-    <nav class="bottom-nav">
-      <div class="nav-item active" id="nav-home" onclick="XeceayApp.switchTab('home')">
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
-        <span class="nav-label">Home</span>
-      </div>
-
-      <div class="nav-item" id="nav-search" onclick="XeceayApp.switchTab('search')">
-        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <span class="nav-label">Search</span>
-      </div>
-
-      <div class="nav-item" id="nav-library" onclick="XeceayApp.switchTab('library')">
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <span class="nav-label">Library</span>
-      </div>
-
-      <div class="nav-item" id="nav-downloads" onclick="XeceayApp.switchTab('downloads')">
-        <span class="nav-badge-dot" id="nav-dl-badge">0</span>
-        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        <span class="nav-label">Downloads</span>
-      </div>
-
-      <div class="nav-item" id="nav-settings" onclick="XeceayApp.switchTab('settings')">
-        <span class="nav-badge-dot" id="nav-update-dot" style="background:var(--success);">!</span>
-        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span class="nav-label">Settings</span>
-      </div>
-    </nav>
-  </div>
-
-  <!-- SCREEN 4: SOLID OPAQUE FULL-SCREEN MUSIC PLAYER (Matches Screenshot 2 & Fixes Screenshot 5 Bleed-Through) -->
-  <div class="full-player-modal" id="full-player-modal">
+  <!-- SOLID OPAQUE FULL-SCREEN "NOW PLAYING" PLAYER (Matches Left Phone in Reference!) -->
+  <div id="full-player-modal" class="full-player-modal">
     <div class="fp-header">
-      <button class="fp-ghost-btn" onclick="XeceayApp.closeFullPlayer()">
-        <svg class="svg-icon lg" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      <button class="fp-header-btn" onclick="XeceayApp.closeFullPlayer()">
+        <svg class="ico" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div style="text-align:center;">
         <div style="font-size:15px;font-weight:700;color:#FFFFFF;">Now Playing</div>
-        <div style="font-size:11px;color:#94A3B8;margin-top:2px;" id="fp-album-label">XECEAY Hi-Res</div>
       </div>
-      <button class="fp-ghost-btn" onclick="XeceayApp.openEqualizerModal()">
-        <svg class="svg-icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <button class="fp-header-btn" onclick="XeceayApp.openEqualizerModal()" title="Equalizer & Queue">
+        <svg class="ico" viewBox="0 0 24 24"><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="12" x2="12" y2="12"/><line x1="3" y1="18" x2="10" y2="18"/><path d="M16 16V8l5-1v8"/><circle cx="14.5" cy="16.5" r="2"/></svg>
       </button>
     </div>
 
-    <!-- Large Glowing Rounded Square Artwork -->
     <div class="fp-art-container">
       <img id="fp-art" src="" alt="Album Art" />
     </div>
 
-    <!-- Centered Title & Artist with Left Heart & Right More Button (Screenshot 2) -->
+    <!-- Heart + Centered Title/Artist + 3-Dots Row (Matches Left Phone: Unstable / Mr. Kitty) -->
     <div class="fp-title-row">
-      <button class="fp-ghost-btn" id="fp-fav-btn" onclick="XeceayApp.toggleCurrentFavorite()"></button>
+      <button id="fp-fav-btn" class="fp-ghost-btn" onclick="XeceayApp.toggleCurrentFavorite()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
       <div class="fp-title-center">
-        <div class="fp-song-title" id="fp-title">Select a Song</div>
-        <div class="fp-song-artist" id="fp-artist">XECEAY</div>
+        <div id="fp-title" class="fp-song-title">Unstable</div>
+        <div id="fp-artist" class="fp-song-artist">Mr. Kitty</div>
       </div>
-      <button class="fp-ghost-btn" onclick="XeceayApp.openTagEditorForCurrent()" title="Edit Metadata Tags">
-        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>
+      <button class="fp-ghost-btn" onclick="XeceayApp.openCurrentSongMenu()" title="Options & Download">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
       </button>
     </div>
 
-    <!-- Interactive Sound-Wave / Waveform Progress Bar (Screenshot 2) -->
+    <!-- Symmetrical Center-Aligned Audio Waveform Progress Bar (Matches Left Phone!) -->
     <div class="waveform-seek-wrap">
-      <div class="waveform-bars" id="fp-waveform-bars" onclick="XeceayApp.onWaveformTap(event)"></div>
+      <div id="fp-waveform-bars" class="waveform-bars" onclick="XeceayApp.onWaveformTap(event)"></div>
       <input
-        type="range"
         id="fp-seek-slider"
-        class="range-slider"
+        type="range"
         min="0"
         max="1000"
         value="0"
-        style="margin-top:4px;height:4px;"
+        class="range-slider"
+        style="margin-top:4px;height:4px;opacity:0.45;"
         oninput="XeceayApp.onSeekSliderInput(this.value)"
         onchange="XeceayApp.onSeekSliderCommit(this.value)"
       />
       <div class="fp-time-row">
         <span id="fp-current-time">0:00</span>
-        <span id="fp-format-badge" style="color:#64748B;">HI-RES AUDIO</span>
-        <span id="fp-total-time">0:00</span>
+        <span id="fp-total-time">2:52</span>
       </div>
     </div>
 
-    <!-- Primary Transport Controls with Glowing White Play Circle (Screenshot 2) -->
+    <!-- Main Playback Controls (Matches Left Phone: Shuffle, Prev, Glowing White Circle Play, Next, Repeat) -->
     <div class="fp-controls-main">
-      <button class="fp-ghost-btn" id="fp-shuffle-btn" onclick="XeceayApp.toggleShuffle()">
-        <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      <button id="fp-shuffle-btn" class="fp-ghost-btn" onclick="XeceayApp.toggleShuffle()">
+        <svg class="ico" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
       </button>
       <button class="fp-ghost-btn" onclick="XeceayApp.prevTrack()">
-        <svg class="svg-icon lg fill-current" viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><rect x="5" y="4" width="2.5" height="16"/></svg>
+        <svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><polygon points="19,20 9,12 19,4"/><rect x="5" y="4" width="2.5" height="16"/></svg>
       </button>
-      <button class="play-circle-white" id="fp-play-btn" onclick="XeceayApp.togglePlay()"></button>
+      <button id="fp-play-btn" class="play-circle-white" onclick="XeceayApp.togglePlay()">
+        <svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
+      </button>
       <button class="fp-ghost-btn" onclick="XeceayApp.nextTrack()">
-        <svg class="svg-icon lg fill-current" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><rect x="16.5" y="4" width="2.5" height="16"/></svg>
+        <svg class="ico ico-fill ico-lg" viewBox="0 0 24 24"><polygon points="5,4 15,12 5,20"/><rect x="16.5" y="4" width="2.5" height="16"/></svg>
       </button>
-      <button class="fp-ghost-btn" id="fp-repeat-btn" onclick="XeceayApp.cycleRepeatMode()">
-        <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <button id="fp-repeat-btn" class="fp-ghost-btn" onclick="XeceayApp.cycleRepeatMode()">
+        <svg class="ico" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
       </button>
     </div>
 
-    <!-- Secondary Hi-Fi Controls -->
-    <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;">
-      <button class="pill-btn" id="fp-speed-btn" style="background:#181E2B;color:#fff;" onclick="XeceayApp.cyclePlaybackSpeed()">1.0x</button>
-      <button class="pill-btn" id="fp-sleep-btn" style="background:#181E2B;color:#fff;" onclick="XeceayApp.cycleSleepTimer()">Sleep: Off</button>
-      <button class="pill-btn" style="background:#181E2B;color:#fff;" onclick="XeceayApp.promptAddCurrentToPlaylist()">+ Playlist</button>
-      <button class="pill-btn" style="background:#181E2B;color:#22D3EE;" onclick="XeceayApp.openEqualizerModal()">Equalizer</button>
+    <!-- Quick Utility Pills inside Full Player -->
+    <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:4px 0 16px;">
+      <button class="pill-btn" onclick="XeceayApp.downloadCurrentPlayingTrack()">Download Full MP3</button>
+      <button class="pill-btn" onclick="XeceayApp.promptAddCurrentToPlaylist()">+ Add to Playlist</button>
+      <button id="fp-speed-btn" class="pill-btn" onclick="XeceayApp.cyclePlaybackSpeed()">1.0x</button>
+      <button id="fp-sleep-btn" class="pill-btn" onclick="XeceayApp.cycleSleepTimer()">Sleep: Off</button>
     </div>
 
-    <!-- Playing Queue -->
-    <div class="section-header" style="margin-top:22px;">
-      <div class="section-title" style="color:#FFFFFF;">Up Next Queue</div>
+    <div class="section-header" style="margin-top:8px;">
+      <span class="section-title" style="font-size:14px;">Up Next in Queue</span>
     </div>
     <div id="fp-queue-list" class="song-list"></div>
   </div>
 
-  <!-- EQUALIZER MODAL -->
-  <div class="modal-backdrop" id="eq-modal">
-    <div class="modal-sheet">
+  <!-- Equalizer Modal -->
+  <div id="eq-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closeEqualizerModal()">
+    <div class="modal-box">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div>
-          <h3 style="font-size:17px;font-weight:800;">5-Band Hardware Equalizer</h3>
-          <p style="font-size:11px;color:#94A3B8;">Real-time DSP frequency shaping & hardware Bass Boost</p>
-        </div>
+        <div style="font-size:18px;font-weight:800;">Professional Equalizer</div>
         <button class="icon-btn" onclick="XeceayApp.closeEqualizerModal()">
-          <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-
-      <div class="chip-row" id="eq-presets-row" style="margin-bottom:12px;"></div>
-      <div class="eq-bands-grid" id="eq-bands-container"></div>
-
-      <div style="margin-top:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-          <span>Sub-Bass Boost Strength</span>
+      <div id="eq-presets-row" class="chip-row"></div>
+      <div id="eq-bands-container" class="eq-sliders-grid"></div>
+      <div style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span>Sub-Bass Boost</span>
           <span id="eq-bass-val">15%</span>
         </div>
-        <input type="range" id="eq-bass-slider" class="range-slider" min="0" max="1000" value="150" oninput="XeceayApp.onBassSliderChange(this.value)" />
+        <input id="eq-bass-slider" type="range" min="0" max="1000" value="150" class="range-slider" oninput="XeceayApp.onBassSliderChange(this.value)" />
       </div>
     </div>
   </div>
 
-  <!-- PLAYLIST DETAILS MODAL -->
-  <div class="modal-backdrop" id="playlist-modal">
-    <div class="modal-sheet">
+  <!-- Create Playlist Modal -->
+  <div id="create-playlist-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closeCreatePlaylistModal()">
+    <div class="modal-box">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:18px;font-weight:800;" id="pl-modal-title">Playlist</h3>
-        <button class="icon-btn" onclick="XeceayApp.closePlaylistModal()">
-          <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <div style="font-size:18px;font-weight:800;">Create New Playlist</div>
+        <button class="icon-btn" onclick="XeceayApp.closeCreatePlaylistModal()">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <div id="pl-modal-meta" style="font-size:12px;color:#94A3B8;margin-bottom:12px;"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;" id="pl-modal-actions"></div>
+      <input id="new-playlist-name-input" class="yt-url-input" type="text" placeholder="Enter playlist name (e.g. Khmer Favorites)" />
+      <div class="dual-action-row" style="margin-top:10px;margin-bottom:0;">
+        <button class="dual-pill-btn" onclick="XeceayApp.closeCreatePlaylistModal()">Cancel</button>
+        <button class="dual-pill-btn white-solid" onclick="XeceayApp.confirmCreatePlaylist()">Create Playlist</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Song to Playlist Picker Modal -->
+  <div id="add-to-playlist-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closeAddToPlaylistModal()">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:18px;font-weight:800;">Add Song to Playlist</div>
+        <button class="icon-btn" onclick="XeceayApp.closeAddToPlaylistModal()">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="add-to-playlist-list" class="song-list" style="margin-bottom:12px;"></div>
+      <button class="dual-pill-btn white-solid" style="width:100%;" onclick="XeceayApp.closeAddToPlaylistModal();XeceayApp.openCreatePlaylistModal();">+ Create New Playlist</button>
+    </div>
+  </div>
+
+  <!-- Playlist Details Modal -->
+  <div id="playlist-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closePlaylistModal()">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <div id="pl-modal-title" style="font-size:18px;font-weight:800;">Playlist</div>
+          <div id="pl-modal-meta" style="font-size:12px;color:#94A3B8;">0 songs</div>
+        </div>
+        <button class="icon-btn" onclick="XeceayApp.closePlaylistModal()">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="pl-modal-actions" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
       <div id="pl-modal-songs" class="song-list"></div>
     </div>
   </div>
 
-  <!-- MUSIC TAG EDITOR MODAL -->
-  <div class="modal-backdrop" id="tag-modal">
-    <div class="modal-sheet">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:17px;font-weight:800;">Audio Metadata Tag Editor</h3>
-        <button class="icon-btn" onclick="document.getElementById('tag-modal').classList.remove('open')">
-          <svg class="svg-icon sm" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div style="display:grid;gap:10px;">
-        <input type="hidden" id="tag-song-id" />
-        <label style="font-size:11px;color:#94A3B8;">Song Title</label>
-        <input id="tag-title" class="search-input" style="background:#0F1218;border:1px solid rgba(255,255,255,0.1);border-radius:10px;" />
-        <label style="font-size:11px;color:#94A3B8;">Artist</label>
-        <input id="tag-artist" class="search-input" style="background:#0F1218;border:1px solid rgba(255,255,255,0.1);border-radius:10px;" />
-        <label style="font-size:11px;color:#94A3B8;">Album</label>
-        <input id="tag-album" class="search-input" style="background:#0F1218;border:1px solid rgba(255,255,255,0.1);border-radius:10px;" />
-        <label style="font-size:11px;color:#94A3B8;">Genre</label>
-        <input id="tag-genre" class="search-input" style="background:#0F1218;border:1px solid rgba(255,255,255,0.1);border-radius:10px;" />
-        <button class="pill-btn white-pill" style="justify-content:center;padding:12px;" onclick="XeceayApp.saveTagEdits()">Save Metadata Tags</button>
+  <!-- Tag Editor & Song Actions Modal -->
+  <div id="tag-modal" class="overlay-modal" onclick="if(event.target===this) document.getElementById('tag-modal').classList.remove('open')">
+    <div class="modal-box">
+      <div style="font-size:18px;font-weight:800;margin-bottom:12px;">Song Options & Tag Editor</div>
+      <input type="hidden" id="tag-song-id" />
+      <label style="font-size:11px;color:#94A3B8;">Title</label>
+      <input id="tag-title" class="yt-url-input" type="text" />
+      <label style="font-size:11px;color:#94A3B8;">Artist</label>
+      <input id="tag-artist" class="yt-url-input" type="text" />
+      <label style="font-size:11px;color:#94A3B8;">Album</label>
+      <input id="tag-album" class="yt-url-input" type="text" />
+      <label style="font-size:11px;color:#94A3B8;">Genre</label>
+      <input id="tag-genre" class="yt-url-input" type="text" />
+      <div style="display:flex;gap:8px;justify-content:space-between;margin-top:10px;">
+        <button class="pill-btn" style="color:#EF4444;" onclick="XeceayApp.deleteEditedSong()">Delete Song</button>
+        <div style="display:flex;gap:8px;">
+          <button class="pill-btn" onclick="document.getElementById('tag-modal').classList.remove('open')">Cancel</button>
+          <button class="pill-btn white-pill" onclick="XeceayApp.saveTagEdits()">Save</button>
+        </div>
       </div>
     </div>
   </div>

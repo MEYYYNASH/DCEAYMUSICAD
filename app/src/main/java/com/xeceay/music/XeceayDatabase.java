@@ -25,7 +25,7 @@ public class XeceayDatabase extends SQLiteOpenHelper {
     private final Context appContext;
 
     public XeceayDatabase(Context context) {
-        super(context, "xeceay_library.db", null, 2);
+        super(context, "xeceay_library.db", null, 3);
         this.appContext = context.getApplicationContext();
     }
 
@@ -70,6 +70,13 @@ public class XeceayDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         long now = System.currentTimeMillis();
         try {
+            boolean isFirstSetup = true;
+            try (Cursor uc = db.rawQuery("SELECT COUNT(*) FROM Users", null)) {
+                if (uc.moveToFirst() && uc.getInt(0) > 0) {
+                    isFirstSetup = false;
+                }
+            }
+
             JSONObject prefs = new JSONObject();
             prefs.put("theme", "dark");
             prefs.put("audioQuality", "Hi-Res FLAC / 320kbps");
@@ -105,26 +112,27 @@ public class XeceayDatabase extends SQLiteOpenHelper {
                 );
             }
 
-            String[][] defaultPlaylists = new String[][]{
-                    {"pl_favorites", "Favorites", "favorites"},
-                    {"pl_recent_added", "Recently Added", "recent_added"},
-                    {"pl_recent_played", "Recently Played", "recent_played"},
-                    {"pl_most_played", "Most Played", "most_played"},
-                    {"pl_khmer_gold", "Khmer & Night Vibes", "custom"},
-                    {"pl_focus_study", "Focus & Late Night Study", "focus"}
-            };
-            for (String[] pl : defaultPlaylists) {
-                int isSmart = "custom".equals(pl[2]) ? 0 : 1;
-                int isPinned = ("pl_favorites".equals(pl[0]) || "pl_khmer_gold".equals(pl[0])) ? 1 : 0;
-                db.execSQL(
-                        "INSERT OR IGNORE INTO Playlists (id, name, artworkUri, createdAt, updatedAt, isSmartPlaylist, isPinned, smartRule) VALUES (?, ?, '', ?, ?, ?, ?, ?)",
-                        new Object[]{pl[0], pl[1], now, now, isSmart, isPinned, pl[2]}
-                );
-            }
+            if (isFirstSetup) {
+                String[][] defaultPlaylists = new String[][]{
+                        {"pl_favorites", "Favorites", "favorites"},
+                        {"pl_khmer_gold", "Khmer Top Hits 🇰🇭", "custom"},
+                        {"pl_recent_played", "Recently Played", "recent_played"},
+                        {"pl_focus_study", "Fragments & Night Vibes", "focus"}
+                };
+                for (String[] pl : defaultPlaylists) {
+                    int isSmart = "custom".equals(pl[2]) ? 0 : 1;
+                    int isPinned = ("pl_favorites".equals(pl[0]) || "pl_khmer_gold".equals(pl[0])) ? 1 : 0;
+                    db.execSQL(
+                            "INSERT OR IGNORE INTO Playlists (id, name, artworkUri, createdAt, updatedAt, isSmartPlaylist, isPinned, smartRule) VALUES (?, ?, '', ?, ?, ?, ?, ?)",
+                            new Object[]{pl[0], pl[1], now, now, isSmart, isPinned, pl[2]}
+                    );
+                }
 
-            db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_2', 0, ?)", new Object[]{now});
-            db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_6', 1, ?)", new Object[]{now});
-            db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_1', 2, ?)", new Object[]{now});
+                db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_2', 0, ?)", new Object[]{now});
+                db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_3', 1, ?)", new Object[]{now});
+                db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_4', 2, ?)", new Object[]{now});
+                db.execSQL("INSERT OR IGNORE INTO PlaylistSongs (playlistId, songId, position, addedAt) VALUES ('pl_khmer_gold', 'seed_6', 3, ?)", new Object[]{now});
+            }
         } catch (Exception ignored) {
         }
     }
@@ -366,7 +374,9 @@ public class XeceayDatabase extends SQLiteOpenHelper {
     }
 
     public void deletePlaylist(String playlistId) {
-        getWritableDatabase().delete("Playlists", "id = ? AND isSmartPlaylist = 0", new String[]{playlistId});
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("PlaylistSongs", "playlistId = ?", new String[]{playlistId});
+        db.delete("Playlists", "id = ?", new String[]{playlistId});
     }
 
     public boolean togglePinPlaylist(String playlistId) {

@@ -1846,7 +1846,9 @@
           box.style.display = "none";
         }
       } else if (p.type === "release_info") {
-        if (p.isNewer && p.apkDownloadUrl) {
+        const dlUrl = p.apkDownloadUrl || p.apkUrl || "";
+        const relTitle = p.releaseName || p.releaseTitle || "";
+        if (p.isNewer && dlUrl) {
           if (topPill) {
             topPill.style.display = "inline-flex";
             if (topText) topText.textContent = `Update ${p.tagName}`;
@@ -1858,8 +1860,8 @@
                 <span style="font-weight:800;font-size:13px;color:var(--success);">New Version Available: ${escapeHtml(p.tagName)}</span>
                 <span class="badge green">NEW</span>
               </div>
-              <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">${escapeHtml(p.releaseName || "")}</div>
-              <button class="pill-btn white-pill" onclick="XeceayApp.downloadReleaseApk('${escapeAttr(p.apkDownloadUrl)}')">
+              <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">${escapeHtml(relTitle)}</div>
+              <button class="pill-btn white-pill" onclick="XeceayApp.downloadReleaseApk('${escapeAttr(dlUrl)}')">
                 ${SVG.download}
                 <span>Download & Install ${escapeHtml(p.tagName)}</span>
               </button>

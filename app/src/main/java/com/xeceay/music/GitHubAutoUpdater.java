@@ -86,19 +86,78 @@ public class GitHubAutoUpdater {
 
         executor.execute(() -> {
             try {
-                String installedVersion = getInstalledVersionInfo().optString("versionName", "1.0.1");
-                String latestUrl = "https://api.github.com/repos/" + targetSlug + "/releases/latest";
-                JSONObject releaseJson = fetchJsonObject(latestUrl);
+                String installedVersion = getInstalledVersionInfo().optString("versionName", "1.0.4");
+                String tagName = "";
+                String releaseTitle = "";
+                String body = "";
+                String publishedAt = "";
+                String apkUrl = "";
+                String apkName = "XECEAY-release.apk";
+                long apkSize = 0L;
 
-                if (releaseJson == null) {
-                    JSONArray allReleases = fetchJsonArray("https://api.github.com/repos/" + targetSlug + "/releases");
-                    if (allReleases != null && allReleases.length() > 0) {
-                        releaseJson = allReleases.getJSONObject(0);
+                // 1. Check raw version.json on main branch (fastest, zero rate limit)
+                JSONObject versionJson = fetchJsonObject("https://raw.githubusercontent.com/" + targetSlug + "/main/version.json?t=" + System.currentTimeMillis());
+                if (versionJson != null) {
+                    tagName = versionJson.optString("tagName", versionJson.optString("versionName", ""));
+                    releaseTitle = versionJson.optString("releaseTitle", "XECEAY " + tagName);
+                    body = versionJson.optString("changelog", "");
+                    apkUrl = versionJson.optString("apkUrl", "https://github.com/" + targetSlug + "/raw/main/XECEAY-release.apk");
+                    apkSize = versionJson.optLong("apkSize", 0L);
+                }
+
+                // 2. Check GitHub Releases API if version.json was not found
+                if (tagName.isEmpty()) {
+                    JSONObject releaseJson = fetchJsonObject("https://api.github.com/repos/" + targetSlug + "/releases/latest");
+                    if (releaseJson == null) {
+                        JSONArray allReleases = fetchJsonArray("https://api.github.com/repos/" + targetSlug + "/releases");
+                        if (allReleases != null && allReleases.length() > 0) {
+                            releaseJson = allReleases.getJSONObject(0);
+                        }
+                    }
+                    if (releaseJson != null) {
+                        tagName = releaseJson.optString("tag_name", "");
+                        releaseTitle = releaseJson.optString("name", tagName);
+                        body = releaseJson.optString("body", "");
+                        publishedAt = releaseJson.optString("published_at", "");
+                        JSONArray assets = releaseJson.optJSONArray("assets");
+                        if (assets != null) {
+                            for (int i = 0; i < assets.length(); i++) {
+                                JSONObject asset = assets.getJSONObject(i);
+                                String name = asset.optString("name", "");
+                                if (name.toLowerCase().endsWith(".apk")) {
+                                    apkName = name;
+                                    apkUrl = asset.optString("browser_download_url", "");
+                                    apkSize = asset.optLong("size", 0L);
+                                    break;
+                                }
+                            }
+                        }
+                        if (apkUrl.isEmpty()) {
+                            apkUrl = "https://github.com/" + targetSlug + "/raw/main/XECEAY-release.apk";
+                        }
                     }
                 }
 
-                // If no GitHub release exists yet, the installed app is up to date
-                if (releaseJson == null) {
+                // 3. Check GitHub Tags API if neither version.json nor Releases returned a tag
+                if (tagName.isEmpty()) {
+                    JSONArray tagsArr = fetchJsonArray("https://api.github.com/repos/" + targetSlug + "/tags");
+                    if (tagsArr != null && tagsArr.length() > 0) {
+                        String bestTag = "";
+                        for (int i = 0; i < tagsArr.length(); i++) {
+                            String candidate = tagsArr.getJSONObject(i).optString("name", "");
+                            if (bestTag.isEmpty() || compareVersions(candidate, bestTag) > 0) {
+                                bestTag = candidate;
+                            }
+                        }
+                        if (!bestTag.isEmpty()) {
+                            tagName = bestTag;
+                            releaseTitle = "XECEAY " + bestTag;
+                            apkUrl = "https://github.com/" + targetSlug + "/raw/main/XECEAY-release.apk";
+                        }
+                    }
+                }
+
+                if (tagName.isEmpty()) {
                     JSONObject evt = new JSONObject();
                     evt.put("type", "up_to_date");
                     evt.put("repo", targetSlug);
@@ -107,28 +166,6 @@ public class GitHubAutoUpdater {
                     evt.put("isNewer", false);
                     callback.onUpdateEvent(evt);
                     return;
-                }
-
-                String tagName = releaseJson.optString("tag_name", "v" + installedVersion);
-                String releaseTitle = releaseJson.optString("name", tagName);
-                String body = releaseJson.optString("body", "");
-                String publishedAt = releaseJson.optString("published_at", "");
-
-                String apkUrl = "";
-                String apkName = "";
-                long apkSize = 0L;
-                JSONArray assets = releaseJson.optJSONArray("assets");
-                if (assets != null) {
-                    for (int i = 0; i < assets.length(); i++) {
-                        JSONObject asset = assets.getJSONObject(i);
-                        String name = asset.optString("name", "");
-                        if (name.toLowerCase().endsWith(".apk")) {
-                            apkName = name;
-                            apkUrl = asset.optString("browser_download_url", "");
-                            apkSize = asset.optLong("size", 0L);
-                            break;
-                        }
-                    }
                 }
 
                 boolean isNewer = compareVersions(tagName, installedVersion) > 0 && !apkUrl.isEmpty();
@@ -149,10 +186,12 @@ public class GitHubAutoUpdater {
                 evt.put("repo", targetSlug);
                 evt.put("tagName", tagName);
                 evt.put("releaseTitle", releaseTitle);
+                evt.put("releaseName", releaseTitle);
                 evt.put("changelog", body);
                 evt.put("publishedAt", publishedAt);
                 evt.put("apkName", apkName);
                 evt.put("apkUrl", apkUrl);
+                evt.put("apkDownloadUrl", apkUrl);
                 evt.put("apkSize", apkSize);
                 evt.put("installedVersion", installedVersion);
                 evt.put("isNewer", true);

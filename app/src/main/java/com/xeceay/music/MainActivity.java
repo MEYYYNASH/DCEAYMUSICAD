@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 evaluateJs("window.XeceayApp && window.XeceayApp.nextTrack()");
             } else if (MusicPlaybackService.ACTION_PREV.equals(action)) {
                 evaluateJs("window.XeceayApp && window.XeceayApp.prevTrack()");
+            } else if (MusicPlaybackService.ACTION_STOP.equals(action)) {
+                playerEngine.pause();
             }
         });
 
@@ -354,6 +356,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             database.updateSongArtwork(songId, localArtUri);
+            if (playerEngine != null) {
+                playerEngine.updateCurrentArtworkIfMatches(songId, localArtUri);
+            }
             pushEventToUi("artwork_updated", new JSONObject()
                     .put("songId", songId)
                     .put("artworkUri", localArtUri));
@@ -541,6 +546,9 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void updateSongArtwork(String songId, String artworkUri) {
             database.updateSongArtwork(songId, artworkUri);
+            if (playerEngine != null) {
+                playerEngine.updateCurrentArtworkIfMatches(songId, artworkUri);
+            }
             try {
                 pushEventToUi("artwork_updated", new JSONObject()
                         .put("songId", songId)

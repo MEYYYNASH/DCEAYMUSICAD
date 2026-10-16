@@ -10,8 +10,8 @@ android {
         applicationId = "com.xeceay.music"
         minSdk = 24
         targetSdk = 36
-        versionCode = 113
-        versionName = "1.1.3"
+        versionCode = 114
+        versionName = "1.1.4"
     }
 
     buildTypes {
@@ -41,4 +41,5 @@ dependencies {
     implementation("androidx.activity:activity:1.11.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("androidx.media:media:1.7.0")
 }

@@ -88,6 +88,7 @@ public class AudioPlayerEngine {
         this.context = context;
         this.database = database;
         this.callback = callback;
+        MusicPlaybackService.seekCallback = pos -> seekTo((int) pos);
         handler.postDelayed(progressRunnable, 750L);
     }
 
@@ -497,8 +498,31 @@ public class AudioPlayerEngine {
 
     private void updateForegroundService(boolean isPlaying) {
         try {
-            MusicPlaybackService.updateNotificationSafely(context, currentTitle, currentArtist, isPlaying);
+            android.content.Intent intent = new android.content.Intent(context, MusicPlaybackService.class);
+            intent.putExtra("title", currentTitle);
+            intent.putExtra("artist", currentArtist);
+            intent.putExtra("album", currentAlbum);
+            intent.putExtra("artworkUri", currentArtwork);
+            intent.putExtra("isPlaying", isPlaying);
+            intent.putExtra("positionMs", (long) getEffectivePositionMs());
+            intent.putExtra("durationMs", (long) currentDurationMs);
+            if (isPlaying) {
+                androidx.core.content.ContextCompat.startForegroundService(context, intent);
+            } else {
+                MusicPlaybackService.updateNotificationSafely(
+                        context, currentTitle, currentArtist, currentAlbum, currentArtwork,
+                        false, getEffectivePositionMs(), currentDurationMs
+                );
+            }
         } catch (Throwable ignored) {
+        }
+    }
+
+    public void updateCurrentArtworkIfMatches(String songId, String artworkUri) {
+        if (currentSongId != null && currentSongId.equals(songId) && artworkUri != null) {
+            currentArtwork = artworkUri;
+            boolean playing = mediaPlayer != null && isPrepared && mediaPlayer.isPlaying();
+            updateForegroundService(playing);
         }
     }
 

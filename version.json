@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.3",
-  "versionCode": 113,
-  "tagName": "v1.1.3",
-  "releaseTitle": "XECEAY v1.1.3 — Geometric Emblem Covers & Custom Photo Album Art",
-  "changelog": "Removed all text font initials (ME, VD, SP, TN, SS) from album covers; default covers now render the luxury geometric emblem; added custom album cover photo picker allowing users to choose photos directly from device gallery.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.3/XECEAY-release.apk",
-  "apkSize": 2951565
+  "versionName": "1.1.4",
+  "versionCode": 114,
+  "tagName": "v1.1.4",
+  "releaseTitle": "XECEAY v1.1.4 — MediaStyle Playback Notification & Interactive MediaSession",
+  "changelog": "Upgraded background playback notification to native Android MediaStyle with MediaSessionCompat! Features high-res album cover artwork, scrubbable lockscreen/shade seekbar, live Play/Pause/Next/Prev controls, and bluetooth headset support.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.4/XECEAY-release.apk",
+  "apkSize": 3055148
 }

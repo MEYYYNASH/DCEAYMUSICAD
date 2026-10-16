@@ -154,85 +154,14 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    // 4. Match via Deezer MP3 Server
-                    String searchQuery = cleanTitleForSearch(title, author);
-                    String qLow = searchQuery.toLowerCase();
-                    if (resolvedAudioUrl.isEmpty()) {
-                        String dzUrl = "https://api.deezer.com/search?q=" + URLEncoder.encode(searchQuery, "UTF-8") + "&limit=3";
-                        JSONObject dz = fetchJson(dzUrl, 6000);
-                        if (dz != null) {
-                            JSONArray data = dz.optJSONArray("data");
-                            if (data != null && data.length() > 0) {
-                                for (int i = 0; i < data.length(); i++) {
-                                    JSONObject item = data.getJSONObject(i);
-                                    String itemTitle = item.optString("title", "").toLowerCase();
-                                    JSONObject aObj = item.optJSONObject("artist");
-                                    String itemArtist = aObj != null ? aObj.optString("name", "").toLowerCase() : "";
-                                    boolean rel = itemTitle.contains(qLow) || qLow.contains(itemTitle) || itemArtist.contains(qLow);
-                                    String p = item.optString("preview", "");
-                                    if (rel && !p.isEmpty()) {
-                                        resolvedAudioUrl = p;
-                                        long dzDur = item.optLong("duration", 0L);
-                                        if (dzDur > 30L) durationSec = dzDur;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 5. Match via Cambodia iTunes Server (country=KH)
-                    if (resolvedAudioUrl.isEmpty()) {
-                        String itunesUrl = "https://itunes.apple.com/search?term=" + URLEncoder.encode(searchQuery, "UTF-8") + "&country=KH&media=music&entity=song&limit=3";
-                        JSONObject itunes = fetchJson(itunesUrl, 6000);
-                        if (itunes != null) {
-                            JSONArray results = itunes.optJSONArray("results");
-                            if (results != null && results.length() > 0) {
-                                for (int i = 0; i < results.length(); i++) {
-                                    JSONObject item = results.getJSONObject(i);
-                                    String itemTitle = item.optString("trackName", "").toLowerCase();
-                                    String itemArtist = item.optString("artistName", "").toLowerCase();
-                                    boolean rel = itemTitle.contains(qLow) || qLow.contains(itemTitle) || itemArtist.contains(qLow);
-                                    String p = item.optString("previewUrl", "");
-                                    if (rel && !p.isEmpty()) {
-                                        resolvedAudioUrl = p;
-                                        long itDur = item.optLong("trackTimeMillis", 0L) / 1000L;
-                                        if (itDur > 30L) durationSec = itDur;
-                                        if (thumb.isEmpty()) {
-                                            thumb = item.optString("artworkUrl100", "").replace("100x100bb", "400x400bb");
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 6. Match via Audius Full-Track Server
-                    if (resolvedAudioUrl.isEmpty()) {
-                        String audUrl = "https://discoveryprovider.audius.co/v1/tracks/search?query=" + URLEncoder.encode(searchQuery, "UTF-8") + "&app_name=XECEAY";
-                        JSONObject aud = fetchJson(audUrl, 6000);
-                        if (aud != null) {
-                            JSONArray data = aud.optJSONArray("data");
-                            if (data != null && data.length() > 0) {
-                                JSONObject top = data.getJSONObject(0);
-                                String audTitle = top.optString("title", "").toLowerCase();
-                                JSONObject userObj = top.optJSONObject("user");
-                                String audArtist = userObj != null ? userObj.optString("name", "").toLowerCase() : "";
-                                boolean isRelevant = audTitle.contains(qLow) || qLow.contains(audTitle) || audArtist.contains(qLow);
-                                String audId = top.optString("id", "");
-                                if (isRelevant && !audId.isEmpty()) {
-                                    resolvedAudioUrl = "https://discoveryprovider.audius.co/v1/tracks/" + audId + "/stream?app_name=XECEAY";
-                                    durationSec = Math.max(180L, top.optLong("duration", 210L));
-                                }
-                            }
-                        }
-                    }
-
+                    // Note: We deliberately do NOT fallback to Deezer or iTunes for YouTube links
+                    // because Deezer/iTunes search queries return mismatched songs and only supply
+                    // 30-second promotional preview snippets (468KB) rather than the genuine YouTube track.
                     if (resolvedVideoUrl.isEmpty()) {
                         resolvedVideoUrl = resolvedAudioUrl;
                     }
 
+                    boolean hasDirectStream = !resolvedAudioUrl.isEmpty();
                     String durationText = (durationSec / 60) + ":" + String.format("%02d", durationSec % 60);
 
                     JSONObject res = new JSONObject();
@@ -246,10 +175,11 @@ public class LinkAnalyzerService {
                     res.put("durationText", durationText);
                     res.put("durationMs", durationSec * 1000L);
                     res.put("mediaType", "video");
-                    res.put("format", "MP3");
+                    res.put("format", "MP4");
                     res.put("fileSize", durationSec * 24000L);
-                    res.put("sourceWebsite", "YouTube Video");
-                    res.put("directDownloadPermitted", true);
+                    res.put("sourceWebsite", "YouTube");
+                    res.put("directDownloadPermitted", hasDirectStream);
+                    res.put("hasDirectStream", hasDirectStream);
                     res.put("downloadUrlMp3", resolvedAudioUrl);
                     res.put("downloadUrlMp4", resolvedVideoUrl);
                     callback.onAnalysisResult(res);

@@ -133,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 if (url.startsWith("file:///android_asset/")) {
                     return false;
                 }
+                // Allow iframe embeds (such as YouTube player) to load inside WebView without opening external browser
+                if (!request.isForMainFrame() || url.contains("youtube.com/embed") || url.contains("youtube-nocookie.com/embed")) {
+                    return false;
+                }
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 } catch (Exception ignored) {

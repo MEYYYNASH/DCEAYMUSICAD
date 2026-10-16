@@ -10,8 +10,8 @@ android {
         applicationId = "com.xeceay.music"
         minSdk = 24
         targetSdk = 36
-        versionCode = 110
-        versionName = "1.1.0"
+        versionCode = 111
+        versionName = "1.1.1"
     }
 
     buildTypes {

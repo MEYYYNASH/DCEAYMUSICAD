@@ -1,8 +1,8 @@
 {
-  "versionName": "1.1.0",
-  "versionCode": 110,
-  "tagName": "v1.1.0",
-  "releaseTitle": "XECEAY v1.1.0 — Fixed Wrong Song Playback, Looping & Real Stream Audio Engine",
-  "changelog": "Completely fixed wrong song playback caused by local fallback hashing, eliminated 30s audio looping and fake durations, fixed FLAC badge on MP3 downloads, sorted Khmer & Global search results by relevance, deleted synthetic sine-wave WAV generation, and added multi-hop HTTP/HTTPS redirect stream resolution.",
+  "versionName": "1.1.1",
+  "versionCode": 111,
+  "tagName": "v1.1.1",
+  "releaseTitle": "XECEAY v1.1.1 — Full-Length YouTube Player & Eliminated 30s Preview Cutoffs",
+  "changelog": "Fixed pasted YouTube links playing wrong songs by removing misleading 30s Deezer/iTunes fallback matching; integrated in-app embedded YouTube player for full-length playback of original videos with zero 30-second cutoffs.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk"
 }

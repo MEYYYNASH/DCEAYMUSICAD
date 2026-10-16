@@ -1537,6 +1537,30 @@
       }
     },
 
+    playYouTubeEmbed(videoId, title) {
+      if (isNative && window.XeceayNative && window.XeceayNative.pauseAudio) {
+        window.XeceayNative.pauseAudio();
+      }
+      player.pause();
+      const container = document.getElementById("yt-embed-box-" + videoId);
+      if (!container) return;
+      if (container.style.display === "block" && container.innerHTML) {
+        container.style.display = "none";
+        container.innerHTML = "";
+        return;
+      }
+      container.style.display = "block";
+      container.innerHTML = `
+        <iframe 
+          src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1" 
+          style="width:100%;height:100%;border:none;border-radius:12px;" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      `;
+      showToast("Playing full YouTube track: " + (title || ""));
+    },
+
     renderLinkAnalysisCard(info) {
       const box = document.getElementById("link-analysis-result");
       if (!box) return;
@@ -1550,29 +1574,78 @@
       }
       state.analyzedLink = info;
       const thumb = info.thumbnail || DEFAULT_ART;
-      const mp3Url = info.downloadUrlMp3 || info.url;
+      const mp3Url = info.downloadUrlMp3 || "";
       const mp4Url = info.downloadUrlMp4 || mp3Url;
       const durMs = info.durationMs || 212000;
+      const isYt = info.sourceType === "youtube" && info.videoId;
+      const canDownload = Boolean(info.directDownloadPermitted && mp3Url);
 
+      if (isYt) {
+        box.innerHTML = `
+          <div class="yt-analyzed-box">
+            <div class="yt-analyzed-header">
+              <img src="${thumb}" class="yt-analyzed-thumb" alt="" />
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:11px;color:var(--accent);font-weight:700;">YouTube • ${escapeHtml(info.durationText || "Full Track")}</div>
+                <div style="font-size:16px;font-weight:800;margin-top:3px;line-height:1.25;">${escapeHtml(info.title)}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${escapeHtml(info.artist)}</div>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;background:#ff0033;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.playYouTubeEmbed('${escapeAttr(info.videoId)}','${escapeAttr(info.title)}')">
+                ${SVG.play}
+                <span>Play Full YouTube Song</span>
+              </button>
+            </div>
+
+            <div id="yt-embed-box-${escapeAttr(info.videoId)}" style="display:none;width:100%;margin-top:12px;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9;"></div>
+
+            ${canDownload ? `
+              <div class="dual-action-row" style="margin-top:12px;margin-bottom:0;">
+                <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url)}','MP4','video')">
+                  ${SVG.video}
+                  <span>Download MP4</span>
+                </button>
+                <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url)}','MP3','audio')">
+                  ${SVG.musicNote}
+                  <span>Download MP3</span>
+                </button>
+              </div>
+            ` : `
+              <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:10px;font-size:11px;color:var(--text-secondary);line-height:1.45;">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:2px;display:flex;align-items:center;gap:6px;">
+                  <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#00e5ff;"></span>
+                  Full Video & Audio Stream Ready
+                </div>
+                Tap <b>Play Full YouTube Song</b> above to listen without 30s limits. (Direct offline saving from YouTube is restricted by DRM; for offline downloads, paste direct MP3/M4A/Audius links).
+              </div>
+            `}
+          </div>
+        `;
+        return;
+      }
+
+      // Direct non-YouTube HTTPS Media Links
       box.innerHTML = `
         <div class="yt-analyzed-box">
-          <div class="yt-analyzed-header" onclick="XeceayApp.playAnyTrack('yt_${Date.now()}','${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url)}',${durMs})">
+          <div class="yt-analyzed-header" onclick="XeceayApp.playAnyTrack('stream_${Date.now()}','${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}',${durMs},'${escapeAttr(info.format || "MP3")}')">
             <img src="${thumb}" class="yt-analyzed-thumb" alt="" />
             <div style="flex:1;min-width:0;">
-              <div style="font-size:11px;color:var(--text-secondary);font-weight:700;">${escapeHtml(info.sourceWebsite || "YouTube Video")} • ${escapeHtml(info.durationText || "3:32")}</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-weight:700;">${escapeHtml(info.sourceWebsite || "Direct Media Link")} • ${escapeHtml(info.durationText || "Full Track")}</div>
               <div style="font-size:16px;font-weight:800;margin-top:3px;line-height:1.25;">${escapeHtml(info.title)}</div>
               <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${escapeHtml(info.artist)}</div>
             </div>
           </div>
 
           <div class="dual-action-row" style="margin-bottom:0;">
-            <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url)}','MP4','video')">
+            <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url || mp3Url || info.url)}','MP4','video')">
               ${SVG.video}
               <span>Download MP4</span>
             </button>
-            <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url)}','MP3','audio')">
+            <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}','${escapeAttr(info.format || "MP3")}','audio')">
               ${SVG.musicNote}
-              <span>Download MP3</span>
+              <span>Download ${escapeHtml(info.format || "MP3")}</span>
             </button>
           </div>
         </div>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>XECEAY — Music Downloader & Offline Player</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Screen 1: Animated Splash Screen -->
+  <div id="splash-screen">
+    <div class="splash-logo-ring">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+    <div class="splash-title">XECEAY</div>
+    <div class="splash-tagline">Your Music. Your Quality. Your World.</div>
+  </div>
+
+  <!-- Toast Banner -->
+  <div id="toast-box">Ready</div>
+
+  <!-- Main App Shell -->
+  <div class="app-layout">
+    <!-- Desktop Left Sidebar (visible on screens >= 840px) -->
+    <aside class="desktop-sidebar">
+      <div class="brand-left" style="padding: 8px 6px 18px;">
+        <div class="brand-badge">X</div>
+        <div>
+          <div class="brand-name">XECEAY</div>
+          <div class="brand-sub">Hi-Fi Offline & Stream</div>
+        </div>
+      </div>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('home')" id="side-home" style="justify-content:flex-start;padding:11px 14px;">🏠 Home & Discover</button>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('search')" id="side-search" style="justify-content:flex-start;padding:11px 14px;">🔍 Search Catalog</button>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('library')" id="side-library" style="justify-content:flex-start;padding:11px 14px;">📚 Offline Library</button>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('downloads')" id="side-downloads" style="justify-content:flex-start;padding:11px 14px;">⬇️ Downloads</button>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('link')" id="side-link" style="justify-content:flex-start;padding:11px 14px;">🔗 Link Importer</button>
+      <button class="pill-btn" onclick="XeceayApp.switchTab('settings')" id="side-settings" style="justify-content:flex-start;padding:11px 14px;">⚙️ Settings & Auto-Update</button>
+    </aside>
+
+    <!-- Primary Content Area -->
+    <div class="main-column">
+      <!-- Top Header -->
+      <header class="brand-header">
+        <div class="brand-left">
+          <div class="brand-badge">X</div>
+          <div>
+            <div class="brand-name">XECEAY</div>
+            <div class="brand-sub" id="header-tagline">Your Music. Your Quality. Your World.</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="pill-btn cyan" onclick="XeceayApp.switchTab('link')">🔗 Link Import</button>
+          <button class="pill-btn accent" onclick="XeceayApp.openGitHubUpdateQuick()">🔄 APK Update</button>
+        </div>
+      </header>
+
+      <!-- Scrollable Screens -->
+      <main class="screen-container">
+        <!-- SCREEN 2: HOME & MUSIC DISCOVERY -->
+        <section id="screen-home" class="screen active">
+          <div class="hero-card">
+            <div class="hero-top">
+              <div>
+                <div class="hero-greeting" id="home-greeting">Good Evening, Audiophile</div>
+                <div class="hero-subtitle">Ad-Free Lossless Offline Playback • Authorized Music Downloader</div>
+              </div>
+              <span class="badge green" id="network-status-badge">ONLINE READY</span>
+            </div>
+            <div class="hero-quick-grid">
+              <div class="quick-action-card" onclick="XeceayApp.scanDeviceMusic()">
+                <div class="quick-icon">📡</div>
+                <div>
+                  <div class="quick-label">Scan Device</div>
+                  <div class="quick-desc">Find local MP3/FLAC</div>
+                </div>
+              </div>
+              <div class="quick-action-card" onclick="XeceayApp.importLocalFile()">
+                <div class="quick-icon">📂</div>
+                <div>
+                  <div class="quick-label">Import File</div>
+                  <div class="quick-desc">Open audio/video</div>
+                </div>
+              </div>
+              <div class="quick-action-card" onclick="XeceayApp.switchTab('link')">
+                <div class="quick-icon">🔗</div>
+                <div>
+                  <div class="quick-label">Link Downloader</div>
+                  <div class="quick-desc">YouTube & Direct URL</div>
+                </div>
+              </div>
+              <div class="quick-action-card" onclick="XeceayApp.openEqualizerModal()">
+                <div class="quick-icon">🎚️</div>
+                <div>
+                  <div class="quick-label">5-Band EQ</div>
+                  <div class="quick-desc" id="home-eq-label">Preset: Normal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Music Categories / Genres -->
+          <div class="section-header">
+            <div class="section-title">Explore by Genre</div>
+            <span class="section-link" onclick="XeceayApp.switchTab('search')">Search All →</span>
+          </div>
+          <div class="chip-row" id="home-genre-chips"></div>
+
+          <!-- Offline & Local Library Quick Play -->
+          <div class="section-header">
+            <div class="section-title">Your Offline & Local Tracks</div>
+            <span class="section-link" onclick="XeceayApp.switchTab('library')">Open Library →</span>
+          </div>
+          <div class="horizontal-scroll" id="home-offline-carousel"></div>
+
+          <!-- Authorized Downloadable Catalog -->
+          <div class="section-header">
+            <div class="section-title">Authorized Free Download Catalog</div>
+            <span class="section-link" onclick="XeceayApp.switchTab('downloads')">Download Queue →</span>
+          </div>
+          <div class="song-list" id="home-downloadable-list"></div>
+
+          <!-- Live Global Catalog Discovery (iTunes / Authorized Previews) -->
+          <div class="section-header">
+            <div class="section-title">Trending Global Discovery</div>
+            <span class="section-link" onclick="XeceayApp.refreshLiveDiscovery()">Refresh ↻</span>
+          </div>
+          <div class="horizontal-scroll" id="home-trending-carousel"></div>
+
+          <!-- Smart & Personalized Playlists -->
+          <div class="section-header">
+            <div class="section-title">Smart & Personalized Playlists</div>
+            <span class="section-link" onclick="XeceayApp.promptCreatePlaylist()">+ New Playlist</span>
+          </div>
+          <div class="horizontal-scroll" id="home-playlists-carousel"></div>
+        </section>
+
+        <!-- SCREEN 3: POWERFUL MUSIC SEARCH -->
+        <section id="screen-search" class="screen">
+          <div class="search-bar-wrap">
+            <span>🔍</span>
+            <input
+              type="text"
+              id="search-input"
+              class="search-input"
+              placeholder="Search song, artist, album, genre, Khmer music, or paste URL..."
+              oninput="XeceayApp.onSearchInput(this.value)"
+            />
+            <button class="icon-btn" onclick="XeceayApp.clearSearch()" style="border:none;width:28px;height:28px;">✕</button>
+          </div>
+
+          <!-- Search Category Filters -->
+          <div class="chip-row" id="search-filter-chips" style="margin-bottom:10px;">
+            <div class="chip active" onclick="XeceayApp.setSearchFilter('all', this)">All Results</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('songs', this)">Songs</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('artists', this)">Artists</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('albums', this)">Albums</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('playlists', this)">Playlists</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('downloadable', this)">Downloadable Audio</div>
+            <div class="chip" onclick="XeceayApp.setSearchFilter('local', this)">Local Offline</div>
+          </div>
+
+          <!-- Quick Suggestions & Recent Searches -->
+          <div id="search-suggestions-box" style="margin-bottom:14px;">
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Quick Search Suggestions & Recent:</div>
+            <div class="chip-row" id="recent-searches-row"></div>
+          </div>
+
+          <!-- Search Results Container -->
+          <div id="search-results-container" class="song-list"></div>
+        </section>
+
+        <!-- SCREEN 6: OFFLINE LIBRARY -->
+        <section id="screen-library" class="screen">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div>
+              <h2 style="font-size:20px;font-weight:800;">Offline Music Library</h2>
+              <p style="font-size:12px;color:var(--text-secondary);">Works 100% offline without an internet connection or account</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="pill-btn" onclick="XeceayApp.scanDeviceMusic()">📡 Scan Device</button>
+              <button class="pill-btn cyan" onclick="XeceayApp.importLocalFile()">+ Import File</button>
+              <button class="pill-btn accent" onclick="XeceayApp.promptCreatePlaylist()">+ Playlist</button>
+            </div>
+          </div>
+
+          <!-- Library Sub-Tabs -->
+          <div class="chip-row" id="library-subtabs" style="margin-bottom:14px;">
+            <div class="chip active" onclick="XeceayApp.setLibraryTab('all', this)">All Offline Songs</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('downloaded', this)">Downloaded Songs</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('favorites', this)">❤️ Favorites</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('playlists', this)">Playlists & Smart</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('albums', this)">Albums & Artists</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('recent', this)">Recently Played</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('most', this)">Most Played</div>
+            <div class="chip" onclick="XeceayApp.setLibraryTab('duplicates', this)">🧹 Duplicate Cleaner</div>
+          </div>
+
+          <!-- Offline Filter Search -->
+          <div class="search-bar-wrap" style="margin-bottom:12px;">
+            <span>🔎</span>
+            <input
+              type="text"
+              id="library-filter-input"
+              class="search-input"
+              placeholder="Filter your offline library by title, artist, album, format..."
+              oninput="XeceayApp.renderLibraryContent()"
+            />
+          </div>
+
+          <div id="library-content-area" class="song-list"></div>
+        </section>
+
+        <!-- SCREEN 5: MUSIC DOWNLOAD MANAGER -->
+        <section id="screen-downloads" class="screen">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div>
+              <h2 style="font-size:20px;font-weight:800;">Music Download Manager</h2>
+              <p style="font-size:12px;color:var(--text-secondary);">Multi-threaded queue with Pause, Resume, Retry & Offline Auto-Import</p>
+            </div>
+            <button class="pill-btn cyan" onclick="XeceayApp.switchTab('link')">+ Paste URL</button>
+          </div>
+
+          <!-- Download Filter Tabs -->
+          <div class="chip-row" style="margin-bottom:14px;">
+            <div class="chip active" onclick="XeceayApp.setDownloadFilter('all', this)">All Queue</div>
+            <div class="chip" onclick="XeceayApp.setDownloadFilter('active', this)">Active / Incomplete</div>
+            <div class="chip" onclick="XeceayApp.setDownloadFilter('completed', this)">Completed</div>
+            <div class="chip" onclick="XeceayApp.setDownloadFilter('audio', this)">Audio</div>
+            <div class="chip" onclick="XeceayApp.setDownloadFilter('video', this)">Video</div>
+          </div>
+
+          <div id="downloads-queue-list" class="song-list" style="margin-bottom:22px;"></div>
+
+          <div class="section-header">
+            <div class="section-title">One-Tap Authorized Audio Downloads</div>
+          </div>
+          <div id="authorized-catalog-downloads" class="song-list"></div>
+        </section>
+
+        <!-- SCREEN 7: YOUTUBE & MEDIA LINK IMPORTER -->
+        <section id="screen-link" class="screen">
+          <div class="hero-card">
+            <h2 style="font-size:19px;font-weight:800;">🔗 Link Downloader & Authorized Media Importer</h2>
+            <p style="font-size:12px;color:var(--text-secondary);line-height:1.45;">
+              Paste a direct HTTPS audio/video link (.mp3, .flac, .wav, .m4a, .mp4) or a YouTube / YouTube Music link.
+              XECEAY respects copyright and YouTube Terms of Service: direct authorized links can be downloaded offline, while YouTube links provide official oEmbed metadata preview, official player launch, or local file import.
+            </p>
+            <div class="search-bar-wrap" style="margin-top:8px;margin-bottom:6px;background:var(--bg-primary);">
+              <span>🌐</span>
+              <input
+                type="url"
+                id="link-importer-input"
+                class="search-input"
+                placeholder="Paste your music or video link here (https://...)"
+              />
+              <button class="icon-btn" onclick="document.getElementById('link-importer-input').value=''" style="border:none;">✕</button>
+            </div>
+
+            <!-- Sample Quick Fill Links for Testing -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+              <button class="pill-btn" onclick="XeceayApp.fillSampleLink('mp3')">🎵 Sample Direct MP3 URL</button>
+              <button class="pill-btn" onclick="XeceayApp.fillSampleLink('youtube')">▶️ Sample YouTube Link</button>
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="pill-btn accent" onclick="XeceayApp.analyzeLinkInput()">🔍 Analyze Link</button>
+              <button class="pill-btn cyan" onclick="XeceayApp.previewAnalyzedLink()">🎧 Preview</button>
+              <button class="pill-btn" onclick="XeceayApp.openAnalyzedSource()">↗️ Open Source</button>
+              <button class="pill-btn" onclick="XeceayApp.importLocalFile()">📂 Import Local File</button>
+            </div>
+          </div>
+
+          <!-- Link Analysis Result Card -->
+          <div id="link-analysis-result"></div>
+        </section>
+
+        <!-- SCREEN 9: SETTINGS & IN-APP GITHUB APK AUTO-UPDATER -->
+        <section id="screen-settings" class="screen">
+          <!-- GITHUB AUTO-UPDATE APK CARD (Primary Requested Feature) -->
+          <div class="hero-card" style="border-color:var(--accent-secondary);">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+              <div>
+                <span class="badge cyan">OTA GITHUB RELEASE UPDATER</span>
+                <h2 style="font-size:19px;font-weight:800;margin-top:4px;">In-App APK Auto-Update & Installer</h2>
+                <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">
+                  Automatically check your GitHub repository Releases, download the latest <code>.apk</code> inside XECEAY, and launch the Android Package Installer.
+                </p>
+              </div>
+              <span class="badge green" id="installed-version-badge">v1.0.0 (Build 100)</span>
+            </div>
+
+            <div style="display:grid;gap:10px;margin-top:8px;">
+              <div>
+                <label style="font-size:11px;color:var(--text-secondary);font-weight:700;">GitHub Repository (owner/repo)</label>
+                <div class="search-bar-wrap" style="margin-top:4px;margin-bottom:0;background:var(--bg-primary);">
+                  <span>🐙</span>
+                  <input
+                    type="text"
+                    id="github-repo-input"
+                    class="search-input"
+                    value="MEYYYNASH/XECEAY"
+                    placeholder="username/repository"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style="font-size:11px;color:var(--text-secondary);font-weight:700;">Or Direct Release APK URL (Optional HTTPS .apk URL)</label>
+                <div class="search-bar-wrap" style="margin-top:4px;margin-bottom:0;background:var(--bg-primary);">
+                  <span>📦</span>
+                  <input
+                    type="url"
+                    id="direct-apk-url-input"
+                    class="search-input"
+                    placeholder="https://github.com/owner/repo/releases/download/v1.0.1/XECEAY-release.apk"
+                  />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="pill-btn accent" onclick="XeceayApp.checkGitHubReleaseNow()">🔍 Check GitHub Release</button>
+                <button class="pill-btn cyan" onclick="XeceayApp.downloadDirectApkInput()">⬇️ Download & Install APK URL</button>
+                <button class="pill-btn" onclick="XeceayApp.testInAppApkInstaller()">⚡ Test APK Self-Installer Now</button>
+              </div>
+            </div>
+
+            <!-- Live Update Status & Progress Bar -->
+            <div id="github-update-status-box" style="margin-top:10px;padding:12px;border-radius:12px;background:rgba(11,13,18,0.65);border:1px solid var(--border-color);font-size:12px;">
+              Ready to check GitHub Releases for new XECEAY APK updates.
+            </div>
+          </div>
+
+          <!-- Audio & Playback Settings -->
+          <div class="section-header">
+            <div class="section-title">Audio Quality & Equalizer</div>
+          </div>
+          <div class="song-list">
+            <div class="song-row" onclick="XeceayApp.openEqualizerModal()">
+              <div class="quick-icon">🎚️</div>
+              <div class="song-info">
+                <div class="song-name">Hardware 5-Band Equalizer & Bass Boost</div>
+                <div class="song-meta" id="settings-eq-summary">Preset: Normal • 5 Bands Active</div>
+              </div>
+              <span class="badge cyan">Configure</span>
+            </div>
+            <div class="song-row">
+              <div class="quick-icon">🎼</div>
+              <div class="song-info">
+                <div class="song-name">Preferred Download & Streaming Quality</div>
+                <div class="song-meta">Hi-Res FLAC / 320kbps MP3 / Opus</div>
+              </div>
+              <select id="setting-quality-select" onchange="XeceayApp.savePreferences()" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:6px 10px;border-radius:8px;font-size:12px;">
+                <option value="Hi-Res Lossless (FLAC/WAV)">Hi-Res Lossless (FLAC/WAV)</option>
+                <option value="High Quality (320kbps)" selected>High Quality (320kbps)</option>
+                <option value="Data Saver (128kbps)">Data Saver (128kbps)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Theme & Appearance -->
+          <div class="section-header">
+            <div class="section-title">Appearance & Theme</div>
+          </div>
+          <div class="chip-row" style="margin-bottom:14px;">
+            <div class="chip active" onclick="XeceayApp.setTheme('dark', this)">🌑 Obsidian Dark (#0B0D12)</div>
+            <div class="chip" onclick="XeceayApp.setTheme('glass', this)">✨ Glassmorphism</div>
+            <div class="chip" onclick="XeceayApp.setTheme('light', this)">☀️ Clean Light Mode</div>
+          </div>
+
+          <!-- Storage Manager -->
+          <div class="section-header">
+            <div class="section-title">Storage Manager</div>
+            <span class="section-link" onclick="XeceayApp.refreshStorageCard()">Refresh ↻</span>
+          </div>
+          <div id="settings-storage-card" class="song-row" style="flex-direction:column;align-items:stretch;cursor:default;"></div>
+
+          <!-- Cross-Device Cloud Sync & Account -->
+          <div class="section-header">
+            <div class="section-title">Cross-Platform Library Synchronization</div>
+          </div>
+          <div class="song-row" style="flex-direction:column;align-items:stretch;gap:10px;cursor:default;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div class="song-name">Cloud Sync Profile & Playlist Backup</div>
+                <div class="song-meta">Synchronize playlists, favorites, playback history & EQ across Android, Windows & Web</div>
+              </div>
+              <span class="badge green">LOCAL + SYNC</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <input id="sync-user-name" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:9px;padding:9px 10px;" value="XECEAY Audiophile" placeholder="Display Name" />
+              <input id="sync-user-email" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:9px;padding:9px 10px;" value="listener@xeceay.app" placeholder="Email (Optional)" />
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="pill-btn accent" onclick="XeceayApp.savePreferences()">💾 Save Profile</button>
+              <button class="pill-btn cyan" onclick="XeceayApp.exportSyncBundle()">☁️ Export Sync Bundle</button>
+              <button class="pill-btn" onclick="XeceayApp.importSyncBundlePrompt()">📥 Import Sync Bundle</button>
+            </div>
+          </div>
+
+          <!-- About XECEAY -->
+          <div class="section-header">
+            <div class="section-title">About XECEAY</div>
+          </div>
+          <div class="song-row" style="cursor:default;">
+            <div class="brand-badge">X</div>
+            <div class="song-info">
+              <div class="song-name">XECEAY — Music Downloader & Offline Player</div>
+              <div class="song-meta">100% Ad-Free • Supports MP3, FLAC, WAV, AAC, M4A, OGG, Opus, MP4 • Native Android + GitHub OTA Auto-Updater</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Persistent Mini-Player (Appears above Bottom Nav) -->
+  <div class="mini-player" id="mini-player" onclick="XeceayApp.openFullPlayer(event)">
+    <img id="mini-art" class="song-thumb" src="" alt="Art" style="width:42px;height:42px;" />
+    <div class="song-info">
+      <div class="song-name" id="mini-title">Midnight Horizon</div>
+      <div class="song-meta" id="mini-artist">XECEAY Synth Ensemble</div>
+    </div>
+    <div class="song-actions" onclick="event.stopPropagation()">
+      <button class="icon-btn" onclick="XeceayApp.prevTrack()">⏮</button>
+      <button class="icon-btn" id="mini-play-btn" onclick="XeceayApp.togglePlay()" style="background:var(--accent-primary);color:#fff;border:none;">▶</button>
+      <button class="icon-btn" onclick="XeceayApp.nextTrack()">⏭</button>
+    </div>
+    <div class="mini-progress-line">
+      <div class="mini-progress-fill" id="mini-progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (5 Tabs) -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="XeceayApp.switchTab('home')">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" id="nav-search" onclick="XeceayApp.switchTab('search')">
+      <span class="nav-icon">🔍</span>
+      <span>Search</span>
+    </div>
+    <div class="nav-item" id="nav-library" onclick="XeceayApp.switchTab('library')">
+      <span class="nav-icon">📚</span>
+      <span>Library</span>
+    </div>
+    <div class="nav-item" id="nav-downloads" onclick="XeceayApp.switchTab('downloads')">
+      <span class="nav-icon">⬇️</span>
+      <span>Downloads</span>
+    </div>
+    <div class="nav-item" id="nav-settings" onclick="XeceayApp.switchTab('settings')">
+      <span class="nav-icon">⚙️</span>
+      <span>Settings</span>
+    </div>
+  </nav>
+
+  <!-- SCREEN 4: FULL-SCREEN HI-FI MUSIC PLAYER -->
+  <div class="full-player-modal" id="full-player-modal">
+    <div class="fp-header">
+      <button class="icon-btn" onclick="XeceayApp.closeFullPlayer()">⌄</button>
+      <div style="text-align:center;">
+        <div style="font-size:11px;color:var(--accent-secondary);font-weight:700;letter-spacing:1px;">NOW PLAYING</div>
+        <div style="font-size:12px;color:var(--text-secondary);" id="fp-album-label">XECEAY Hi-Res Engine</div>
+      </div>
+      <button class="icon-btn" onclick="XeceayApp.openEqualizerModal()">🎚️</button>
+    </div>
+
+    <div class="fp-art-container">
+      <img id="fp-art" src="" alt="Album Art" />
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:21px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="fp-title">Select a Song</div>
+        <div style="font-size:14px;color:var(--text-secondary);margin-top:2px;" id="fp-artist">XECEAY</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="icon-btn" id="fp-fav-btn" onclick="XeceayApp.toggleCurrentFavorite()">♡</button>
+        <button class="icon-btn" onclick="XeceayApp.openTagEditorForCurrent()" title="Edit Metadata Tags">🏷️</button>
+      </div>
+    </div>
+
+    <!-- Seek Bar -->
+    <div style="margin:6px 0;">
+      <input
+        type="range"
+        id="fp-seek-slider"
+        class="range-slider"
+        min="0"
+        max="1000"
+        value="0"
+        oninput="XeceayApp.onSeekSliderInput(this.value)"
+        onchange="XeceayApp.onSeekSliderCommit(this.value)"
+      />
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-top:4px;">
+        <span id="fp-current-time">0:00</span>
+        <span id="fp-format-badge" class="badge">WAV / HI-RES</span>
+        <span id="fp-total-time">0:00</span>
+      </div>
+    </div>
+
+    <!-- Primary Transport Controls -->
+    <div class="fp-controls-main">
+      <button class="icon-btn" id="fp-shuffle-btn" onclick="XeceayApp.toggleShuffle()">🔀</button>
+      <button class="icon-btn" style="width:46px;height:46px;font-size:18px;" onclick="XeceayApp.prevTrack()">⏮</button>
+      <button class="play-circle-lg" id="fp-play-btn" onclick="XeceayApp.togglePlay()">▶</button>
+      <button class="icon-btn" style="width:46px;height:46px;font-size:18px;" onclick="XeceayApp.nextTrack()">⏭</button>
+      <button class="icon-btn" id="fp-repeat-btn" onclick="XeceayApp.cycleRepeatMode()">🔁</button>
+    </div>
+
+    <!-- Secondary Hi-Fi Controls: Speed, Sleep Timer, Volume, Add to Playlist -->
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">
+      <button class="pill-btn" id="fp-speed-btn" onclick="XeceayApp.cyclePlaybackSpeed()">⚡ 1.0x</button>
+      <button class="pill-btn" id="fp-sleep-btn" onclick="XeceayApp.cycleSleepTimer()">🌙 Sleep: Off</button>
+      <button class="pill-btn" onclick="XeceayApp.promptAddCurrentToPlaylist()">➕ Playlist</button>
+      <button class="pill-btn cyan" onclick="XeceayApp.openEqualizerModal()">🎚️ Equalizer</button>
+    </div>
+
+    <!-- Volume Slider -->
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+      <span style="font-size:13px;">🔈</span>
+      <input type="range" class="range-slider" min="0" max="100" value="90" oninput="XeceayApp.setVolume(this.value / 100)" />
+      <span style="font-size:13px;">🔊</span>
+    </div>
+
+    <!-- Up Next Queue & Synchronized Lyrics -->
+    <div class="section-header" style="margin-top:18px;">
+      <div class="section-title">Playing Queue & Lyrics</div>
+    </div>
+    <div id="fp-queue-list" class="song-list"></div>
+  </div>
+
+  <!-- EQUALIZER MODAL -->
+  <div class="modal-backdrop" id="eq-modal">
+    <div class="modal-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div>
+          <h3 style="font-size:17px;font-weight:800;">🎚️ Professional 5-Band Equalizer</h3>
+          <p style="font-size:11px;color:var(--text-secondary);">Real-time DSP frequency shaping & hardware Bass Boost</p>
+        </div>
+        <button class="icon-btn" onclick="XeceayApp.closeEqualizerModal()">✕</button>
+      </div>
+
+      <div class="chip-row" id="eq-presets-row" style="margin-bottom:12px;"></div>
+
+      <div class="eq-bands-grid" id="eq-bands-container"></div>
+
+      <div style="margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span>Sub-Bass Boost Strength</span>
+          <span id="eq-bass-val">15%</span>
+        </div>
+        <input type="range" id="eq-bass-slider" class="range-slider" min="0" max="1000" value="150" oninput="XeceayApp.onBassSliderChange(this.value)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 8: PLAYLIST DETAILS MODAL -->
+  <div class="modal-backdrop" id="playlist-modal">
+    <div class="modal-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-size:18px;font-weight:800;" id="pl-modal-title">Playlist</h3>
+        <button class="icon-btn" onclick="XeceayApp.closePlaylistModal()">✕</button>
+      </div>
+      <div id="pl-modal-meta" style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;" id="pl-modal-actions"></div>
+      <div id="pl-modal-songs" class="song-list"></div>
+    </div>
+  </div>
+
+  <!-- MUSIC TAG EDITOR MODAL -->
+  <div class="modal-backdrop" id="tag-modal">
+    <div class="modal-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-size:17px;font-weight:800;">🏷️ Audio Metadata Tag Editor</h3>
+        <button class="icon-btn" onclick="document.getElementById('tag-modal').classList.remove('open')">✕</button>
+      </div>
+      <div style="display:grid;gap:10px;">
+        <input type="hidden" id="tag-song-id" />
+        <label style="font-size:11px;color:var(--text-secondary);">Song Title</label>
+        <input id="tag-title" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;" />
+        <label style="font-size:11px;color:var(--text-secondary);">Artist</label>
+        <input id="tag-artist" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;" />
+        <label style="font-size:11px;color:var(--text-secondary);">Album</label>
+        <input id="tag-album" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;" />
+        <label style="font-size:11px;color:var(--text-secondary);">Genre</label>
+        <input id="tag-genre" class="search-input" style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:10px;" />
+        <button class="pill-btn accent" style="justify-content:center;padding:12px;" onclick="XeceayApp.saveTagEdits()">💾 Save Metadata Tags</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

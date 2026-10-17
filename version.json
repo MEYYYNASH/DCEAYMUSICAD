@@ -4,6 +4,6 @@
   "tagName": "v1.2.0",
   "releaseTitle": "XECEAY v1.2.0 — Edge-to-Edge Full Screen & Full-Length Audio Downloader",
   "changelog": "Fixed full-screen display by zeroing horizontal insets to eliminate black side borders on curved/notched devices. Completely removed 30-second preview limitations from downloads and streaming by prioritizing Audius full-length tracks and high-speed MP3/MP4 conversion.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.2.0/XECEAY-release.apk",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk",
   "apkSize": 3062328
 }

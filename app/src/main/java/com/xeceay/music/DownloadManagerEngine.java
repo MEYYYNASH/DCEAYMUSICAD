@@ -228,9 +228,14 @@ public class DownloadManagerEngine {
                     }
                 }
 
-                // If stream URL is empty or invalid, resolve the real audio stream for this exact track
-                if (streamUrl.isEmpty() || !streamUrl.startsWith("https://")) {
-                    streamUrl = resolveRealAudioUrl(title, artist);
+                // If stream URL is empty, invalid, or a 30-sec preview clip, resolve genuine full-length audio stream
+                if (streamUrl.isEmpty() || !streamUrl.startsWith("https://")
+                        || streamUrl.contains("cdnt-preview.dzcdn.net")
+                        || streamUrl.contains("itunes-assets/AudioPreview")) {
+                    String fullAudio = resolveRealAudioUrl(title, artist);
+                    if (fullAudio != null && !fullAudio.isEmpty()) {
+                        streamUrl = fullAudio;
+                    }
                 }
                 if (streamUrl == null || streamUrl.isEmpty()) {
                     updateStatusInDb(downloadId, "Failed", 0L);
@@ -444,48 +449,33 @@ public class DownloadManagerEngine {
         if (query.isEmpty()) query = title != null ? title.trim() : "";
         if (query.isEmpty()) return null;
 
-        // 1. Deezer API (returns direct preview for exact title/artist)
+        // 1. Search Audius API for full-length 100% complete audio streams (no 30s clips)
         try {
-            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
-            JSONObject dz = fetchJsonSimple("https://api.deezer.com/search?q=" + encoded + "&limit=3");
-            if (dz != null) {
-                org.json.JSONArray data = dz.optJSONArray("data");
-                if (data != null && data.length() > 0) {
-                    for (int i = 0; i < data.length(); i++) {
-                        String p = data.getJSONObject(i).optString("preview", "");
-                        if (!p.isEmpty()) return p;
+            String[] terms = new String[]{query, cleanTitle};
+            for (String t : terms) {
+                if (t.isEmpty()) continue;
+                String encoded = java.net.URLEncoder.encode(t, "UTF-8");
+                JSONObject aud = fetchJsonSimple("https://discoveryprovider.audius.co/v1/tracks/search?query=" + encoded + "&app_name=XECEAY");
+                if (aud != null) {
+                    org.json.JSONArray data = aud.optJSONArray("data");
+                    if (data != null && data.length() > 0) {
+                        for (int i = 0; i < Math.min(data.length(), 3); i++) {
+                            String id = data.getJSONObject(i).optString("id", "");
+                            if (!id.isEmpty()) {
+                                return "https://discoveryprovider.audius.co/v1/tracks/" + id + "/stream?app_name=XECEAY";
+                            }
+                        }
                     }
                 }
             }
         } catch (Exception ignored) {}
 
-        // 2. iTunes Cambodia API (country=KH)
+        // 2. High-speed full-track conversion engine fallback
         try {
-            String encoded = java.net.URLEncoder.encode(cleanTitle.isEmpty() ? query : cleanTitle, "UTF-8");
-            JSONObject itunes = fetchJsonSimple("https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=3");
-            if (itunes != null) {
-                org.json.JSONArray results = itunes.optJSONArray("results");
-                if (results != null && results.length() > 0) {
-                    for (int i = 0; i < results.length(); i++) {
-                        String p = results.getJSONObject(i).optString("previewUrl", "");
-                        if (!p.isEmpty()) return p;
-                    }
-                }
-            }
-        } catch (Exception ignored) {}
-
-        // 3. Audius API
-        try {
-            String encoded = java.net.URLEncoder.encode(cleanTitle.isEmpty() ? query : cleanTitle, "UTF-8");
-            JSONObject aud = fetchJsonSimple("https://discoveryprovider.audius.co/v1/tracks/search?query=" + encoded + "&app_name=XECEAY");
-            if (aud != null) {
-                org.json.JSONArray data = aud.optJSONArray("data");
-                if (data != null && data.length() > 0) {
-                    String id = data.getJSONObject(0).optString("id", "");
-                    if (!id.isEmpty()) {
-                        return "https://discoveryprovider.audius.co/v1/tracks/" + id + "/stream?app_name=XECEAY";
-                    }
-                }
+            String ytQuery = "https://www.youtube.com/results?search_query=" + java.net.URLEncoder.encode(query, "UTF-8");
+            String fullStream = LinkAnalyzerService.resolveLoaderStream(ytQuery, "mp3");
+            if (fullStream != null && !fullStream.isEmpty()) {
+                return fullStream;
             }
         } catch (Exception ignored) {}
 

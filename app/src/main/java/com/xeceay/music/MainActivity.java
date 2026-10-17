@@ -186,12 +186,14 @@ public class MainActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(
                     WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
             );
             int topPad = Math.max(insets.top, getStatusBarHeight());
-            v.setPadding(insets.left, topPad, insets.right, insets.bottom);
+            // Pure edge-to-edge full screen width: zero left/right insets to prevent black side borders on curved/notched devices
+            v.setPadding(0, topPad, 0, 0);
             return WindowInsetsCompat.CONSUMED;
         });
 

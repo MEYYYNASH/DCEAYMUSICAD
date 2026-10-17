@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.9",
-  "versionCode": 119,
-  "tagName": "v1.1.9",
-  "releaseTitle": "XECEAY v1.1.9 — Native YouTube App Launcher, Smart MP3 Audio Resolver & Fast Video Downloader",
-  "changelog": "Replaced blocked YouTube embed with 1-tap Native YouTube App Launcher (direct 4K/1080p playback), resolved YouTube song downloads via intelligent title-cleaning against Deezer/iTunes/Audius audio APIs, and added Fast Downloader action for MP4 videos.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.9/XECEAY-release.apk",
-  "apkSize": 3062596
+  "versionName": "1.2.0",
+  "versionCode": 120,
+  "tagName": "v1.2.0",
+  "releaseTitle": "XECEAY v1.2.0 — Edge-to-Edge Full Screen & Full-Length Audio Downloader",
+  "changelog": "Fixed full-screen display by zeroing horizontal insets to eliminate black side borders on curved/notched devices. Completely removed 30-second preview limitations from downloads and streaming by prioritizing Audius full-length tracks and high-speed MP3/MP4 conversion.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.2.0/XECEAY-release.apk",
+  "apkSize": 3062328
 }

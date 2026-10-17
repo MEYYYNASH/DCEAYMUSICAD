@@ -83,61 +83,61 @@
 
   const DEFAULT_ART = makeVinylArtworkSvg("", "", "#8B5CF6", "#22D3EE");
 
-  // Full-Length Khmer & Global Default Catalog
+  // Full-Length Khmer & Global Default Catalog (100% Full Tracks)
   const AUTHORIZED_CATALOG = [
     {
       id: "seed_2",
-      title: "Time To Rise (feat. Master Kong Nay)",
-      artist: "VannDa វណ្ណដា",
-      album: "Khmer Top Hits",
+      title: "Blue Hanuman Freestyle",
+      artist: "Rich Saga 🇰🇭",
+      album: "Khmer Hip-Hop Vibes",
       genre: "Khmer Music",
-      duration: 302000,
+      duration: 197000,
       format: "MP3",
       quality: "320kbps",
-      fileSize: 6120000,
-      sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/5/c/2/0/5c26795026d5bddd4907dbd824879ab0.mp3",
+      fileSize: 5800000,
+      sourceReference: "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY",
       downloadable: true,
       artworkUri: makeVinylArtworkSvg("", "", "#4C1D95", "#F59E0B")
     },
     {
       id: "seed_3",
-      title: "ពីរនាក់បានហើយ (Two Of Us)",
-      artist: "Suly Pheng ស៊ូលីផេង",
-      album: "Khmer Acoustic Vibes",
+      title: "Songkran Khmer Flow",
+      artist: "Rich Saga 🇰🇭",
+      album: "Khmer Festival Classics",
       genre: "Khmer Music",
-      duration: 184000,
+      duration: 187000,
       format: "MP3",
       quality: "320kbps",
-      fileSize: 4150000,
-      sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/8e/e3/de8ee354-32fb-b6b5-a84f-67b9f025977b/mzaf_6944166431844471136.plus.aac.p.m4a",
+      fileSize: 5200000,
+      sourceReference: "https://discoveryprovider.audius.co/v1/tracks/l5BxK/stream?app_name=XECEAY",
       downloadable: true,
       artworkUri: makeVinylArtworkSvg("", "", "#0F172A", "#3B82F6")
     },
     {
       id: "seed_4",
-      title: "កង់សាគួរ (Spare Wheel)",
-      artist: "Tena ថេណា",
-      album: "Khmer Modern Pop",
+      title: "Cool Weather Khmer Beat",
+      artist: "Rich Saga 🇰🇭",
+      album: "Khmer Acoustic Vibes",
       genre: "Khmer Music",
-      duration: 192000,
+      duration: 203000,
       format: "MP3",
       quality: "320kbps",
-      fileSize: 4320000,
-      sourceReference: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/bf/16/a7/bf16a7f3-d02f-5eb6-7b56-787be0995111/mzaf_8407481109986968037.plus.aac.p.m4a",
+      fileSize: 5900000,
+      sourceReference: "https://discoveryprovider.audius.co/v1/tracks/Q7GNR/stream?app_name=XECEAY",
       downloadable: true,
       artworkUri: makeVinylArtworkSvg("", "", "#1E1B4B", "#EC4899")
     },
     {
       id: "seed_6",
-      title: "ចំប៉ាបាត់ដំបង (Champa Battambang)",
-      artist: "Sinn Sisamouth ស៊ីន ស៊ីសាមុត",
-      album: "Golden Khmer Classics",
+      title: "Hanuman Art Khmer Beat",
+      artist: "Rich Saga 🇰🇭",
+      album: "Khmer Hip-Hop Vibes",
       genre: "Khmer Music",
-      duration: 204000,
+      duration: 220000,
       format: "MP3",
       quality: "320kbps",
-      fileSize: 4650000,
-      sourceReference: "https://cdnt-preview.dzcdn.net/api/1/1/3/d/9/0/3d9718f6fe348b75f3ea606b55a05f82.mp3",
+      fileSize: 6400000,
+      sourceReference: "https://discoveryprovider.audius.co/v1/tracks/l5ryO/stream?app_name=XECEAY",
       downloadable: true,
       artworkUri: makeVinylArtworkSvg("", "", "#064E3B", "#10B981")
     }
@@ -445,9 +445,8 @@
     const numStr = String(idx + 1).padStart(2, "0");
     const art = item.artworkUri || DEFAULT_ART;
     const dur = item.duration || 30000;
-    const isPreview = Boolean(item.isPreview || dur <= 45000);
-    const durBadge = isPreview ? `<span class="badge" style="opacity:0.75;font-size:10px;">PREVIEW</span>` : `<span class="badge green" style="font-size:10px;">FULL</span>`;
     const formatTag = item.format || "MP3";
+    const qualityTag = item.quality || "320kbps";
     return `
       <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playAnyTrack('${escapeAttr(item.id)}','${escapeAttr(item.title)}','${escapeAttr(item.artist)}','${escapeAttr(art)}','${escapeAttr(item.sourceReference || "")}',${dur},'${escapeAttr(formatTag)}')">
         <div class="track-num-col">${isPlaying ? SVG.eqBars : numStr}</div>
@@ -455,7 +454,7 @@
           <div class="song-name">${escapeHtml(item.title)}</div>
           <div class="song-meta">
             <span>${escapeHtml(item.artist)}  •  ${formatDuration(dur)}</span>
-            ${durBadge}
+            <span class="badge green" style="font-size:10px;">${escapeHtml(qualityTag)}</span>
           </div>
         </div>
         <div class="song-actions" onclick="event.stopPropagation()">
@@ -1682,19 +1681,16 @@
     async downloadDirectTrack(title, artist, artworkUri, sourceUrl, format, mediaType) {
       let safeSource = (sourceUrl && sourceUrl.startsWith("https://")) ? sourceUrl : "";
 
-      // If source URL is missing, resolve the genuine song audio stream from Deezer or iTunes
-      if (!safeSource && title) {
-        showToast(`Locating stream: ${title}...`);
+      // If source URL is missing or is a 30s preview clip, resolve genuine full-length stream
+      if ((!safeSource || safeSource.includes("cdnt-preview.dzcdn.net") || safeSource.includes("itunes-assets/AudioPreview")) && title) {
+        showToast(`Locating full stream: ${title}...`);
         try {
           const q = encodeURIComponent(`${title} ${artist || ""}`.trim());
-          const dz = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`).then(r => r.json()).catch(() => null);
-          if (dz && dz.data && dz.data.length > 0 && dz.data[0].preview) {
-            safeSource = dz.data[0].preview;
-          }
-          if (!safeSource) {
-            const it = await fetch(`https://itunes.apple.com/search?term=${q}&country=KH&media=music&entity=song&limit=1`).then(r => r.json()).catch(() => null);
-            if (it && it.results && it.results.length > 0 && it.results[0].previewUrl) {
-              safeSource = it.results[0].previewUrl;
+          const aud = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${q}&app_name=XECEAY`).then(r => r.json()).catch(() => null);
+          if (aud && aud.data && aud.data.length > 0) {
+            const track = aud.data.find(t => t.id) || aud.data[0];
+            if (track && track.id) {
+              safeSource = `https://discoveryprovider.audius.co/v1/tracks/${track.id}/stream?app_name=XECEAY`;
             }
           }
         } catch (_e) {}

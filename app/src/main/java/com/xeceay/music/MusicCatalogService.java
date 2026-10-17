@@ -94,21 +94,26 @@ public class MusicCatalogService {
             Set<String> seenKeys = new HashSet<>();
 
             try {
-                // 1. Deezer Cambodia / Global MP3 Catalog
-                fetchDeezerTracks(rawClean, list, seenKeys);
-                if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 12) {
-                    fetchDeezerTracks(expandedQuery, list, seenKeys);
+                // 1. Audius Full-Track Streaming Server (100% Full-Length Songs, No 30s clips)
+                fetchAudiusFullTracks(rawClean, list, seenKeys);
+                if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 16) {
+                    fetchAudiusFullTracks(expandedQuery, list, seenKeys);
                 }
 
                 // 2. iTunes Cambodia Server (country=KH)
-                fetchItunesCambodiaTracks(rawClean, list, seenKeys);
-                if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 20) {
-                    fetchItunesCambodiaTracks(expandedQuery, list, seenKeys);
+                if (list.size() < 24) {
+                    fetchItunesCambodiaTracks(rawClean, list, seenKeys);
+                    if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 24) {
+                        fetchItunesCambodiaTracks(expandedQuery, list, seenKeys);
+                    }
                 }
 
-                // 3. Audius Full-Track Streaming Server
-                if (list.size() < 25) {
-                    fetchAudiusFullTracks(rawClean, list, seenKeys);
+                // 3. Deezer Cambodia / Global MP3 Catalog
+                if (list.size() < 30) {
+                    fetchDeezerTracks(rawClean, list, seenKeys);
+                    if (!expandedQuery.equalsIgnoreCase(rawClean) && list.size() < 30) {
+                        fetchDeezerTracks(expandedQuery, list, seenKeys);
+                    }
                 }
             } catch (Exception ignored) {
             }
@@ -258,7 +263,7 @@ public class MusicCatalogService {
             JSONArray arr = audData.optJSONArray("data");
             if (arr == null) return;
 
-            for (int i = 0; i < Math.min(arr.length(), 10); i++) {
+            for (int i = 0; i < Math.min(arr.length(), 25); i++) {
                 JSONObject r = arr.getJSONObject(i);
                 String id = r.optString("id", "");
                 if (id.isEmpty()) continue;
@@ -266,13 +271,6 @@ public class MusicCatalogService {
                 String title = r.optString("title", "Track");
                 JSONObject user = r.optJSONObject("user");
                 String artist = user != null ? user.optString("name", "Artist") : "Artist";
-
-                String tLow = title.toLowerCase();
-                String aLow = artist.toLowerCase();
-                String termLow = term.toLowerCase();
-                boolean matchesTerm = tLow.contains(termLow) || aLow.contains(termLow)
-                        || termLow.contains(tLow) || termLow.contains(aLow);
-                if (!matchesTerm) continue;
 
                 JSONObject artwork = r.optJSONObject("artwork");
                 String art = artwork != null ? artwork.optString("480x480", artwork.optString("150x150", "")) : "";

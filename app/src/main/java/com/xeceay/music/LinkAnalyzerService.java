@@ -126,7 +126,16 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    // 3. Resolve direct audio stream for this exact song
+                    // 3. For YouTube links, convert directly to high-speed full-length MP3 stream
+                    if (resolvedAudioUrl.isEmpty() && videoId != null) {
+                        String targetYt = "https://www.youtube.com/watch?v=" + videoId;
+                        String streamMp3 = resolveLoaderStream(targetYt, "mp3");
+                        if (streamMp3 != null && !streamMp3.isEmpty()) {
+                            resolvedAudioUrl = streamMp3;
+                        }
+                    }
+
+                    // 4. Resolve direct full audio stream (Audius full track resolver)
                     if (resolvedAudioUrl.isEmpty()) {
                         String realAudio = DownloadManagerEngine.resolveRealAudioUrl(title, author);
                         if (realAudio != null && !realAudio.isEmpty()) {
@@ -134,11 +143,12 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    if (resolvedAudioUrl.isEmpty()) {
-                        String targetYt = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : cleanUrl;
-                        String streamMp3 = resolveLoaderStream(targetYt, "mp3");
-                        if (streamMp3 != null && !streamMp3.isEmpty()) {
-                            resolvedAudioUrl = streamMp3;
+                    // 5. Video stream resolution (720p MP4)
+                    if (resolvedVideoUrl.isEmpty() && videoId != null) {
+                        String targetYt = "https://www.youtube.com/watch?v=" + videoId;
+                        String streamMp4 = resolveLoaderStream(targetYt, "720");
+                        if (streamMp4 != null && !streamMp4.isEmpty()) {
+                            resolvedVideoUrl = streamMp4;
                         }
                     }
 
@@ -234,13 +244,22 @@ public class LinkAnalyzerService {
 
     public static String resolveDirectYouTubeStream(String youtubeUrl, String format) {
         String videoId = extractYouTubeId(youtubeUrl);
-        // 1. Try InnerTube ANDROID_VR first (direct Googlevideo stream)
+        String targetUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : youtubeUrl;
+        String fmt = ("video".equalsIgnoreCase(format) || "720".equals(format) || "1080".equals(format) || "MP4".equalsIgnoreCase(format)) ? "720" : "mp3";
+
+        // 1. High-speed dedicated full-track audio/video conversion engine
+        String stream = resolveLoaderStream(targetUrl, fmt);
+        if (stream != null && !stream.isEmpty()) {
+            return stream;
+        }
+
+        // 2. InnerTube stream fallback
         if (videoId != null) {
             JSONObject vr = fetchInnerTubeAndroidVr(videoId);
             if (vr != null) {
                 JSONObject sd = vr.optJSONObject("streamingData");
                 if (sd != null) {
-                    if ("video".equalsIgnoreCase(format) || "720".equals(format) || "1080".equals(format)) {
+                    if ("720".equals(fmt)) {
                         JSONArray formats = sd.optJSONArray("formats");
                         if (formats != null && formats.length() > 0) {
                             String u = formats.optJSONObject(0).optString("url", "");
@@ -264,10 +283,7 @@ public class LinkAnalyzerService {
                 }
             }
         }
-
-        // 2. Fallback to high-speed dedicated conversion engine (Loader)
-        String targetUrl = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : youtubeUrl;
-        return resolveLoaderStream(targetUrl, ("video".equalsIgnoreCase(format) || "720".equals(format)) ? "720" : "mp3");
+        return null;
     }
 
     public static String resolveLoaderStream(String targetUrl, String format) {
@@ -286,12 +302,12 @@ public class LinkAnalyzerService {
                 return null;
             }
 
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 15; i++) {
                 try {
-                    Thread.sleep(1100);
+                    Thread.sleep(1300);
                 } catch (InterruptedException ignored) {
                 }
-                JSONObject progResp = fetchJson(progressUrl, 5000);
+                JSONObject progResp = fetchJson(progressUrl, 6000);
                 if (progResp != null) {
                     String u = progResp.optString("download_url", "");
                     if (!u.isEmpty() && u.startsWith("http")) {

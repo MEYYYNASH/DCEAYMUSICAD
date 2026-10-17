@@ -20,6 +20,13 @@
   <!-- Toast Notification -->
   <div id="toast-box">Ready</div>
 
+  <!-- iOS 27 Liquid Glass Ambient Floating Mesh Orbs -->
+  <div class="ios-glass-mesh-bg" aria-hidden="true">
+    <div class="glass-orb glass-orb-1"></div>
+    <div class="glass-orb glass-orb-2"></div>
+    <div class="glass-orb glass-orb-3"></div>
+  </div>
+
   <div class="app-layout">
     <!-- Desktop Sidebar -->
     <aside class="desktop-sidebar">
@@ -327,7 +334,7 @@
                 <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>App Version & Updates</span>
               </div>
-              <span id="installed-version-badge" class="badge green">v1.2.0</span>
+              <span id="installed-version-badge" class="badge green">v1.2.1</span>
             </div>
             <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
               Automatically checks <strong>github.com/MEYYYNASH/XECEAY</strong>. Update button only appears when a newer version is released.
@@ -366,10 +373,10 @@
               </div>
               <div class="theme-card" data-theme="glass" onclick="XeceayApp.setTheme('glass', this)">
                 <div class="theme-preview-dots">
-                  <div class="theme-dot" style="background:rgba(20,20,30,0.9);"></div>
-                  <div class="theme-dot" style="background:#38BDF8;"></div>
+                  <div class="theme-dot" style="background:linear-gradient(135deg, #C084FC, #38BDF8);"></div>
+                  <div class="theme-dot" style="background:rgba(255,255,255,0.85);box-shadow:0 0 10px rgba(56,189,248,0.7);"></div>
                 </div>
-                <div class="theme-name">Glassmorphism</div>
+                <div class="theme-name">iOS 27 Liquid Glass</div>
               </div>
               <div class="theme-card" data-theme="emerald" onclick="XeceayApp.setTheme('emerald', this)">
                 <div class="theme-preview-dots">
@@ -595,10 +602,11 @@
       <button class="icon-btn" onclick="XeceayApp.closeVideoPlayer()">
         <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <div style="flex:1;min-width:0;padding:0 12px;">
+      <div style="flex:1;min-width:0;padding:0 10px;">
         <div id="vp-title" style="font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Video Player</div>
         <div id="vp-artist" style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">XECEAY Media</div>
       </div>
+      <button id="vp-switch-mirror-btn" class="pill-btn" style="padding:4px 10px;font-size:10px;font-weight:700;display:none;" onclick="XeceayApp.switchVideoSource()" title="Switch Video Mirror">Switch Mirror</button>
       <button class="icon-btn" onclick="XeceayApp.toggleVideoFullscreen()" title="Fullscreen">
         <svg class="ico" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
       </button>

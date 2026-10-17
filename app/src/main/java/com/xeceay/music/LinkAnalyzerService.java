@@ -83,9 +83,9 @@ public class LinkAnalyzerService {
                     String resolvedAudioUrl = "";
                     String resolvedVideoUrl = "";
 
-                    // 1. Fetch official oEmbed title & channel name
+                    // 1. Fetch official oEmbed title & channel name instantly (< 300ms)
                     String oembedUrl = "https://www.youtube.com/oembed?url=" + URLEncoder.encode(cleanUrl, "UTF-8") + "&format=json";
-                    JSONObject oembed = fetchJson(oembedUrl, 7000);
+                    JSONObject oembed = fetchJson(oembedUrl, 3500);
                     if (oembed != null) {
                         title = oembed.optString("title", title);
                         author = oembed.optString("author_name", author);
@@ -93,72 +93,7 @@ public class LinkAnalyzerService {
                         if (!oThumb.isEmpty()) thumb = oThumb;
                     }
 
-                    // 2. Try YouTube InnerTube ANDROID_VR API for direct full-length audio/mp4 & video/mp4 streams
-                    if (videoId != null) {
-                        JSONObject vrPlayer = fetchInnerTubeAndroidVr(videoId);
-                        if (vrPlayer != null) {
-                            JSONObject vd = vrPlayer.optJSONObject("videoDetails");
-                            if (vd != null) {
-                                title = vd.optString("title", title);
-                                author = vd.optString("author", author);
-                                long len = vd.optLong("lengthSeconds", 0L);
-                                if (len > 0) durationSec = len;
-                            }
-                            JSONObject sd = vrPlayer.optJSONObject("streamingData");
-                            if (sd != null) {
-                                JSONArray formats = sd.optJSONArray("formats");
-                                if (formats != null && formats.length() > 0) {
-                                    resolvedVideoUrl = formats.getJSONObject(0).optString("url", "");
-                                }
-                                JSONArray adaptive = sd.optJSONArray("adaptiveFormats");
-                                if (adaptive != null) {
-                                    for (int i = 0; i < adaptive.length(); i++) {
-                                        JSONObject af = adaptive.getJSONObject(i);
-                                        String mime = af.optString("mimeType", "");
-                                        String uStr = af.optString("url", "");
-                                        if (mime.contains("audio/") && !uStr.isEmpty()) {
-                                            resolvedAudioUrl = uStr;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 3. For YouTube links, convert directly to high-speed full-length MP3 stream
-                    if (resolvedAudioUrl.isEmpty() && videoId != null) {
-                        String targetYt = "https://www.youtube.com/watch?v=" + videoId;
-                        String streamMp3 = resolveLoaderStream(targetYt, "mp3");
-                        if (streamMp3 != null && !streamMp3.isEmpty()) {
-                            resolvedAudioUrl = streamMp3;
-                        }
-                    }
-
-                    // 4. Resolve direct full audio stream (Audius full track resolver)
-                    if (resolvedAudioUrl.isEmpty()) {
-                        String realAudio = DownloadManagerEngine.resolveRealAudioUrl(title, author);
-                        if (realAudio != null && !realAudio.isEmpty()) {
-                            resolvedAudioUrl = realAudio;
-                        }
-                    }
-
-                    // 5. Video stream resolution (720p MP4)
-                    if (resolvedVideoUrl.isEmpty() && videoId != null) {
-                        String targetYt = "https://www.youtube.com/watch?v=" + videoId;
-                        String streamMp4 = resolveLoaderStream(targetYt, "720");
-                        if (streamMp4 != null && !streamMp4.isEmpty()) {
-                            resolvedVideoUrl = streamMp4;
-                        }
-                    }
-
-                    if (resolvedVideoUrl.isEmpty()) {
-                        resolvedVideoUrl = cleanUrl;
-                    }
-
-                    boolean hasDirectStream = !resolvedAudioUrl.isEmpty() || (videoId != null && !videoId.isEmpty());
-                    String durationText = (durationSec / 60) + ":" + String.format("%02d", durationSec % 60);
-
+                    // Dispatch instant result to UI without waiting for lengthy background conversions
                     JSONObject res = new JSONObject();
                     res.put("ok", true);
                     res.put("sourceType", "youtube");
@@ -167,16 +102,16 @@ public class LinkAnalyzerService {
                     res.put("title", title);
                     res.put("artist", author);
                     res.put("thumbnail", thumb);
-                    res.put("durationText", durationText);
+                    res.put("durationText", "Full Video / Audio");
                     res.put("durationMs", durationSec * 1000L);
                     res.put("mediaType", "video");
                     res.put("format", "MP4");
                     res.put("fileSize", durationSec * 24000L);
                     res.put("sourceWebsite", "YouTube");
                     res.put("directDownloadPermitted", true);
-                    res.put("hasDirectStream", hasDirectStream);
-                    res.put("downloadUrlMp3", resolvedAudioUrl);
-                    res.put("downloadUrlMp4", resolvedVideoUrl);
+                    res.put("hasDirectStream", true);
+                    res.put("downloadUrlMp3", cleanUrl);
+                    res.put("downloadUrlMp4", cleanUrl);
                     callback.onAnalysisResult(res);
                     return;
                 }

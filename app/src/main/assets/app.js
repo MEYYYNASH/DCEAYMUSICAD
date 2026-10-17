@@ -211,9 +211,9 @@
     analyzedLink: null
   };
 
-  // Apply saved theme immediately
+  // Apply saved theme immediately (default to 'glass' iOS 27 Liquid Glass)
   try {
-    const savedTheme = localStorage.getItem("xeceay_theme");
+    const savedTheme = localStorage.getItem("xeceay_theme") || "glass";
     if (savedTheme && savedTheme !== "dark") {
       document.body.classList.add("theme-" + savedTheme);
     }
@@ -962,7 +962,7 @@
 
   function syncSettingsUi() {
     const p = state.user.preferences || {};
-    const currentTheme = p.theme || localStorage.getItem("xeceay_theme") || "dark";
+    const currentTheme = p.theme || localStorage.getItem("xeceay_theme") || "glass";
     const themeGrid = document.getElementById("theme-selector-grid");
     if (themeGrid) {
       themeGrid.querySelectorAll(".theme-card").forEach(c => {
@@ -973,11 +973,11 @@
     const themeLabels = {
       dark: "Midnight Slate",
       cyberpunk: "Cyberpunk Neon",
-      glass: "Glassmorphism",
+      glass: "iOS 27 Liquid Glass",
       emerald: "Emerald Forest",
       light: "Clean Light"
     };
-    if (pill) pill.textContent = themeLabels[currentTheme] || "Midnight Slate";
+    if (pill) pill.textContent = themeLabels[currentTheme] || "iOS 27 Liquid Glass";
 
     const qualityChips = document.getElementById("audio-quality-chips");
     if (qualityChips && p.audioQuality) {
@@ -1540,6 +1540,9 @@
       }
     },
 
+    currentVideoVideoId: "",
+    currentVideoMirrorIndex: 0,
+
     openVideoPlayer(title, artist, videoUrl, isYouTube, videoId) {
       if (isNative && window.XeceayNative && window.XeceayNative.pauseAudio) {
         window.XeceayNative.pauseAudio();
@@ -1552,7 +1555,11 @@
       const videoElem = document.getElementById("native-video-elem");
       const ytWrap = document.getElementById("yt-video-wrap");
       const ytFrame = document.getElementById("yt-video-frame");
+      const switchBtn = document.getElementById("vp-switch-mirror-btn");
       if (!modal) return;
+
+      this.currentVideoVideoId = videoId || "";
+      this.currentVideoMirrorIndex = 0;
 
       if (vpTitle) vpTitle.textContent = title || "Video Player";
       if (vpArtist) vpArtist.textContent = artist || "XECEAY Media";
@@ -1560,6 +1567,7 @@
       modal.style.display = "flex";
 
       if (isYouTube && videoId) {
+        if (switchBtn) switchBtn.style.display = "inline-flex";
         if (videoElem) {
           videoElem.pause();
           videoElem.src = "";
@@ -1567,9 +1575,10 @@
         }
         if (ytWrap && ytFrame) {
           ytWrap.style.display = "block";
-          ytFrame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1`;
+          ytFrame.src = `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1&enablejsapi=1&origin=https://www.youtube.com`;
         }
       } else {
+        if (switchBtn) switchBtn.style.display = "none";
         if (ytWrap && ytFrame) {
           ytFrame.src = "";
           ytWrap.style.display = "none";
@@ -1580,7 +1589,23 @@
           videoElem.play().catch(() => {});
         }
       }
-      showToast("Playing video: " + (title || ""));
+      showToast("Playing in-app: " + (title || ""));
+    },
+
+    switchVideoSource() {
+      if (!this.currentVideoVideoId) return;
+      const ytFrame = document.getElementById("yt-video-frame");
+      if (!ytFrame) return;
+      const mirrors = [
+        { name: "YouTube Direct", url: `https://www.youtube.com/embed/${encodeURIComponent(this.currentVideoVideoId)}?autoplay=1&playsinline=1&enablejsapi=1` },
+        { name: "Invidious Server 1", url: `https://invidious.nerdvpn.de/embed/${encodeURIComponent(this.currentVideoVideoId)}?autoplay=1` },
+        { name: "Invidious Server 2", url: `https://inv.nadeko.net/embed/${encodeURIComponent(this.currentVideoVideoId)}?autoplay=1` },
+        { name: "YouTube No-Cookie", url: `https://www.youtube-nocookie.com/embed/${encodeURIComponent(this.currentVideoVideoId)}?autoplay=1&playsinline=1` }
+      ];
+      this.currentVideoMirrorIndex = (this.currentVideoMirrorIndex + 1) % mirrors.length;
+      const activeMirror = mirrors[this.currentVideoMirrorIndex];
+      ytFrame.src = activeMirror.url;
+      showToast(`Switched player mirror: ${activeMirror.name}`);
     },
 
     closeVideoPlayer() {
@@ -1681,8 +1706,8 @@
     async downloadDirectTrack(title, artist, artworkUri, sourceUrl, format, mediaType) {
       let safeSource = (sourceUrl && sourceUrl.startsWith("https://")) ? sourceUrl : "";
 
-      // If source URL is missing or is a 30s preview clip, resolve genuine full-length stream
-      if ((!safeSource || safeSource.includes("cdnt-preview.dzcdn.net") || safeSource.includes("itunes-assets/AudioPreview")) && title) {
+      // If source URL is missing or is a 30s preview clip, resolve genuine full-length stream for audio
+      if (mediaType !== "video" && (!safeSource || safeSource.includes("cdnt-preview.dzcdn.net") || safeSource.includes("itunes-assets/AudioPreview")) && title) {
         showToast(`Locating full stream: ${title}...`);
         try {
           const q = encodeURIComponent(`${title} ${artist || ""}`.trim());
@@ -1697,8 +1722,8 @@
       }
 
       if (isNative) {
-        const chosenFormat = (format && format.toUpperCase() === "FLAC") ? "FLAC" : ((format && (format.toUpperCase() === "M4A" || format.toUpperCase() === "AAC")) ? "M4A" : "MP3");
-        const qualityStr = chosenFormat === "FLAC" ? "Lossless FLAC" : (chosenFormat === "M4A" ? "256kbps AAC" : "320kbps MP3");
+        const chosenFormat = (format && format.toUpperCase() === "MP4") ? "MP4" : ((format && format.toUpperCase() === "FLAC") ? "FLAC" : ((format && (format.toUpperCase() === "M4A" || format.toUpperCase() === "AAC")) ? "M4A" : "MP3"));
+        const qualityStr = chosenFormat === "MP4" ? "720p HD Video" : (chosenFormat === "FLAC" ? "Lossless FLAC" : (chosenFormat === "M4A" ? "256kbps AAC" : "320kbps MP3"));
         const res = JSON.parse(
           window.XeceayNative.enqueueDownload(
             title || "Track",
@@ -1879,7 +1904,7 @@
                 ${SVG.musicNote}
                 <span>Download MP3</span>
               </button>
-              <button class="dual-pill-btn" onclick="XeceayApp.openFastDownloader('${escapeAttr(info.url)}')">
+              <button class="dual-pill-btn white-solid" style="background:linear-gradient(135deg, #06B6D4, #3B82F6);color:#ffffff;border:none;" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(info.url)}','MP4','video')">
                 ${SVG.video}
                 <span>Download MP4</span>
               </button>
@@ -2211,11 +2236,11 @@
       const themeLabels = {
         dark: "Midnight Slate",
         cyberpunk: "Cyberpunk Neon",
-        glass: "Glassmorphism",
+        glass: "iOS 27 Liquid Glass",
         emerald: "Emerald Forest",
         light: "Clean Light"
       };
-      const label = themeLabels[themeName] || "Midnight Slate";
+      const label = themeLabels[themeName] || "iOS 27 Liquid Glass";
       if (pill) pill.textContent = label;
 
       state.user.preferences.theme = themeName;

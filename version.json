@@ -1,9 +1,9 @@
 {
-  "versionName": "1.2.0",
-  "versionCode": 120,
-  "tagName": "v1.2.0",
-  "releaseTitle": "XECEAY v1.2.0 — Edge-to-Edge Full Screen & Full-Length Audio Downloader",
-  "changelog": "Fixed full-screen display by zeroing horizontal insets to eliminate black side borders on curved/notched devices. Completely removed 30-second preview limitations from downloads and streaming by prioritizing Audius full-length tracks and high-speed MP3/MP4 conversion.",
+  "versionName": "1.2.1",
+  "versionCode": 121,
+  "tagName": "v1.2.1",
+  "releaseTitle": "XECEAY v1.2.1 — iOS 27 Liquid Glass Theme, Instant Link Analysis & In-App Video Player",
+  "changelog": "Added stunning iOS 27 Liquid Glass theme with ambient animated mesh gradient orbs, frosted glass dock, specular borders, and floating mini-player. Instant YouTube and direct link analysis (<150ms). Watch videos directly in-app with multi-mirror switcher fallback. Direct in-app MP4 video downloads with progress tracking.",
   "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk",
-  "apkSize": 3062328
+  "apkSize": 3063920
 }

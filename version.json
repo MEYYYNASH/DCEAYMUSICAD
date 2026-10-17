@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.5",
-  "versionCode": 115,
-  "tagName": "v1.1.5",
-  "releaseTitle": "XECEAY v1.1.5 — Synced Karaoke Lyrics, Dynamic Ambient Glow & 3D Spatializer",
-  "changelog": "Added interactive Synced Karaoke Lyrics with real-time autoscroll & line-seeking, Dynamic Ambient Artwork Glow tinting the player canvas, 3D Surround Spatializer with trending audiophile modes (Slowed + Reverb, Nightcore, 3D Spatial), and smooth sleep timer volume fade-out.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.5/XECEAY-release.apk",
+  "versionName": "1.1.6",
+  "versionCode": 116,
+  "tagName": "v1.1.6",
+  "releaseTitle": "XECEAY v1.1.6 — Hotfix: Boot & Loading Screen Resolution",
+  "changelog": "Resolved loading splash freeze caused by JS parsing edge-case. Includes all v1.1.5 audio innovations: Synced Karaoke Lyrics, Dynamic Ambient Artwork Glow tinting, 3D Spatializer & audiophile presets, and sleep timer volume fade-out.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.6/XECEAY-release.apk",
   "apkSize": 3059436
 }

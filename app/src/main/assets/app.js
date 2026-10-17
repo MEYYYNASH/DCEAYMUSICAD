@@ -768,6 +768,8 @@
       const hotlist = state.liveDiscovery.length > 0 ? state.liveDiscovery : AUTHORIZED_CATALOG;
       catEl.innerHTML = hotlist.map((item, idx) => renderDownloadableTrackRow(item, idx)).join("");
     }
+  }
+
   let currentSampledArtUri = "";
   function applyDynamicAmbientColors(artworkUri) {
     if (!artworkUri || artworkUri === currentSampledArtUri) return;

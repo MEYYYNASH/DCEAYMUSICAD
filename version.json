@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.8",
-  "versionCode": 118,
-  "tagName": "v1.1.8",
-  "releaseTitle": "XECEAY v1.1.8 — In-App Video Player, Online Audio Fix, Direct Updates & Removed Lyrics",
-  "changelog": "Restored debug keystore signature matching installed app for smooth 1-tap updates without 'App not installed' error. Added dedicated In-App Video Player to watch local & streaming MP4/YouTube videos, fixed online streaming playback redirect errors, removed lyrics display as requested, and resolved link downloader URL verification.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.8/XECEAY-release.apk",
-  "apkSize": 3062700
+  "versionName": "1.1.9",
+  "versionCode": 119,
+  "tagName": "v1.1.9",
+  "releaseTitle": "XECEAY v1.1.9 — Native YouTube App Launcher, Smart MP3 Audio Resolver & Fast Video Downloader",
+  "changelog": "Replaced blocked YouTube embed with 1-tap Native YouTube App Launcher (direct 4K/1080p playback), resolved YouTube song downloads via intelligent title-cleaning against Deezer/iTunes/Audius audio APIs, and added Fast Downloader action for MP4 videos.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.9/XECEAY-release.apk",
+  "apkSize": 3062596
 }

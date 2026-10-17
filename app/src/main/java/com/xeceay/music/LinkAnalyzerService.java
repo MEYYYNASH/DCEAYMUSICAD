@@ -126,29 +126,27 @@ public class LinkAnalyzerService {
                         }
                     }
 
-                    // 3. If direct InnerTube audio was restricted (common for official music tracks),
-                    // resolve full-length MP3 & MP4 conversion streams
-                    String targetYt = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : cleanUrl;
+                    // 3. Resolve direct audio stream for this exact song
                     if (resolvedAudioUrl.isEmpty()) {
+                        String realAudio = DownloadManagerEngine.resolveRealAudioUrl(title, author);
+                        if (realAudio != null && !realAudio.isEmpty()) {
+                            resolvedAudioUrl = realAudio;
+                        }
+                    }
+
+                    if (resolvedAudioUrl.isEmpty()) {
+                        String targetYt = videoId != null ? "https://www.youtube.com/watch?v=" + videoId : cleanUrl;
                         String streamMp3 = resolveLoaderStream(targetYt, "mp3");
                         if (streamMp3 != null && !streamMp3.isEmpty()) {
                             resolvedAudioUrl = streamMp3;
                         }
                     }
-                    if (resolvedVideoUrl.isEmpty()) {
-                        String streamMp4 = resolveLoaderStream(targetYt, "720");
-                        if (streamMp4 != null && !streamMp4.isEmpty()) {
-                            resolvedVideoUrl = streamMp4;
-                        } else {
-                            resolvedVideoUrl = resolvedAudioUrl;
-                        }
-                    }
 
                     if (resolvedVideoUrl.isEmpty()) {
-                        resolvedVideoUrl = resolvedAudioUrl;
+                        resolvedVideoUrl = cleanUrl;
                     }
 
-                    boolean hasDirectStream = !resolvedAudioUrl.isEmpty();
+                    boolean hasDirectStream = !resolvedAudioUrl.isEmpty() || (videoId != null && !videoId.isEmpty());
                     String durationText = (durationSec / 60) + ":" + String.format("%02d", durationSec % 60);
 
                     JSONObject res = new JSONObject();
@@ -165,7 +163,7 @@ public class LinkAnalyzerService {
                     res.put("format", "MP4");
                     res.put("fileSize", durationSec * 24000L);
                     res.put("sourceWebsite", "YouTube");
-                    res.put("directDownloadPermitted", hasDirectStream);
+                    res.put("directDownloadPermitted", true);
                     res.put("hasDirectStream", hasDirectStream);
                     res.put("downloadUrlMp3", resolvedAudioUrl);
                     res.put("downloadUrlMp4", resolvedVideoUrl);

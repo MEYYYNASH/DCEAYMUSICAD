@@ -469,6 +469,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void openYouTubeNative(String videoId) {
+            runOnUiThread(() -> {
+                try {
+                    playerEngine.pause();
+                    Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
+                    appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(appIntent);
+                } catch (Exception e) {
+                    try {
+                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId));
+                        webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(webIntent);
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        @JavascriptInterface
         public void seekTo(int positionMs) {
             runOnUiThread(() -> playerEngine.seekTo(positionMs));
         }

@@ -430,8 +430,18 @@ public class DownloadManagerEngine {
         });
     }
 
-    private String resolveRealAudioUrl(String title, String artist) {
-        String query = ((title != null ? title : "") + " " + (artist != null ? artist : "")).trim();
+    public static String resolveRealAudioUrl(String title, String artist) {
+        String cleanTitle = (title != null ? title : "")
+                .replaceAll("(?i)\\(official.*?\\)|\\[official.*?\\]|\\(lyrics.*?\\)|\\[lyrics.*?\\]|\\(audio.*?\\)|\\[audio.*?\\]|\\(video.*?\\)|\\[video.*?\\]|\\(amv\\)|\\(mv\\)|\\[mv\\]|4k|hd|remaster", "")
+                .replaceAll("[|•\"'_#]", " ")
+                .trim()
+                .replaceAll("\\s+", " ");
+        String cleanArtist = (artist != null ? artist : "")
+                .replaceAll("(?i)vevo|official|topic", "")
+                .trim();
+
+        String query = (cleanTitle + " " + cleanArtist).trim();
+        if (query.isEmpty()) query = title != null ? title.trim() : "";
         if (query.isEmpty()) return null;
 
         // 1. Deezer API (returns direct preview for exact title/artist)
@@ -451,7 +461,7 @@ public class DownloadManagerEngine {
 
         // 2. iTunes Cambodia API (country=KH)
         try {
-            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
+            String encoded = java.net.URLEncoder.encode(cleanTitle.isEmpty() ? query : cleanTitle, "UTF-8");
             JSONObject itunes = fetchJsonSimple("https://itunes.apple.com/search?term=" + encoded + "&country=KH&media=music&entity=song&limit=3");
             if (itunes != null) {
                 org.json.JSONArray results = itunes.optJSONArray("results");
@@ -466,7 +476,7 @@ public class DownloadManagerEngine {
 
         // 3. Audius API
         try {
-            String encoded = java.net.URLEncoder.encode(query, "UTF-8");
+            String encoded = java.net.URLEncoder.encode(cleanTitle.isEmpty() ? query : cleanTitle, "UTF-8");
             JSONObject aud = fetchJsonSimple("https://discoveryprovider.audius.co/v1/tracks/search?query=" + encoded + "&app_name=XECEAY");
             if (aud != null) {
                 org.json.JSONArray data = aud.optJSONArray("data");
@@ -482,7 +492,7 @@ public class DownloadManagerEngine {
         return null;
     }
 
-    private JSONObject fetchJsonSimple(String urlStr) {
+    public static JSONObject fetchJsonSimple(String urlStr) {
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) new URL(urlStr).openConnection();

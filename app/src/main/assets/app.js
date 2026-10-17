@@ -1819,6 +1819,23 @@
       showToast("Playing full YouTube track: " + (title || ""));
     },
 
+    openYouTubeApp(videoId) {
+      if (isNative && window.XeceayNative && window.XeceayNative.openYouTubeNative) {
+        window.XeceayNative.openYouTubeNative(videoId);
+      } else {
+        window.open("https://www.youtube.com/watch?v=" + videoId, "_blank");
+      }
+    },
+
+    openFastDownloader(url) {
+      const target = "https://snapsave.io/?url=" + encodeURIComponent(url);
+      if (isNative && window.XeceayNative && window.XeceayNative.openExternalUrl) {
+        window.XeceayNative.openExternalUrl(target);
+      } else {
+        window.open(target, "_blank");
+      }
+    },
+
     renderLinkAnalysisCard(info) {
       const box = document.getElementById("link-analysis-result");
       if (!box) return;
@@ -1851,26 +1868,24 @@
             </div>
 
             <div style="margin-top:10px;display:flex;gap:8px;">
+              <button class="dual-pill-btn white-solid" style="flex:1;justify-content:center;background:#ff0033;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.openYouTubeApp('${escapeAttr(info.videoId)}')">
+                ${SVG.play}
+                <span>Watch on YouTube</span>
+              </button>
               <button class="dual-pill-btn white-solid" style="flex:1;justify-content:center;background:#2563EB;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.openVideoPlayer('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','',true,'${escapeAttr(info.videoId)}')">
                 ${SVG.video}
-                <span>Watch Video</span>
-              </button>
-              <button class="dual-pill-btn white-solid" style="flex:1;justify-content:center;background:#ff0033;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.playYouTubeEmbed('${escapeAttr(info.videoId)}','${escapeAttr(info.title)}')">
-                ${SVG.play}
-                <span>Play Embed</span>
+                <span>Watch in App</span>
               </button>
             </div>
 
-            <div id="yt-embed-box-${escapeAttr(info.videoId)}" style="display:none;width:100%;margin-top:12px;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9;"></div>
-
             <div class="dual-action-row" style="margin-top:12px;margin-bottom:0;">
-              <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url || mp3Url || info.url)}','MP4','video')">
-                ${SVG.video}
-                <span>Download MP4</span>
-              </button>
-              <button class="dual-pill-btn" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}','MP3','audio')">
+              <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}','MP3','audio')">
                 ${SVG.musicNote}
                 <span>Download MP3</span>
+              </button>
+              <button class="dual-pill-btn" onclick="XeceayApp.openFastDownloader('${escapeAttr(info.url)}')">
+                ${SVG.video}
+                <span>Download MP4</span>
               </button>
             </div>
           </div>

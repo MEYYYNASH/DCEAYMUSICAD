@@ -2,6 +2,8 @@ name: Build & Release DCEAY Flutter APK
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -55,14 +57,20 @@ jobs:
           echo "Computed SHA-256 Digest:"
           cat DCEAY-release.apk.sha256
 
+      - name: Upload APK to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: DCEAY-Flutter-Release-APK
+          path: release-artifacts/DCEAY-release.apk
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
+          tag_name: v2.1.0
+          name: DCEAY Release v2.1.0 (Dotify Concept Architecture)
           files: |
             release-artifacts/DCEAY-release.apk
             release-artifacts/DCEAY-release.apk.sha256
-          name: DCEAY Release ${{ github.ref_name }}
           draft: false
           prerelease: false
           generate_release_notes: true

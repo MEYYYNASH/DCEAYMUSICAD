@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.6",
-  "versionCode": 116,
-  "tagName": "v1.1.6",
-  "releaseTitle": "XECEAY v1.1.6 — Hotfix: Boot & Loading Screen Resolution",
-  "changelog": "Resolved loading splash freeze caused by JS parsing edge-case. Includes all v1.1.5 audio innovations: Synced Karaoke Lyrics, Dynamic Ambient Artwork Glow tinting, 3D Spatializer & audiophile presets, and sleep timer volume fade-out.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.6/XECEAY-release.apk",
-  "apkSize": 3059436
+  "versionName": "1.1.7",
+  "versionCode": 117,
+  "tagName": "v1.1.7",
+  "releaseTitle": "XECEAY v1.1.7 — Official Release Signing, Clean Security Profile & Brand New Icon",
+  "changelog": "Official release APK signed with dedicated 2048-bit RSA production keystore (resolving Play Protect debug-signature alerts), removed unused Bluetooth permission, and updated app launcher and branding icons with the new geometric star logo.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.7/XECEAY-release.apk",
+  "apkSize": 3099710
 }

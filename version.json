@@ -2,10 +2,10 @@
   "versionName": "2.0.0",
   "versionCode": 200,
   "tagName": "v2.0.0",
-  "releaseTitle": "DCEAY v2.0.0 — One App, All Your Music",
-  "changelog": "DCEAY v2.0.0 Official Release — One App, All Your Music.\n• Cover-to-Background Engine: real-time album cover color sampling, adjustable Gaussian blur slider (10px–80px), and animated mesh gradients.\n• Syllable-Synced Lyrics Studio: word-by-word and syllable-by-syllable karaoke highlighting, bilingual translation toggle, adjustable font size, live timing calibration (-200ms to +200ms), and LRC timestamp editor.\n• Universal Link & Smart Playlist Importer: supports YouTube videos, YouTube playlists, Spotify tracks, Spotify playlists/albums, direct audio URLs (MP3/FLAC/WAV/M4A), and local device audio with automatic duplicate detection.\n• Home-Screen App Icon Switcher: switch between 5 built-in launcher icons (DCEAY Default, Cyberpunk Neon, Liquid Glass, Emerald Matrix, Monochrome) via Android activity aliases.\n• Personalization Studio: Cyberpunk Neon (#ff00ff / #00ffff with double borders), Glassmorphism (#14141e99 / #e6e6e6 / #ffffff1a), Midnight Slate, Emerald Forest, and Clean Light themes.\n• GitHub Releases Online Auto-Updater: checks MEYYYNASH/DCEAY releases, verifies SHA-256 checksums and package signing identity, and triggers Android PackageInstaller.",
+  "releaseTitle": "DCEAY v2.0.0 — Complete Ground-Up Rebuild: One App, All Your Music",
+  "changelog": "DCEAY v2.0.0 Complete New Application:\n• Brand-New DCEAY 5-Tab Interface & Visual Identity (No legacy UI).\n• 01. Cover-to-Background Engine: Live album cover dynamic blur, RGB color sampling, and ambient glow.\n• 02. Syllable-by-Syllable Synced Lyrics Studio: Real-time syllable & word karaoke highlight, translation toggle, ms offset calibration, and LRC timestamp studio.\n• 03. Universal Link Engine & Smart Playlist Import: Paste YouTube video/music, YouTube playlists, Spotify tracks, Spotify playlists, and direct Hi-Fi audio (.mp3/.flac/.wav/.m4a).\n• 04. Android Home-Screen App Icon Switcher: 4 native <activity-alias> launcher icons (Electric Default, Cyberpunk Neon, Liquid Glass, Stealth Monochrome).\n• 05. Personalization Studio: Cyberpunk (#ff00ff & #00ffff with double borders), Glassmorphism (#14141e99, #e6e6e6, #ffffff1a), Midnight Electric, and Cover Aurora.",
   "apkUrl": "https://github.com/MEYYYNASH/DCEAY/releases/download/v2.0.0/DCEAY-release.apk",
   "apkName": "DCEAY-release.apk",
-  "apkSize": 3114569,
-  "sha256": "b7cda2ecdaa495e4cbfa474aaaf54454f9a15fbbde78cd3c1b4193bf93e56565"
+  "apkSize": 3100992,
+  "sha256": "3b7487b94697d8ec099152547f31b03144c1d82d64c94f15ef579e84e109f503"
 }

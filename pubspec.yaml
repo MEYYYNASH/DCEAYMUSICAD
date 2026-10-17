@@ -1,0 +1,86 @@
+name: dceay
+description: "DCEAY — One app. All your music. Premium Android music player with smooth animations, immersive album art, synchronized lyrics and GitHub Updates."
+publish_to: 'none'
+
+version: 2.1.0+210
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Audio playback and system media integration
+  just_audio: ^0.9.44
+  audio_service: ^0.18.18
+  audio_session: ^0.1.25
+
+  # UI, Icons, Typography & Animations
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.2
+  palette_generator: ^0.3.3+4
+  flutter_svg: ^2.0.17
+
+  # Local storage & Database
+  sqflite: ^2.4.1
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  shared_preferences: ^2.3.5
+
+  # Networking & Updates
+  dio: ^5.8.0+1
+  crypto: ^3.0.6
+
+  # Device permissions and file import
+  file_picker: ^8.1.7
+  permission_handler: ^11.3.1
+  open_filex: ^4.6.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/fonts/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+    - family: Minecraft
+      fonts:
+        - asset: assets/fonts/minecraft.ttf
+    - family: RobotoFlex
+      fonts:
+        - asset: assets/fonts/RobotoFlex.ttf
+    - family: PhosphorRegular
+      fonts:
+        - asset: assets/fonts/Phosphor.ttf
+    - family: PhosphorBold
+      fonts:
+        - asset: assets/fonts/Phosphor-Bold.ttf
+    - family: PhosphorFill
+      fonts:
+        - asset: assets/fonts/Phosphor-Fill.ttf
+    - family: PhosphorDuotone
+      fonts:
+        - asset: assets/fonts/Phosphor-Duotone.ttf
+
+  shaders:
+    - shaders/ink_sparkle.frag
+    - shaders/stretch_effect.frag

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Circular Midnight Gradient Canvas -->
+    <path android:pathData="M54,4 A50,50 0 1,1 53.99,4 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="4"
+                android:startY="4"
+                android:endX="104"
+                android:endY="104"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#080B12" />
+                <item android:offset="0.5" android:color="#111625" />
+                <item android:offset="1.0" android:color="#1C1436" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glowing Gradient Outer Halo Ring -->
+    <path
+        android:pathData="M54,18 A36,36 0 1,1 53.99,18 Z"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="18"
+                android:startY="18"
+                android:endX="90"
+                android:endY="90"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#22D3EE" />
+                <item android:offset="0.5" android:color="#8B5CF6" />
+                <item android:offset="1.0" android:color="#EC4899" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Studio Headphone Arch -->
+    <path
+        android:pathData="M31,53 C31,39.5 41.3,29 54,29 C66.7,29 77,39.5 77,53"
+        android:strokeWidth="4"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="31"
+                android:startY="29"
+                android:endX="77"
+                android:endY="53"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#22D3EE" />
+                <item android:offset="0.5" android:color="#FFFFFF" />
+                <item android:offset="1.0" android:color="#A855F7" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Earcups -->
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M28,49 h5.5 a2.5,2.5 0 0,1 2.5,2.5 v11 a2.5,2.5 0 0,1 -2.5,2.5 h-5.5 a2.5,2.5 0 0,1 -2.5,-2.5 v-11 a2.5,2.5 0 0,1 2.5,-2.5 z" />
+    <path
+        android:fillColor="#C084FC"
+        android:pathData="M74.5,49 h5.5 a2.5,2.5 0 0,1 2.5,2.5 v11 a2.5,2.5 0 0,1 -2.5,2.5 h-5.5 a2.5,2.5 0 0,1 -2.5,-2.5 v-11 a2.5,2.5 0 0,1 2.5,-2.5 z" />
+
+    <!-- 5 Harmonic Equalizer Wave Bars -->
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M41.5,48 a2.3,2.3 0 0,1 2.3,2.3 v14.4 a2.3,2.3 0 0,1 -4.6,0 v-14.4 a2.3,2.3 0 0,1 2.3,-2.3 z" />
+    <path
+        android:fillColor="#8B5CF6"
+        android:pathData="M47.8,41.5 a2.3,2.3 0 0,1 2.3,2.3 v27.4 a2.3,2.3 0 0,1 -4.6,0 v-27.4 a2.3,2.3 0 0,1 2.3,-2.3 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,36 a2.5,2.5 0 0,1 2.5,2.5 v37 a2.5,2.5 0 0,1 -5,0 v-37 a2.5,2.5 0 0,1 2.5,-2.5 z" />
+    <path
+        android:fillColor="#A855F7"
+        android:pathData="M60.2,41.5 a2.3,2.3 0 0,1 2.3,2.3 v27.4 a2.3,2.3 0 0,1 -4.6,0 v-27.4 a2.3,2.3 0 0,1 2.3,-2.3 z" />
+    <path
+        android:fillColor="#EC4899"
+        android:pathData="M66.5,48 a2.3,2.3 0 0,1 2.3,2.3 v14.4 a2.3,2.3 0 0,1 -4.6,0 v-14.4 a2.3,2.3 0 0,1 2.3,-2.3 z" />
+</vector>

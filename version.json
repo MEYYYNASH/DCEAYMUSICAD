@@ -1,0 +1,11 @@
+{
+  "versionName": "2.1.0",
+  "versionCode": 210,
+  "tagName": "v2.1.0",
+  "releaseTitle": "DCEAY v2.1.0 — One App. All Your Music",
+  "changelog": "DCEAY v2.1.0 Release:\n• Complete Flutter Ground-Up Rebuild & Android Media Subsystem.\n• 01. Cover-to-Background Engine: Dynamic album cover blur, RGB color sampling, and ambient glow.\n• 02. Syllable-by-Syllable Synced Lyrics Studio: Real-time syllable & word karaoke highlight, translation toggle, ms offset calibration, and LRC timestamp editor.\n• 03. Universal Link Engine & Smart Playlist Import: Direct Spotify/YouTube oEmbed metadata analysis and offline audio file vault (.mp3/.flac/.wav/.m4a).\n• 04. Authoritative Playback Engine: Single-source playback with audio_service background notifications, lock-screen controls, and headset media buttons.\n• 05. Personalization Studio: Cyberpunk Neon (#ff00ff & #00ffff with double borders), Glassmorphism (#14141e99, #e6e6e6, #ffffff1a), Dark Obsidian, and AMOLED Pitch Black (#000000).\n• 06. GitHub In-App Auto-Updater: Direct release checking against https://github.com/MEYYYNASH/DCEAYMUSICAD.git with SHA-256 integrity verification.",
+  "apkUrl": "https://github.com/MEYYYNASH/DCEAYMUSICAD/releases/download/v2.1.0/DCEAY-release.apk",
+  "apkName": "DCEAY-release.apk",
+  "apkSize": 3100995,
+  "sha256": "e35c1602794c687d853956ef30f435a359df8581f0ca4e05e667c1aa7088443c"
+}

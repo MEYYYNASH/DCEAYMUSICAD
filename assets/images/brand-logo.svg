@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="dceay-neon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00FFFF" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#FF00FF" />
+    </linearGradient>
+    <linearGradient id="dceay-glass-facet" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#E2E8F0" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="dceay-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Sharp Angular Faceted Dark Medallion -->
+  <polygon points="60,6 108,34 108,86 60,114 12,86 12,34" fill="#0C0F17" stroke="url(#dceay-neon-grad)" stroke-width="2.5" />
+
+  <!-- Inner Angular Scrim Lines -->
+  <polygon points="60,15 99,39 99,81 60,105 21,81 21,39" fill="#141926" fill-opacity="0.8" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" />
+
+  <!-- The Standout Sharp Angular White DCEAY Symbol Glyph -->
+  <g filter="url(#dceay-glow)">
+    <!-- Primary Angular Blade Left -->
+    <polygon points="32,78 44,78 60,42 48,42" fill="url(#dceay-glass-facet)" />
+    <!-- Primary Angular Blade Right -->
+    <polygon points="88,78 76,78 60,42 72,42" fill="#FFFFFF" />
+    <!-- Dynamic Transversal Chevron -->
+    <polygon points="40,64 80,64 74,54 46,54" fill="#FFFFFF" />
+    <!-- Sharp Crown Apex -->
+    <polygon points="60,26 68,38 52,38" fill="url(#dceay-neon-grad)" />
+    <!-- Bottom Anchor Wedge -->
+    <polygon points="60,94 50,82 70,82" fill="url(#dceay-neon-grad)" />
+  </g>
+</svg>

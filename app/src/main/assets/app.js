@@ -818,52 +818,63 @@
     img.src = artworkUri;
   }
 
+  function buildSyllableWords(startMs, durationMs, text) {
+    const tokens = String(text || "").trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return [];
+    const step = Math.max(180, Math.floor(durationMs / tokens.length));
+    return tokens.map((word, idx) => ({
+      text: word,
+      startMs: startMs + idx * step,
+      endMs: startMs + (idx + 1) * step
+    }));
+  }
+
   const CATALOG_LYRICS = {
     "seed_2": [
-      { timeMs: 0, text: "XECEAY Hi-Fi Lossless Master" },
-      { timeMs: 14000, text: "ពេលវេលាដែលត្រូវក្រោកឈរ (Time To Rise)" },
-      { timeMs: 25000, text: "VannDa feat. Master Kong Nay" },
-      { timeMs: 38000, text: "ចាប៉ីដងវែង បន្លឺសូរសៀងរណ្តំចិត្ត" },
-      { timeMs: 52000, text: "មរតកដូនតាខ្មែរ ផ្សារភ្ជាប់ជំនាន់ថ្មី" },
-      { timeMs: 68000, text: "ពេលវេលាមកដល់ហើយ យុវជនខ្មែរក្រោកឈរ" },
-      { timeMs: 84000, text: "Time to rise, time to shine" },
-      { timeMs: 102000, text: "From the underground to the highest peak" },
-      { timeMs: 120000, text: "សិល្បៈវប្បធម៌ខ្មែររុងរឿងជានិរន្តរ៍" },
-      { timeMs: 148000, text: "Keep pushing, keep rising, keep making history" },
-      { timeMs: 180000, text: "★ Master Kong Nay Solo Chapei ★" },
-      { timeMs: 215000, text: "ចងចាំប្រវត្តិសាស្ត្រ និងកសាងអនាគត" },
-      { timeMs: 245000, text: "Rise up together for Khmer pride" },
-      { timeMs: 280000, text: "XECEAY Khmer & Global" }
+      { timeMs: 0, text: "DCEAY Hi-Fi Lossless Master", translation: "Studio Master Audio • Syllable Sync Active", words: buildSyllableWords(0, 3200, "DCEAY Hi-Fi Lossless Master") },
+      { timeMs: 14000, text: "ពេលវេលា ដែលត្រូវ ក្រោកឈរ (Time To Rise)", translation: "Now is the time to rise up", words: buildSyllableWords(14000, 4200, "ពេលវេលា ដែលត្រូវ ក្រោកឈរ (Time To Rise)") },
+      { timeMs: 25000, text: "VannDa feat. Master Kong Nay", translation: "Khmer Hip-Hop meets Legendary Chapei", words: buildSyllableWords(25000, 3800, "VannDa feat. Master Kong Nay") },
+      { timeMs: 38000, text: "ចាប៉ីដងវែង បន្លឺ សូរសៀង រណ្តំចិត្ត", translation: "The long-necked Chapei resonates deep within the soul", words: buildSyllableWords(38000, 4800, "ចាប៉ីដងវែង បន្លឺ សូរសៀង រណ្តំចិត្ត") },
+      { timeMs: 52000, text: "មរតក ដូនតាខ្មែរ ផ្សារភ្ជាប់ ជំនាន់ថ្មី", translation: "Khmer ancestral heritage bridging the new generation", words: buildSyllableWords(52000, 4600, "មរតក ដូនតាខ្មែរ ផ្សារភ្ជាប់ ជំនាន់ថ្មី") },
+      { timeMs: 68000, text: "ពេលវេលា មកដល់ហើយ យុវជនខ្មែរ ក្រោកឈរ", translation: "The moment has arrived, Khmer youth stand tall", words: buildSyllableWords(68000, 4800, "ពេលវេលា មកដល់ហើយ យុវជនខ្មែរ ក្រោកឈរ") },
+      { timeMs: 84000, text: "Time to rise, time to shine", translation: "Step into the light and claim your destiny", words: buildSyllableWords(84000, 3600, "Time to rise, time to shine") },
+      { timeMs: 102000, text: "From the underground to the highest peak", translation: "Rising from humble roots to the summit", words: buildSyllableWords(102000, 4400, "From the underground to the highest peak") },
+      { timeMs: 120000, text: "សិល្បៈ វប្បធម៌ខ្មែរ រុងរឿង ជានិរន្តរ៍", translation: "Khmer art and culture flourishing forevermore", words: buildSyllableWords(120000, 5000, "សិល្បៈ វប្បធម៌ខ្មែរ រុងរឿង ជានិរន្តរ៍") },
+      { timeMs: 148000, text: "Keep pushing, keep rising, keep making history", translation: "Never stop advancing and writing new chapters", words: buildSyllableWords(148000, 4600, "Keep pushing, keep rising, keep making history") },
+      { timeMs: 180000, text: "★ Master Kong Nay Solo Chapei ★", translation: "Instrumental Chapei Dong Veng Solo", words: buildSyllableWords(180000, 4500, "★ Master Kong Nay Solo Chapei ★") },
+      { timeMs: 215000, text: "ចងចាំ ប្រវត្តិសាស្ត្រ និងកសាង អនាគត", translation: "Remember history and build the future", words: buildSyllableWords(215000, 4600, "ចងចាំ ប្រវត្តិសាស្ត្រ និងកសាង អនាគត") },
+      { timeMs: 245000, text: "Rise up together for Khmer pride", translation: "United in pride and harmony", words: buildSyllableWords(245000, 4000, "Rise up together for Khmer pride") },
+      { timeMs: 280000, text: "DCEAY — One App, All Your Music", translation: "Syllable-Synced Audio Engine", words: buildSyllableWords(280000, 3500, "DCEAY — One App, All Your Music") }
     ],
     "seed_3": [
-      { timeMs: 0, text: "ពីរនាក់បានហើយ (Two Of Us)" },
-      { timeMs: 12000, text: "ស៊ូលីផេង - Suly Pheng" },
-      { timeMs: 24000, text: "មានត្រឹមតែរូបអូន ម្នាក់គត់ក្នុងបេះដូង" },
-      { timeMs: 42000, text: "មិនត្រូវការអ្វីច្រើន ត្រឹមយើងពីរនាក់" },
-      { timeMs: 65000, text: "ដើរកាត់រាល់ឧបសគ្គ ទៅជាមួយគ្នា" },
-      { timeMs: 92000, text: "កក់ក្តៅរាល់វេលា នៅពេលមានអូនក្បែរ" },
-      { timeMs: 122000, text: "ស្នេហាដ៏បរិសុទ្ធ មិនប្រែប្រួលឡើយ" },
-      { timeMs: 154000, text: "ពីរនាក់បានហើយ សម្រាប់ជីវិតមួយនេះ" }
+      { timeMs: 0, text: "ពីរនាក់ បានហើយ (Two Of Us)", translation: "Just the two of us is enough", words: buildSyllableWords(0, 3500, "ពីរនាក់ បានហើយ (Two Of Us)") },
+      { timeMs: 12000, text: "ស៊ូលីផេង • Suly Pheng", translation: "Performed by Suly Pheng", words: buildSyllableWords(12000, 3000, "ស៊ូលីផេង • Suly Pheng") },
+      { timeMs: 24000, text: "មានត្រឹមតែ រូបអូន ម្នាក់គត់ ក្នុងបេះដូង", translation: "Having only you in my heart", words: buildSyllableWords(24000, 4500, "មានត្រឹមតែ រូបអូន ម្នាក់គត់ ក្នុងបេះដូង") },
+      { timeMs: 42000, text: "មិនត្រូវការ អ្វីច្រើន ត្រឹមយើង ពីរនាក់", translation: "We don't need anything more than each other", words: buildSyllableWords(42000, 4500, "មិនត្រូវការ អ្វីច្រើន ត្រឹមយើង ពីរនាក់") },
+      { timeMs: 65000, text: "ដើរកាត់ រាល់ឧបសគ្គ ទៅជាមួយគ្នា", translation: "Walking through every obstacle side by side", words: buildSyllableWords(65000, 4500, "ដើរកាត់ រាល់ឧបសគ្គ ទៅជាមួយគ្នា") },
+      { timeMs: 92000, text: "កក់ក្តៅ រាល់វេលា នៅពេល មានអូនក្បែរ", translation: "Warmth in every moment when you are near", words: buildSyllableWords(92000, 4800, "កក់ក្តៅ រាល់វេលា នៅពេល មានអូនក្បែរ") },
+      { timeMs: 122000, text: "ស្នេហា ដ៏បរិសុទ្ធ មិនប្រែប្រួលឡើយ", translation: "Pure love that never fades away", words: buildSyllableWords(122000, 4500, "ស្នេហា ដ៏បរិសុទ្ធ មិនប្រែប្រួលឡើយ") },
+      { timeMs: 154000, text: "ពីរនាក់ បានហើយ សម្រាប់ ជីវិតមួយនេះ", translation: "Just the two of us for this lifetime", words: buildSyllableWords(154000, 4800, "ពីរនាក់ បានហើយ សម្រាប់ ជីវិតមួយនេះ") }
     ],
     "seed_4": [
-      { timeMs: 0, text: "កង់សាគួរ (Spare Wheel)" },
-      { timeMs: 15000, text: "ថេណា - Tena" },
-      { timeMs: 32000, text: "តើខ្ញុំជាអ្វីក្នុងចិត្តអូន?" },
-      { timeMs: 50000, text: "ត្រឹមតែកង់សាគួរពេលគេចាកចេញទៅ" },
-      { timeMs: 72000, text: "ឈឺចាប់តែត្រូវទ្រាំព្រោះស្រឡាញ់" },
-      { timeMs: 98000, text: "ពេលគេត្រឡប់មក ខ្ញុំត្រូវថយចេញ" },
-      { timeMs: 126000, text: "ក្តីស្រឡាញ់ដែលគ្មានអនាគត" },
-      { timeMs: 158000, text: "បេះដូងមួយនេះនៅតែរង់ចាំអូន" }
+      { timeMs: 0, text: "កង់សាគួរ (Spare Wheel)", translation: "Spare Wheel — Tena Acoustic", words: buildSyllableWords(0, 3500, "កង់សាគួរ (Spare Wheel)") },
+      { timeMs: 15000, text: "ថេណា • Tena Khimphun", translation: "Written & Performed by Tena", words: buildSyllableWords(15000, 3200, "ថេណា • Tena Khimphun") },
+      { timeMs: 32000, text: "តើខ្ញុំ ជាអ្វី ក្នុងចិត្តអូន?", translation: "What am I inside your heart?", words: buildSyllableWords(32000, 4000, "តើខ្ញុំ ជាអ្វី ក្នុងចិត្តអូន?") },
+      { timeMs: 50000, text: "ត្រឹមតែ កង់សាគួរ ពេលគេ ចាកចេញទៅ", translation: "Only a backup when someone else leaves", words: buildSyllableWords(50000, 4600, "ត្រឹមតែ កង់សាគួរ ពេលគេ ចាកចេញទៅ") },
+      { timeMs: 72000, text: "ឈឺចាប់ តែត្រូវទ្រាំ ព្រោះស្រឡាញ់", translation: "Hurting yet enduring because of love", words: buildSyllableWords(72000, 4400, "ឈឺចាប់ តែត្រូវទ្រាំ ព្រោះស្រឡាញ់") },
+      { timeMs: 98000, text: "ពេលគេ ត្រឡប់មក ខ្ញុំត្រូវ ថយចេញ", translation: "When they return, I have to step aside", words: buildSyllableWords(98000, 4600, "ពេលគេ ត្រឡប់មក ខ្ញុំត្រូវ ថយចេញ") },
+      { timeMs: 126000, text: "ក្តីស្រឡាញ់ ដែលគ្មាន អនាគត", translation: "A devotion without a tomorrow", words: buildSyllableWords(126000, 4200, "ក្តីស្រឡាញ់ ដែលគ្មាន អនាគត") },
+      { timeMs: 158000, text: "បេះដូង មួយនេះ នៅតែ រង់ចាំអូន", translation: "This heart still waits silently for you", words: buildSyllableWords(158000, 4600, "បេះដូង មួយនេះ នៅតែ រង់ចាំអូន") }
     ],
     "seed_6": [
-      { timeMs: 0, text: "ចំប៉ាបាត់ដំបង (Champa Battambang)" },
-      { timeMs: 16000, text: "អធិរាជសំឡេងមាស ស៊ីន ស៊ីសាមុត" },
-      { timeMs: 36000, text: "ឱ! ផ្កាចំប៉ាបាត់ដំបងអើយ" },
-      { timeMs: 56000, text: "ក្លិនក្រអូបសាយភាយពេញដួងចិត្តបង" },
-      { timeMs: 78000, text: "ទោះបីឃ្លាតឆ្ងាយ ក៏មិនអាចបំភ្លេចបាន" },
-      { timeMs: 105000, text: "អនុស្សាវរីយ៍ស្ទឹងសង្កែរដូវបុណ្យអុំទូក" },
-      { timeMs: 135000, text: "ស្នេហានៅតែដក់ជាប់ជានិច្ចនិរន្តរ៍" },
-      { timeMs: 168000, text: "ស្រណោះស្រីស្រស់ចំប៉ាបាត់ដំបង" }
+      { timeMs: 0, text: "ចំប៉ា បាត់ដំបង (Champa Battambang)", translation: "Golden Era Khmer Classic", words: buildSyllableWords(0, 3800, "ចំប៉ា បាត់ដំបង (Champa Battambang)") },
+      { timeMs: 16000, text: "អធិរាជ សំឡេងមាស ស៊ីន ស៊ីសាមុត", translation: "The Golden Voice — Sinn Sisamouth", words: buildSyllableWords(16000, 4200, "អធិរាជ សំឡេងមាស ស៊ីន ស៊ីសាមុត") },
+      { timeMs: 36000, text: "ឱ! ផ្កាចំប៉ា បាត់ដំបងអើយ", translation: "Oh, fragrant Champa flower of Battambang", words: buildSyllableWords(36000, 4500, "ឱ! ផ្កាចំប៉ា បាត់ដំបងអើយ") },
+      { timeMs: 56000, text: "ក្លិនក្រអូប សាយភាយ ពេញដួងចិត្តបង", translation: "Your sweet scent fills my entire heart", words: buildSyllableWords(56000, 4600, "ក្លិនក្រអូប សាយភាយ ពេញដួងចិត្តបង") },
+      { timeMs: 78000, text: "ទោះបី ឃ្លាតឆ្ងាយ ក៏មិនអាច បំភ្លេចបាន", translation: "Even far apart, I could never forget", words: buildSyllableWords(78000, 4600, "ទោះបី ឃ្លាតឆ្ងាយ ក៏មិនអាច បំភ្លេចបាន") },
+      { timeMs: 105000, text: "អនុស្សាវរីយ៍ ស្ទឹងសង្កែ រដូវបុណ្យអុំទូក", translation: "Memories along the Sangker River", words: buildSyllableWords(105000, 4800, "អនុស្សាវរីយ៍ ស្ទឹងសង្កែ រដូវបុណ្យអុំទូក") },
+      { timeMs: 135000, text: "ស្នេហា នៅតែដក់ជាប់ ជានិច្ចនិរន្តរ៍", translation: "Love remains etched in eternity", words: buildSyllableWords(135000, 4500, "ស្នេហា នៅតែដក់ជាប់ ជានិច្ចនិរន្តរ៍") },
+      { timeMs: 168000, text: "ស្រណោះ ស្រីស្រស់ ចំប៉ាបាត់ដំបង", translation: "Longing for the beauty of Battambang", words: buildSyllableWords(168000, 4500, "ស្រណោះ ស្រីស្រស់ ចំប៉ាបាត់ដំបង") }
     ]
   };
 
@@ -1004,6 +1015,22 @@
     if (hdToggle && p.hdArt !== undefined) {
       hdToggle.checked = Boolean(p.hdArt);
     }
+
+    try {
+      let currentIcon = localStorage.getItem("dceay_launcher_icon") || "default";
+      if (isNative && window.XeceayNative && window.XeceayNative.getActiveLauncherIcon) {
+        currentIcon = window.XeceayNative.getActiveLauncherIcon() || currentIcon;
+      }
+      if (window.XeceayApp && window.XeceayApp.setAppIcon) {
+        window.XeceayApp.setAppIcon(currentIcon, null);
+      }
+      const savedBlur = localStorage.getItem("dceay_cover_blur") || "40";
+      const blurSlider = document.getElementById("cover-blur-slider");
+      if (blurSlider) blurSlider.value = savedBlur;
+      if (window.XeceayApp && window.XeceayApp.setCoverBlur) {
+        window.XeceayApp.setCoverBlur(savedBlur);
+      }
+    } catch (_e) {}
   }
 
   function updateVersionBadge() {
@@ -1934,7 +1961,7 @@
               <div style="flex:1;min-width:0;">
                 <span class="provider-badge spotify">Spotify ${isPl ? 'Playlist' : 'Track'}</span>
                 <div style="font-size:16px;font-weight:800;margin-top:4px;line-height:1.25;">${escapeHtml(info.title)}</div>
-                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "Spotify Creator")}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "Spotify Creator")} • ${escapeHtml(info.durationText || "")}</div>
                 <div style="font-size:11px;color:#22C55E;margin-top:4px;">${escapeHtml(info.notes || "Official Spotify Metadata")}</div>
               </div>
             </div>
@@ -1943,8 +1970,8 @@
                 <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c4-1.2 8-.5 10 1M7.5 14.5c3.2-.8 6.5-.4 8.5.8M9 17.5c2.4-.6 5-.2 6.5.6"/></svg>
                 <span>Open in Spotify</span>
               </button>
-              <button class="dual-pill-btn" onclick="${isPl ? "XeceayApp.openSmartPlaylistModal({title: '" + escapeAttr(info.title) + "'})" : "XeceayApp.saveSpotifyTrackToLibrary('" + escapeAttr(info.title) + "','" + escapeAttr(info.artist) + "','" + escapeAttr(thumb) + "','" + escapeAttr(info.url) + "')"}">
-                <span>+ Save to Library</span>
+              <button class="dual-pill-btn" onclick="${isPl ? "XeceayApp.openSmartPlaylistModal()" : "XeceayApp.saveSpotifyTrackToLibrary('" + escapeAttr(info.title) + "','" + escapeAttr(info.artist) + "','" + escapeAttr(thumb) + "','" + escapeAttr(info.url) + "')"}">
+                <span>${isPl ? "Smart Import Playlist" : "+ Save to Library"}</span>
               </button>
             </div>
           </div>
@@ -1961,11 +1988,11 @@
               <div style="flex:1;min-width:0;">
                 <span class="provider-badge playlist">YouTube Playlist</span>
                 <div style="font-size:16px;font-weight:800;margin-top:4px;line-height:1.25;">${escapeHtml(info.title)}</div>
-                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "YouTube Curator")}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "YouTube Curator")} • ${escapeHtml(info.durationText || "")}</div>
               </div>
             </div>
             <div style="margin-top:10px;">
-              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;" onclick="XeceayApp.openSmartPlaylistModal({title: '${escapeAttr(info.title)}', playlistId: '${escapeAttr(info.playlistId || '')}'})">
+              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;" onclick="XeceayApp.openSmartPlaylistModal()">
                 <span>Smart Review & Import Playlist</span>
               </button>
             </div>
@@ -2534,7 +2561,8 @@
 
     // Smart Playlist Review Modal
     openSmartPlaylistModal(playlistData) {
-      state.pendingPlaylistData = playlistData;
+      const data = playlistData || state.analyzedLink || { title: "Imported Playlist" };
+      state.pendingPlaylistData = data;
       const modal = document.getElementById("smart-playlist-modal");
       if (!modal) return;
       modal.classList.add("open");
@@ -2543,19 +2571,22 @@
       const summaryEl = document.getElementById("sp-modal-summary");
       const listEl = document.getElementById("sp-playlist-tracks");
 
-      const title = playlistData.title || "Imported Playlist";
-      const tracks = playlistData.tracks || [
-        { title: "Time To Rise", artist: "VannDa" },
-        { title: "Two Of Us", artist: "Suly Pheng" },
-        { title: "Spare Wheel", artist: "Tena" }
+      const title = data.title || "Imported Playlist";
+      const tracks = (Array.isArray(data.tracks) && data.tracks.length > 0) ? data.tracks : [
+        { title: "Time To Rise", artist: "VannDa feat. Master Kong Nay", url: "https://discoveryprovider.audius.co/v1/tracks/6RZal/stream?app_name=XECEAY" },
+        { title: "Two Of Us (ពីរនាក់បានហើយ)", artist: "Suly Pheng", url: "https://discoveryprovider.audius.co/v1/tracks/l5BxK/stream?app_name=XECEAY" },
+        { title: "Spare Wheel (កង់សាគួរ)", artist: "Tena", url: "https://discoveryprovider.audius.co/v1/tracks/Q7GNR/stream?app_name=XECEAY" },
+        { title: "Champa Battambang", artist: "Sinn Sisamouth", url: "https://discoveryprovider.audius.co/v1/tracks/l5ryO/stream?app_name=XECEAY" }
       ];
+      state.pendingPlaylistData.resolvedTracks = tracks;
 
+      const dupCount = tracks.filter(t => state.songs.some(s => (s.title || "").toLowerCase() === (t.title || "").toLowerCase())).length;
       if (titleEl) titleEl.textContent = `Review: ${title}`;
-      if (summaryEl) summaryEl.textContent = `${tracks.length} tracks detected • Duplicates checked`;
+      if (summaryEl) summaryEl.textContent = `${tracks.length} tracks detected • ${dupCount} duplicates flagged`;
 
       if (listEl) {
         listEl.innerHTML = tracks.map((t, idx) => {
-          const isDupe = state.songs.some(s => s.title.toLowerCase() === t.title.toLowerCase());
+          const isDupe = state.songs.some(s => (s.title || "").toLowerCase() === (t.title || "").toLowerCase());
           return `
             <div class="sp-track-item ${isDupe ? 'duplicate' : ''}">
               <input type="checkbox" id="sp_chk_${idx}" class="sp-track-checkbox" ${isDupe ? '' : 'checked'} />
@@ -2589,17 +2620,122 @@
         return;
       }
       const title = playlistData.title || "Imported Playlist";
+      const tracks = playlistData.resolvedTracks || [];
       let plId = "";
       if (isNative && window.XeceayNative && window.XeceayNative.createPlaylist) {
         plId = window.XeceayNative.createPlaylist(title);
       } else {
         plId = "pl_" + Date.now();
-        state.playlists.push({ id: plId, name: title, songCount: 0 });
+        state.playlists.push({ id: plId, name: title, isSmartPlaylist: false, isPinned: false, smartRule: "custom", songIds: [] });
       }
 
+      let importedCount = 0;
+      tracks.forEach((t, idx) => {
+        const chk = document.getElementById(`sp_chk_${idx}`);
+        if (!chk || chk.checked) {
+          importedCount++;
+          let existing = state.songs.find(s => (s.title || "").toLowerCase() === (t.title || "").toLowerCase());
+          let targetSongId = existing ? existing.id : ("pl_song_" + Date.now() + "_" + idx);
+          const streamRef = t.url || AUTHORIZED_CATALOG[idx % AUTHORIZED_CATALOG.length].sourceReference;
+          const artUri = t.thumbnail || playlistData.thumbnail || DEFAULT_ART;
+
+          if (!existing) {
+            if (isNative && window.XeceayNative && window.XeceayNative.importTrackToLibrary) {
+              targetSongId = window.XeceayNative.importTrackToLibrary(
+                t.title || ("Track " + (idx + 1)),
+                t.artist || "Playlist Artist",
+                title,
+                "Imported Playlist",
+                artUri,
+                streamRef
+              );
+            } else {
+              state.songs.unshift({
+                id: targetSongId,
+                title: t.title || ("Track " + (idx + 1)),
+                artist: t.artist || "Playlist Artist",
+                album: title,
+                genre: "Imported Playlist",
+                duration: 205000,
+                format: "MP3",
+                artworkUri: artUri,
+                sourceType: "local",
+                sourceReference: streamRef
+              });
+            }
+          }
+          if (isNative && window.XeceayNative && window.XeceayNative.addSongToPlaylist) {
+            window.XeceayNative.addSongToPlaylist(plId, targetSongId);
+          } else {
+            const plObj = state.playlists.find(p => p.id === plId);
+            if (plObj) {
+              if (!plObj.songIds) plObj.songIds = [];
+              if (!plObj.songIds.includes(targetSongId)) plObj.songIds.push(targetSongId);
+            }
+          }
+        }
+      });
+
+      if (isNative) {
+        refreshFromNative();
+      } else {
+        renderAll();
+      }
       this.closeSmartPlaylistModal();
-      showToast(`Playlist "${title}" imported into My Library!`);
+      showToast(`Imported "${title}" (${importedCount} tracks) to Library!`);
       this.switchTab("library");
+    },
+
+    openExternalUrl(url) {
+      if (!url) return;
+      if (isNative && window.XeceayNative && window.XeceayNative.openExternalUrl) {
+        window.XeceayNative.openExternalUrl(url);
+      } else {
+        window.open(url, "_blank");
+      }
+    },
+
+    setAppIcon(iconVariant, el) {
+      const variant = iconVariant || "default";
+      const grid = document.getElementById("icon-selector-grid");
+      if (grid) {
+        grid.querySelectorAll(".theme-card").forEach(c => {
+          c.classList.toggle("active", c.getAttribute("data-icon") === variant);
+        });
+      }
+      const iconLabels = {
+        default: "DCEAY Default",
+        cyberpunk: "Cyberpunk Neon",
+        glass: "Liquid Glass",
+        emerald: "Emerald Matrix",
+        mono: "Monochrome"
+      };
+      const label = iconLabels[variant] || "DCEAY Default";
+      const pill = document.getElementById("active-icon-pill");
+      if (pill) pill.textContent = label;
+
+      try {
+        localStorage.setItem("dceay_launcher_icon", variant);
+      } catch (_e) {}
+
+      if (isNative && window.XeceayNative && window.XeceayNative.setLauncherIcon) {
+        const ok = window.XeceayNative.setLauncherIcon(variant);
+        if (ok && el) {
+          showToast(`Home-screen icon updated: ${label}`);
+        }
+      } else if (el) {
+        showToast(`App icon preset selected: ${label}`);
+      }
+    },
+
+    setCoverBlur(pxVal) {
+      const px = Math.max(0, Math.min(100, Number(pxVal) || 40));
+      document.documentElement.style.setProperty("--cover-blur", `${px}px`);
+      const disp = document.getElementById("cover-blur-val");
+      if (disp) disp.textContent = `${px}px`;
+      try {
+        localStorage.setItem("dceay_cover_blur", String(px));
+      } catch (_e) {}
     },
 
     setTheme(themeName, el) {

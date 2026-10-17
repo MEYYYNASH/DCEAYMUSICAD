@@ -127,16 +127,16 @@ public class MainActivity extends AppCompatActivity {
             if (MusicPlaybackService.ACTION_TOGGLE.equals(action)) {
                 playerEngine.togglePlayPause();
             } else if (MusicPlaybackService.ACTION_NEXT.equals(action)) {
-                evaluateJs("window.XeceayApp && window.XeceayApp.nextTrack()");
+                evaluateJs("(window.DceayApp || window.XeceayApp) && (window.DceayApp || window.XeceayApp).nextTrack()");
             } else if (MusicPlaybackService.ACTION_PREV.equals(action)) {
-                evaluateJs("window.XeceayApp && window.XeceayApp.prevTrack()");
+                evaluateJs("(window.DceayApp || window.XeceayApp) && (window.DceayApp || window.XeceayApp).prevTrack()");
             } else if (MusicPlaybackService.ACTION_STOP.equals(action)) {
                 playerEngine.pause();
             }
         });
 
         webView = new WebView(this);
-        webView.setBackgroundColor(0xFF0D1017);
+        webView.setBackgroundColor(0xFF06070D);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 webView.evaluateJavascript(
-                        "(function(){ return window.XeceayApp ? window.XeceayApp.handleBackPress() : false; })()",
+                        "(function(){ var app = window.DceayApp || window.XeceayApp; return app ? app.handleBackPress() : false; })()",
                         result -> {
                             if (!"true".equals(result)) {
                                 moveTaskToBack(true);
@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject wrapper = new JSONObject();
                 wrapper.put("eventType", eventType);
                 wrapper.put("payload", payload);
-                evaluateJs("window.XeceayApp && window.XeceayApp.onNativeEvent(" + wrapper.toString() + ")");
+                evaluateJs("(window.DceayApp || window.XeceayApp) && (window.DceayApp || window.XeceayApp).onNativeEvent(" + wrapper.toString() + ")");
             } catch (Exception ignored) {
             }
         });
@@ -559,6 +559,28 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public String importTrackToLibrary(String title, String artist, String album, String genre, String artworkUri, String sourceUrl) {
+            String songId = "imported_" + System.currentTimeMillis() + "_" + Math.abs((title != null ? title : "").hashCode() % 10000);
+            String art = (artworkUri != null && !artworkUri.trim().isEmpty())
+                    ? artworkUri
+                    : XeceayDatabase.buildGradientArtworkDataUri(title != null ? title : "Track", artist != null ? artist : "Artist", "#8B5CF6", "#22D3EE");
+            database.insertSongRecord(
+                    songId,
+                    title != null ? title : "Imported Track",
+                    artist != null ? artist : "Artist",
+                    album != null ? album : "Imported Playlist",
+                    genre != null ? genre : "Imported",
+                    205000L,
+                    "MP3",
+                    4800000L,
+                    art,
+                    "local",
+                    sourceUrl != null ? sourceUrl : ""
+            );
+            return songId;
+        }
+
+        @JavascriptInterface
         public void removeSongFromPlaylist(String playlistId, String songId) {
             database.removeSongFromPlaylist(playlistId, songId);
         }
@@ -693,6 +715,81 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void saveUserProfile(String displayName, String email, String preferencesJson) {
             database.updateUserProfile(displayName, email, preferencesJson);
+        }
+
+        @JavascriptInterface
+        public String getActiveLauncherIcon() {
+            try {
+                PackageManager pm = getPackageManager();
+                String pkg = getPackageName();
+                String[][] aliases = {
+                        {"cyberpunk", pkg + ".CyberpunkIconAlias"},
+                        {"glass", pkg + ".GlassIconAlias"},
+                        {"stealth", pkg + ".StealthIconAlias"},
+                        {"mono", pkg + ".StealthIconAlias"}
+                };
+                for (String[] pair : aliases) {
+                    int state = pm.getComponentEnabledSetting(new android.content.ComponentName(pkg, pair[1]));
+                    if (state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                        return pair[0];
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            return "default";
+        }
+
+        @JavascriptInterface
+        public String getAppIconAlias() {
+            return getActiveLauncherIcon();
+        }
+
+        @JavascriptInterface
+        public boolean setAppIconAlias(String variant) {
+            return setLauncherIcon(variant);
+        }
+
+        @JavascriptInterface
+        public boolean setLauncherIcon(String variant) {
+            try {
+                PackageManager pm = getPackageManager();
+                String pkg = getPackageName();
+                String targetAlias = pkg + ".DefaultIconAlias";
+                if ("cyberpunk".equalsIgnoreCase(variant)) {
+                    targetAlias = pkg + ".CyberpunkIconAlias";
+                } else if ("glass".equalsIgnoreCase(variant)) {
+                    targetAlias = pkg + ".GlassIconAlias";
+                } else if ("stealth".equalsIgnoreCase(variant) || "mono".equalsIgnoreCase(variant)) {
+                    targetAlias = pkg + ".StealthIconAlias";
+                }
+
+                String[] allAliases = {
+                        pkg + ".DefaultIconAlias",
+                        pkg + ".CyberpunkIconAlias",
+                        pkg + ".GlassIconAlias",
+                        pkg + ".StealthIconAlias"
+                };
+
+                // Enable the selected alias first so the launcher always sees an active main entry
+                pm.setComponentEnabledSetting(
+                        new android.content.ComponentName(pkg, targetAlias),
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                        PackageManager.DONT_KILL_APP
+                );
+
+                for (String alias : allAliases) {
+                    if (!alias.equals(targetAlias)) {
+                        pm.setComponentEnabledSetting(
+                                new android.content.ComponentName(pkg, alias),
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                PackageManager.DONT_KILL_APP
+                        );
+                    }
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         @JavascriptInterface

@@ -10,8 +10,8 @@ android {
         applicationId = "com.xeceay.music"
         minSdk = 24
         targetSdk = 36
-        versionCode = 121
-        versionName = "1.2.1"
+        versionCode = 200
+        versionName = "2.0.0"
     }
 
     signingConfigs {

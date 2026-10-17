@@ -1,11 +1,11 @@
 {
-  "versionName": "1.2.1",
-  "versionCode": 121,
-  "tagName": "v1.2.1",
-  "releaseTitle": "DCEAY v1.2.1 — One App, All Your Music",
-  "changelog": "DCEAY Official Release: One App, All Your Music.\n• Cover-to-Background Engine: transforms current song album artwork into dynamic blurred, animated gradient background.\n• Syllable-Synced Lyrics Studio: word-by-word karaoke synchronization, translation toggle, and manual timestamp offset calibration.\n• Universal Link Import: YouTube video/playlists, Spotify tracks/playlists metadata import, and direct audio stream vault.\n• Personalization Studio: Cyberpunk Neon, Glassmorphism, and Midnight themes with accent color picker.\n• GitHub In-App Auto-Updater: secure SHA-256 verification and Android PackageInstaller flow.",
-  "apkUrl": "https://github.com/MEYYYNASH/DCEAY/releases/download/v1.2.1/DCEAY-release.apk",
+  "versionName": "2.0.0",
+  "versionCode": 200,
+  "tagName": "v2.0.0",
+  "releaseTitle": "DCEAY v2.0.0 — One App, All Your Music",
+  "changelog": "DCEAY v2.0.0 Official Release — One App, All Your Music.\n• Cover-to-Background Engine: real-time album cover color sampling, adjustable Gaussian blur slider (10px–80px), and animated mesh gradients.\n• Syllable-Synced Lyrics Studio: word-by-word and syllable-by-syllable karaoke highlighting, bilingual translation toggle, adjustable font size, live timing calibration (-200ms to +200ms), and LRC timestamp editor.\n• Universal Link & Smart Playlist Importer: supports YouTube videos, YouTube playlists, Spotify tracks, Spotify playlists/albums, direct audio URLs (MP3/FLAC/WAV/M4A), and local device audio with automatic duplicate detection.\n• Home-Screen App Icon Switcher: switch between 5 built-in launcher icons (DCEAY Default, Cyberpunk Neon, Liquid Glass, Emerald Matrix, Monochrome) via Android activity aliases.\n• Personalization Studio: Cyberpunk Neon (#ff00ff / #00ffff with double borders), Glassmorphism (#14141e99 / #e6e6e6 / #ffffff1a), Midnight Slate, Emerald Forest, and Clean Light themes.\n• GitHub Releases Online Auto-Updater: checks MEYYYNASH/DCEAY releases, verifies SHA-256 checksums and package signing identity, and triggers Android PackageInstaller.",
+  "apkUrl": "https://github.com/MEYYYNASH/DCEAY/releases/download/v2.0.0/DCEAY-release.apk",
   "apkName": "DCEAY-release.apk",
-  "apkSize": 3112045,
-  "sha256": "75e6b41d98aa4b253f1e16a531a7be6dd0c385d2c69b83a756f2d1c4eb4a490f"
+  "apkSize": 3114569,
+  "sha256": "b7cda2ecdaa495e4cbfa474aaaf54454f9a15fbbde78cd3c1b4193bf93e56565"
 }

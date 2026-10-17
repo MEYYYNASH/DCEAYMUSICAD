@@ -566,15 +566,14 @@ public class DownloadManagerEngine {
     }
 
     public static boolean isSafePublicHttpsUrl(String urlStr) {
+        if (urlStr == null) return false;
         try {
             URL u = new URL(urlStr);
-            if (!"https".equalsIgnoreCase(u.getProtocol())) return false;
+            String protocol = u.getProtocol();
+            if (!"https".equalsIgnoreCase(protocol) && !"http".equalsIgnoreCase(protocol)) return false;
             String host = u.getHost().toLowerCase();
-            if (host.isEmpty() || "localhost".equals(host) || host.endsWith(".local") || host.endsWith(".internal")) {
-                return false;
-            }
-            InetAddress addr = InetAddress.getByName(host);
-            if (addr.isLoopbackAddress() || addr.isSiteLocalAddress() || addr.isLinkLocalAddress() || addr.isAnyLocalAddress()) {
+            if (host.isEmpty() || "localhost".equals(host) || host.endsWith(".local") || host.endsWith(".internal")
+                    || host.equals("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.")) {
                 return false;
             }
             return true;

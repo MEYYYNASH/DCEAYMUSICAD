@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.7",
-  "versionCode": 117,
-  "tagName": "v1.1.7",
-  "releaseTitle": "XECEAY v1.1.7 — Official Release Signing, Clean Security Profile & Brand New Icon",
-  "changelog": "Official release APK signed with dedicated 2048-bit RSA production keystore (resolving Play Protect debug-signature alerts), removed unused Bluetooth permission, and updated app launcher and branding icons with the new geometric star logo.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.7/XECEAY-release.apk",
-  "apkSize": 3099710
+  "versionName": "1.1.8",
+  "versionCode": 118,
+  "tagName": "v1.1.8",
+  "releaseTitle": "XECEAY v1.1.8 — In-App Video Player, Online Audio Fix, Direct Updates & Removed Lyrics",
+  "changelog": "Restored debug keystore signature matching installed app for smooth 1-tap updates without 'App not installed' error. Added dedicated In-App Video Player to watch local & streaming MP4/YouTube videos, fixed online streaming playback redirect errors, removed lyrics display as requested, and resolved link downloader URL verification.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.8/XECEAY-release.apk",
+  "apkSize": 3062700
 }

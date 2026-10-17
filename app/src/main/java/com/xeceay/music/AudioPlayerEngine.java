@@ -145,9 +145,15 @@ public class AudioPlayerEngine {
         final String finalSource = cleanRef;
 
         if (finalSource.startsWith("http://") || finalSource.startsWith("https://")) {
-            // Resolve any HTTP redirect chains (such as Audius 302 -> 307 or CDN redirects) in background
             networkExecutor.execute(() -> {
-                String resolvedUrl = resolveFinalStreamUrl(finalSource);
+                String streamUrl = finalSource;
+                if (streamUrl.contains("youtube.com") || streamUrl.contains("youtu.be")) {
+                    String ytStream = LinkAnalyzerService.resolveDirectYouTubeStream(streamUrl, "mp3");
+                    if (ytStream != null && !ytStream.isEmpty()) {
+                        streamUrl = ytStream;
+                    }
+                }
+                String resolvedUrl = resolveFinalStreamUrl(streamUrl);
                 handler.post(() -> prepareMediaPlayer(resolvedUrl, startPositionMs, true));
             });
         } else {
@@ -261,12 +267,13 @@ public class AudioPlayerEngine {
             for (int hop = 0; hop < 6; hop++) {
                 URL u = new URL(cur);
                 HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-                conn.setRequestMethod("HEAD");
+                conn.setRequestMethod("GET");
                 conn.setInstanceFollowRedirects(false);
                 conn.setConnectTimeout(6000);
                 conn.setReadTimeout(6000);
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36");
                 conn.setRequestProperty("Accept", "*/*");
+                conn.setRequestProperty("Range", "bytes=0-1");
                 conn.connect();
                 int code = conn.getResponseCode();
                 if (code >= 300 && code <= 308) {

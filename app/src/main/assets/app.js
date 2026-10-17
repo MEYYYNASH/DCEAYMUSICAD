@@ -687,10 +687,10 @@
 
     area.innerHTML = list.map((song, idx) => {
       const isPlaying = state.player.songId === song.id;
-      const numStr = String(idx + 1).padStart(2, "0");
+      const isVideo = song.mediaType === "video" || (song.format && song.format.toUpperCase() === "MP4");
       return `
-        <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="XeceayApp.playSongById('${escapeAttr(song.id)}')">
-          <div class="track-num-col">${isPlaying ? SVG.eqBars : numStr}</div>
+        <div class="song-row ${isPlaying ? 'playing' : ''}" onclick="${isVideo ? `XeceayApp.openVideoPlayer('${escapeAttr(song.title)}','${escapeAttr(song.artist)}','${escapeAttr(song.dataUri || song.sourceReference || '')}',false,'')` : `XeceayApp.playSongById('${escapeAttr(song.id)}')`}">
+          <div class="track-num-col">${isVideo ? SVG.video : (isPlaying ? SVG.eqBars : numStr)}</div>
           <div class="song-info">
             <div class="song-name">${escapeHtml(song.title)}</div>
             <div class="song-meta">
@@ -749,8 +749,7 @@
                 <div class="song-actions">
                   ${d.status === "Downloading" || d.status === "Waiting" ? `<button class="icon-btn" onclick="XeceayApp.pauseDl('${escapeAttr(d.id)}')">${SVG.pause}</button>` : ""}
                   ${d.status === "Paused" ? `<button class="icon-btn" onclick="XeceayApp.resumeDl('${escapeAttr(d.id)}')">${SVG.play}</button>` : ""}
-                  ${d.status === "Failed" || d.status === "Cancelled" ? `<button class="icon-btn" onclick="XeceayApp.retryDl('${escapeAttr(d.id)}')">${SVG.retry}</button>` : ""}
-                  ${d.status === "Completed" && d.songId ? `<button class="pill-btn white-pill" onclick="XeceayApp.playSongById('${escapeAttr(d.songId)}')">${SVG.play}<span>Play</span></button>` : ""}
+                  ${d.status === "Completed" && d.songId ? (d.mediaType === "video" || (d.format && d.format.toUpperCase() === "MP4") ? `<button class="pill-btn white-pill" onclick="XeceayApp.openVideoPlayer('${escapeAttr(d.title)}','${escapeAttr(d.artist)}','${escapeAttr(d.destinationUri || '')}',false,'')">${SVG.video}<span>Watch</span></button>` : `<button class="pill-btn white-pill" onclick="XeceayApp.playSongById('${escapeAttr(d.songId)}')">${SVG.play}<span>Play</span></button>`) : ""}
                   <button class="icon-btn" style="color:var(--error);" onclick="XeceayApp.deleteDl('${escapeAttr(d.id)}')">${SVG.trash}</button>
                 </div>
               </div>
@@ -890,79 +889,6 @@
     }
     result.sort((a, b) => a.timeMs - b.timeMs);
     return result;
-  }
-
-  async function loadLyricsForCurrentTrack() {
-    const p = state.player;
-    if (!p.songId) return;
-    if (state.player.lyricsLoadedFor === p.songId && state.player.lyrics.length > 0) {
-      renderLyricsScroll();
-      return;
-    }
-
-    const scrollBox = document.getElementById("fp-lyrics-scroll");
-    if (scrollBox) {
-      scrollBox.innerHTML = `<div class="lyric-line placeholder">Loading synced lyrics...</div>`;
-    }
-
-    // 1. Check offline catalog
-    if (CATALOG_LYRICS[p.songId]) {
-      state.player.lyrics = CATALOG_LYRICS[p.songId];
-      state.player.lyricsLoadedFor = p.songId;
-      renderLyricsScroll();
-      return;
-    }
-
-    // 2. Fetch from LRCLIB open-source synced lyrics API
-    try {
-      const qTitle = encodeURIComponent((p.title || "").replace(/\(.*?\)/g, "").trim());
-      const qArtist = encodeURIComponent((p.artist || "").replace(/[\u1780-\u17FF]+/g, "").trim());
-      const durSec = Math.round((p.durationMs || 180000) / 1000);
-      const url = `https://lrclib.net/api/get?track_name=${qTitle}&artist_name=${qArtist}&duration=${durSec}`;
-      const res = await fetch(url).then(r => r.json()).catch(() => null);
-
-      if (res && res.syncedLyrics) {
-        state.player.lyrics = parseLrc(res.syncedLyrics);
-        state.player.lyricsLoadedFor = p.songId;
-        renderLyricsScroll();
-        return;
-      } else if (res && res.plainLyrics) {
-        const lines = res.plainLyrics.split("\n").filter(l => l.trim().length > 0);
-        const step = Math.max(2500, Math.floor((p.durationMs || 180000) / Math.max(1, lines.length)));
-        state.player.lyrics = lines.map((text, idx) => ({
-          timeMs: idx * step,
-          text: text.trim()
-        }));
-        state.player.lyricsLoadedFor = p.songId;
-        renderLyricsScroll();
-        return;
-      }
-    } catch (_e) {}
-
-    // Fallback if no synced lyrics found
-    state.player.lyrics = [
-      { timeMs: 0, text: p.title || "XECEAY Music" },
-      { timeMs: 4000, text: p.artist || "Khmer & Global Hi-Fi" },
-      { timeMs: 8000, text: "♪ Enjoy the music ♪" },
-      { timeMs: 16000, text: "Tap here to toggle back to album artwork" }
-    ];
-    state.player.lyricsLoadedFor = p.songId;
-    renderLyricsScroll();
-  }
-
-  function renderLyricsScroll() {
-    const scrollBox = document.getElementById("fp-lyrics-scroll");
-    if (!scrollBox) return;
-    const lyrics = state.player.lyrics || [];
-    if (lyrics.length === 0) {
-      scrollBox.innerHTML = `<div class="lyric-line placeholder">No lyrics available for this track</div>`;
-      return;
-    }
-    scrollBox.innerHTML = lyrics.map((l, idx) => `
-      <div id="lyric-line-${idx}" class="lyric-line" onclick="event.stopPropagation(); XeceayApp.seekToTimeMs(${l.timeMs})">
-        ${escapeHtml(l.text)}
-      </div>
-    `).join("");
   }
 
   function renderEqualizerModal() {
@@ -1151,29 +1077,6 @@
       fpFav.innerHTML = isFav ? SVG.heartFill : SVG.heartOutline;
     }
 
-    // Synced Lyrics autoscroll and line highlight
-    if (state.player.isLyricsOpen && state.player.lyrics && state.player.lyrics.length > 0) {
-      const lyrics = state.player.lyrics;
-      const curMs = p.positionMs || 0;
-      let activeIdx = -1;
-      for (let i = 0; i < lyrics.length; i++) {
-        if (curMs >= lyrics[i].timeMs) {
-          activeIdx = i;
-        } else {
-          break;
-        }
-      }
-      if (activeIdx !== -1 && activeIdx !== state.player.activeLyricIndex) {
-        state.player.activeLyricIndex = activeIdx;
-        document.querySelectorAll(".lyric-line").forEach(el => el.classList.remove("active"));
-        const activeEl = document.getElementById("lyric-line-" + activeIdx);
-        if (activeEl) {
-          activeEl.classList.add("active");
-          activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
-    }
-
     // Dynamic ambient color update
     if (p.artworkUri && p.artworkUri !== currentSampledArtUri) {
       applyDynamicAmbientColors(p.artworkUri);
@@ -1194,9 +1097,6 @@
     state.player.activeLyricIndex = -1;
 
     applyDynamicAmbientColors(state.player.artworkUri);
-    if (state.player.isLyricsOpen) {
-      loadLyricsForCurrentTrack();
-    }
 
     if (isNative) {
       window.XeceayNative.playSong(
@@ -1641,20 +1541,74 @@
       }
     },
 
-    toggleLyricsMode() {
-      state.player.isLyricsOpen = !state.player.isLyricsOpen;
-      const artBox = document.getElementById("fp-art-container");
-      const lyrBox = document.getElementById("fp-lyrics-container");
-      const btn = document.getElementById("fp-lyrics-toggle-btn");
-      if (btn) btn.classList.toggle("active", state.player.isLyricsOpen);
-      if (state.player.isLyricsOpen) {
-        if (artBox) artBox.style.display = "none";
-        if (lyrBox) lyrBox.style.display = "block";
-        loadLyricsForCurrentTrack();
-        showToast("Lyrics enabled (tap line to jump)");
+    openVideoPlayer(title, artist, videoUrl, isYouTube, videoId) {
+      if (isNative && window.XeceayNative && window.XeceayNative.pauseAudio) {
+        window.XeceayNative.pauseAudio();
+      }
+      player.pause();
+
+      const modal = document.getElementById("video-player-modal");
+      const vpTitle = document.getElementById("vp-title");
+      const vpArtist = document.getElementById("vp-artist");
+      const videoElem = document.getElementById("native-video-elem");
+      const ytWrap = document.getElementById("yt-video-wrap");
+      const ytFrame = document.getElementById("yt-video-frame");
+      if (!modal) return;
+
+      if (vpTitle) vpTitle.textContent = title || "Video Player";
+      if (vpArtist) vpArtist.textContent = artist || "XECEAY Media";
+
+      modal.style.display = "flex";
+
+      if (isYouTube && videoId) {
+        if (videoElem) {
+          videoElem.pause();
+          videoElem.src = "";
+          videoElem.style.display = "none";
+        }
+        if (ytWrap && ytFrame) {
+          ytWrap.style.display = "block";
+          ytFrame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1`;
+        }
       } else {
-        if (artBox) artBox.style.display = "block";
-        if (lyrBox) lyrBox.style.display = "none";
+        if (ytWrap && ytFrame) {
+          ytFrame.src = "";
+          ytWrap.style.display = "none";
+        }
+        if (videoElem) {
+          videoElem.style.display = "block";
+          videoElem.src = videoUrl || "";
+          videoElem.play().catch(() => {});
+        }
+      }
+      showToast("Playing video: " + (title || ""));
+    },
+
+    closeVideoPlayer() {
+      const modal = document.getElementById("video-player-modal");
+      const videoElem = document.getElementById("native-video-elem");
+      const ytWrap = document.getElementById("yt-video-wrap");
+      const ytFrame = document.getElementById("yt-video-frame");
+      if (videoElem) {
+        videoElem.pause();
+        videoElem.src = "";
+      }
+      if (ytFrame) {
+        ytFrame.src = "";
+      }
+      if (ytWrap) ytWrap.style.display = "none";
+      if (modal) modal.style.display = "none";
+    },
+
+    toggleVideoFullscreen() {
+      const videoElem = document.getElementById("native-video-elem");
+      const modal = document.getElementById("video-player-modal");
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else if (modal && modal.requestFullscreen) {
+        modal.requestFullscreen().catch(() => {
+          if (videoElem && videoElem.requestFullscreen) videoElem.requestFullscreen();
+        });
       }
     },
 
@@ -1896,10 +1850,14 @@
               </div>
             </div>
 
-            <div style="margin-top:10px;">
-              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;background:#ff0033;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.playYouTubeEmbed('${escapeAttr(info.videoId)}','${escapeAttr(info.title)}')">
+            <div style="margin-top:10px;display:flex;gap:8px;">
+              <button class="dual-pill-btn white-solid" style="flex:1;justify-content:center;background:#2563EB;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.openVideoPlayer('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','',true,'${escapeAttr(info.videoId)}')">
+                ${SVG.video}
+                <span>Watch Video</span>
+              </button>
+              <button class="dual-pill-btn white-solid" style="flex:1;justify-content:center;background:#ff0033;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.playYouTubeEmbed('${escapeAttr(info.videoId)}','${escapeAttr(info.title)}')">
                 ${SVG.play}
-                <span>Play Full YouTube Song</span>
+                <span>Play Embed</span>
               </button>
             </div>
 
@@ -1932,7 +1890,16 @@
             </div>
           </div>
 
-          <div class="dual-action-row" style="margin-bottom:0;">
+          ${(info.mediaType === "video" || info.format === "MP4") ? `
+            <div style="margin-top:10px;">
+              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;background:#2563EB;color:#ffffff;border:none;font-weight:700;" onclick="XeceayApp.openVideoPlayer('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(mp4Url || info.url)}',false,'')">
+                ${SVG.video}
+                <span>Watch Video in App</span>
+              </button>
+            </div>
+          ` : ""}
+
+          <div class="dual-action-row" style="margin-top:10px;margin-bottom:0;">
             <button class="dual-pill-btn white-solid" onclick="XeceayApp.downloadDirectTrack('${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp4Url || mp3Url || info.url)}','MP4','video')">
               ${SVG.video}
               <span>Download MP4</span>

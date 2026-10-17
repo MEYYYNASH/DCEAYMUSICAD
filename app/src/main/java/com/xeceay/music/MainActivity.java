@@ -464,6 +464,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void pauseAudio() {
+            runOnUiThread(() -> playerEngine.pause());
+        }
+
+        @JavascriptInterface
         public void seekTo(int positionMs) {
             runOnUiThread(() -> playerEngine.seekTo(positionMs));
         }

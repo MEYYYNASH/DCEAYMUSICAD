@@ -1,9 +1,9 @@
 {
-  "versionName": "1.1.4",
-  "versionCode": 114,
-  "tagName": "v1.1.4",
-  "releaseTitle": "XECEAY v1.1.4 — MediaStyle Playback Notification & Interactive MediaSession",
-  "changelog": "Upgraded background playback notification to native Android MediaStyle with MediaSessionCompat! Features high-res album cover artwork, scrubbable lockscreen/shade seekbar, live Play/Pause/Next/Prev controls, and bluetooth headset support.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.4/XECEAY-release.apk",
-  "apkSize": 3055148
+  "versionName": "1.1.5",
+  "versionCode": 115,
+  "tagName": "v1.1.5",
+  "releaseTitle": "XECEAY v1.1.5 — Synced Karaoke Lyrics, Dynamic Ambient Glow & 3D Spatializer",
+  "changelog": "Added interactive Synced Karaoke Lyrics with real-time autoscroll & line-seeking, Dynamic Ambient Artwork Glow tinting the player canvas, 3D Surround Spatializer with trending audiophile modes (Slowed + Reverb, Nightcore, 3D Spatial), and smooth sleep timer volume fade-out.",
+  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/releases/download/v1.1.5/XECEAY-release.apk",
+  "apkSize": 3059436
 }

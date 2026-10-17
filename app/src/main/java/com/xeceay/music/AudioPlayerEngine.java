@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.PlaybackParams;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
+import android.media.audiofx.Virtualizer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -46,6 +47,7 @@ public class AudioPlayerEngine {
     private MediaPlayer mediaPlayer;
     private Equalizer equalizer;
     private BassBoost bassBoost;
+    private Virtualizer virtualizer;
 
     private String currentSongId = "";
     private String currentTitle = "XECEAY Music";
@@ -58,6 +60,7 @@ public class AudioPlayerEngine {
     private String currentPreset = "Normal";
     private int[] customBandsDb = new int[]{0, 0, 0, 0, 0};
     private int bassStrength = 150;
+    private int virtualizerStrength = 0;
     private long sleepTimerEndMs = 0L;
     private int currentDurationMs = 0;
     private String lastErrorMessage = "";
@@ -67,9 +70,18 @@ public class AudioPlayerEngine {
         @Override
         public void run() {
             try {
-                if (sleepTimerEndMs > 0L && System.currentTimeMillis() >= sleepTimerEndMs) {
-                    sleepTimerEndMs = 0L;
-                    pause();
+                if (sleepTimerEndMs > 0L) {
+                    long rem = sleepTimerEndMs - System.currentTimeMillis();
+                    if (rem <= 0L) {
+                        sleepTimerEndMs = 0L;
+                        pause();
+                        if (mediaPlayer != null) {
+                            try { mediaPlayer.setVolume(volumeLevel, volumeLevel); } catch (Throwable ignored) {}
+                        }
+                    } else if (rem < 25000L && mediaPlayer != null && isPrepared && mediaPlayer.isPlaying()) {
+                        float factor = Math.max(0.04f, (float) rem / 25000.0f);
+                        try { mediaPlayer.setVolume(volumeLevel * factor, volumeLevel * factor); } catch (Throwable ignored) {}
+                    }
                 }
                 if (mediaPlayer != null && isPrepared && mediaPlayer.isPlaying()) {
                     long pos = getEffectivePositionMs();
@@ -383,16 +395,21 @@ public class AudioPlayerEngine {
         }
     }
 
-    public void setEqualizerPreset(String presetName, int[] bands, int bass) {
+    public void setEqualizerPreset(String presetName, int[] bands, int bass, int virt) {
         this.currentPreset = presetName != null ? presetName : "Normal";
         if (bands != null && bands.length == 5) {
             System.arraycopy(bands, 0, this.customBandsDb, 0, 5);
         }
         this.bassStrength = Math.max(0, Math.min(1000, bass));
+        this.virtualizerStrength = Math.max(0, Math.min(1000, virt));
         if (mediaPlayer != null && isPrepared) {
             attachAudioEffects(mediaPlayer.getAudioSessionId());
         }
         emitState("equalizer");
+    }
+
+    public void setEqualizerPreset(String presetName, int[] bands, int bass) {
+        setEqualizerPreset(presetName, bands, bass, this.virtualizerStrength);
     }
 
     private void attachAudioEffects(int audioSessionId) {
@@ -405,6 +422,10 @@ public class AudioPlayerEngine {
                 try { bassBoost.release(); } catch (Throwable ignored) {}
                 bassBoost = null;
             }
+            if (virtualizer != null) {
+                try { virtualizer.release(); } catch (Throwable ignored) {}
+                virtualizer = null;
+            }
             if (audioSessionId == 0) return;
 
             equalizer = new Equalizer(0, audioSessionId);
@@ -412,6 +433,9 @@ public class AudioPlayerEngine {
 
             bassBoost = new BassBoost(0, audioSessionId);
             bassBoost.setEnabled(true);
+
+            virtualizer = new Virtualizer(0, audioSessionId);
+            virtualizer.setEnabled(true);
 
             short[] range = equalizer.getBandLevelRange();
             if (range != null && range.length >= 2) {
@@ -426,6 +450,9 @@ public class AudioPlayerEngine {
             }
             if (bassBoost != null && bassBoost.getStrengthSupported()) {
                 bassBoost.setStrength((short) bassStrength);
+            }
+            if (virtualizer != null && virtualizer.getStrengthSupported()) {
+                virtualizer.setStrength((short) virtualizerStrength);
             }
         } catch (Throwable ignored) {
         }
@@ -487,6 +514,7 @@ public class AudioPlayerEngine {
             obj.put("eqPreset", currentPreset);
             obj.put("eqBands", bandsArr);
             obj.put("bassStrength", bassStrength);
+            obj.put("virtualizerStrength", virtualizerStrength);
             obj.put("sleepRemainingSec", sleepRem);
             if (!lastErrorMessage.isEmpty()) {
                 obj.put("error", lastErrorMessage);
@@ -535,6 +563,10 @@ public class AudioPlayerEngine {
             if (bassBoost != null) {
                 try { bassBoost.release(); } catch (Throwable ignored) {}
                 bassBoost = null;
+            }
+            if (virtualizer != null) {
+                try { virtualizer.release(); } catch (Throwable ignored) {}
+                virtualizer = null;
             }
             if (mediaPlayer != null) {
                 try { mediaPlayer.reset(); } catch (Throwable ignored) {}

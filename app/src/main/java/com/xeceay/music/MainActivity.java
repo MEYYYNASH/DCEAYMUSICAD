@@ -479,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public void setEqualizer(String presetName, String bandsJson, int bassStrength) {
+        public void setEqualizer(String presetName, String bandsJson, int bassStrength, int virtualizerStrength) {
             runOnUiThread(() -> {
                 int[] bands = null;
                 try {
@@ -488,8 +488,13 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < 5; i++) bands[i] = arr.optInt(i, 0);
                 } catch (Exception ignored) {
                 }
-                playerEngine.setEqualizerPreset(presetName, bands, bassStrength);
+                playerEngine.setEqualizerPreset(presetName, bands, bassStrength, virtualizerStrength);
             });
+        }
+
+        @JavascriptInterface
+        public void setEqualizer(String presetName, String bandsJson, int bassStrength) {
+            setEqualizer(presetName, bandsJson, bassStrength, 0);
         }
 
         @JavascriptInterface

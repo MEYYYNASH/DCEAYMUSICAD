@@ -29,6 +29,9 @@
 
   const EQ_PRESETS = {
     "Normal": [0, 0, 0, 0, 0],
+    "3D Spatial": [4, 2, 0, 3, 6],
+    "Slowed": [6, 4, -1, 1, 2],
+    "Nightcore": [-2, 0, 3, 6, 8],
     "Bass Boost": [9, 6, 0, 1, 2],
     "Treble Boost": [-1, 0, 2, 6, 9],
     "Vocal": [-3, 2, 6, 4, -1],
@@ -197,6 +200,11 @@
       eqPreset: "Normal",
       eqBands: [0, 0, 0, 0, 0],
       bassStrength: 150,
+      virtualizerStrength: 0,
+      isLyricsOpen: false,
+      lyrics: [],
+      lyricsLoadedFor: "",
+      activeLyricIndex: -1,
       sleepRemainingSec: 0,
       isDraggingSeek: false
     },
@@ -760,6 +768,199 @@
       const hotlist = state.liveDiscovery.length > 0 ? state.liveDiscovery : AUTHORIZED_CATALOG;
       catEl.innerHTML = hotlist.map((item, idx) => renderDownloadableTrackRow(item, idx)).join("");
     }
+  let currentSampledArtUri = "";
+  function applyDynamicAmbientColors(artworkUri) {
+    if (!artworkUri || artworkUri === currentSampledArtUri) return;
+    currentSampledArtUri = artworkUri;
+
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 24;
+        canvas.height = 24;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, 24, 24);
+        const data = ctx.getImageData(0, 0, 24, 24).data;
+
+        let bestColor = { r: 139, g: 92, b: 246 };
+        let maxSaturation = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const max = Math.max(r, g, b) / 255;
+          const min = Math.min(r, g, b) / 255;
+          const l = (max + min) / 2;
+          const d = max - min;
+          const s = max === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+
+          if (s > maxSaturation && l > 0.22 && l < 0.85) {
+            maxSaturation = s;
+            bestColor = { r, g, b };
+          }
+        }
+
+        const colorStr = `rgb(${bestColor.r}, ${bestColor.g}, ${bestColor.b})`;
+        const glowStr = `rgba(${bestColor.r}, ${bestColor.g}, ${bestColor.b}, 0.35)`;
+        const root = document.documentElement;
+        root.style.setProperty("--ambient-color", colorStr);
+        root.style.setProperty("--ambient-glow", glowStr);
+        root.style.setProperty("--accent-glow", glowStr);
+
+        const fpModal = document.getElementById("full-player-modal");
+        if (fpModal) {
+          fpModal.style.setProperty("--ambient-color", colorStr);
+          fpModal.style.setProperty("--ambient-glow", glowStr);
+        }
+      } catch (_e) {}
+    };
+    img.src = artworkUri;
+  }
+
+  const CATALOG_LYRICS = {
+    "seed_2": [
+      { timeMs: 0, text: "XECEAY Hi-Fi Lossless Master" },
+      { timeMs: 14000, text: "ពេលវេលាដែលត្រូវក្រោកឈរ (Time To Rise)" },
+      { timeMs: 25000, text: "VannDa feat. Master Kong Nay" },
+      { timeMs: 38000, text: "ចាប៉ីដងវែង បន្លឺសូរសៀងរណ្តំចិត្ត" },
+      { timeMs: 52000, text: "មរតកដូនតាខ្មែរ ផ្សារភ្ជាប់ជំនាន់ថ្មី" },
+      { timeMs: 68000, text: "ពេលវេលាមកដល់ហើយ យុវជនខ្មែរក្រោកឈរ" },
+      { timeMs: 84000, text: "Time to rise, time to shine" },
+      { timeMs: 102000, text: "From the underground to the highest peak" },
+      { timeMs: 120000, text: "សិល្បៈវប្បធម៌ខ្មែររុងរឿងជានិរន្តរ៍" },
+      { timeMs: 148000, text: "Keep pushing, keep rising, keep making history" },
+      { timeMs: 180000, text: "★ Master Kong Nay Solo Chapei ★" },
+      { timeMs: 215000, text: "ចងចាំប្រវត្តិសាស្ត្រ និងកសាងអនាគត" },
+      { timeMs: 245000, text: "Rise up together for Khmer pride" },
+      { timeMs: 280000, text: "XECEAY Khmer & Global" }
+    ],
+    "seed_3": [
+      { timeMs: 0, text: "ពីរនាក់បានហើយ (Two Of Us)" },
+      { timeMs: 12000, text: "ស៊ូលីផេង - Suly Pheng" },
+      { timeMs: 24000, text: "មានត្រឹមតែរូបអូន ម្នាក់គត់ក្នុងបេះដូង" },
+      { timeMs: 42000, text: "មិនត្រូវការអ្វីច្រើន ត្រឹមយើងពីរនាក់" },
+      { timeMs: 65000, text: "ដើរកាត់រាល់ឧបសគ្គ ទៅជាមួយគ្នា" },
+      { timeMs: 92000, text: "កក់ក្តៅរាល់វេលា នៅពេលមានអូនក្បែរ" },
+      { timeMs: 122000, text: "ស្នេហាដ៏បរិសុទ្ធ មិនប្រែប្រួលឡើយ" },
+      { timeMs: 154000, text: "ពីរនាក់បានហើយ សម្រាប់ជីវិតមួយនេះ" }
+    ],
+    "seed_4": [
+      { timeMs: 0, text: "កង់សាគួរ (Spare Wheel)" },
+      { timeMs: 15000, text: "ថេណា - Tena" },
+      { timeMs: 32000, text: "តើខ្ញុំជាអ្វីក្នុងចិត្តអូន?" },
+      { timeMs: 50000, text: "ត្រឹមតែកង់សាគួរពេលគេចាកចេញទៅ" },
+      { timeMs: 72000, text: "ឈឺចាប់តែត្រូវទ្រាំព្រោះស្រឡាញ់" },
+      { timeMs: 98000, text: "ពេលគេត្រឡប់មក ខ្ញុំត្រូវថយចេញ" },
+      { timeMs: 126000, text: "ក្តីស្រឡាញ់ដែលគ្មានអនាគត" },
+      { timeMs: 158000, text: "បេះដូងមួយនេះនៅតែរង់ចាំអូន" }
+    ],
+    "seed_6": [
+      { timeMs: 0, text: "ចំប៉ាបាត់ដំបង (Champa Battambang)" },
+      { timeMs: 16000, text: "អធិរាជសំឡេងមាស ស៊ីន ស៊ីសាមុត" },
+      { timeMs: 36000, text: "ឱ! ផ្កាចំប៉ាបាត់ដំបងអើយ" },
+      { timeMs: 56000, text: "ក្លិនក្រអូបសាយភាយពេញដួងចិត្តបង" },
+      { timeMs: 78000, text: "ទោះបីឃ្លាតឆ្ងាយ ក៏មិនអាចបំភ្លេចបាន" },
+      { timeMs: 105000, text: "អនុស្សាវរីយ៍ស្ទឹងសង្កែរដូវបុណ្យអុំទូក" },
+      { timeMs: 135000, text: "ស្នេហានៅតែដក់ជាប់ជានិច្ចនិរន្តរ៍" },
+      { timeMs: 168000, text: "ស្រណោះស្រីស្រស់ចំប៉ាបាត់ដំបង" }
+    ]
+  };
+
+  function parseLrc(lrcText) {
+    if (!lrcText) return [];
+    const lines = lrcText.split("\n");
+    const result = [];
+    const reg = /\[(\d{2}):(\d{2}(?:\.\d{1,3})?)\](.*)/;
+    for (const line of lines) {
+      const match = reg.exec(line.trim());
+      if (match) {
+        const min = parseInt(match[1], 10);
+        const sec = parseFloat(match[2]);
+        const text = match[3].trim();
+        if (text) {
+          result.push({
+            timeMs: Math.round((min * 60 + sec) * 1000),
+            text
+          });
+        }
+      }
+    }
+    result.sort((a, b) => a.timeMs - b.timeMs);
+    return result;
+  }
+
+  async function loadLyricsForCurrentTrack() {
+    const p = state.player;
+    if (!p.songId) return;
+    if (state.player.lyricsLoadedFor === p.songId && state.player.lyrics.length > 0) {
+      renderLyricsScroll();
+      return;
+    }
+
+    const scrollBox = document.getElementById("fp-lyrics-scroll");
+    if (scrollBox) {
+      scrollBox.innerHTML = `<div class="lyric-line placeholder">Loading synced lyrics...</div>`;
+    }
+
+    // 1. Check offline catalog
+    if (CATALOG_LYRICS[p.songId]) {
+      state.player.lyrics = CATALOG_LYRICS[p.songId];
+      state.player.lyricsLoadedFor = p.songId;
+      renderLyricsScroll();
+      return;
+    }
+
+    // 2. Fetch from LRCLIB open-source synced lyrics API
+    try {
+      const qTitle = encodeURIComponent((p.title || "").replace(/\(.*?\)/g, "").trim());
+      const qArtist = encodeURIComponent((p.artist || "").replace(/[\u1780-\u17FF]+/g, "").trim());
+      const durSec = Math.round((p.durationMs || 180000) / 1000);
+      const url = `https://lrclib.net/api/get?track_name=${qTitle}&artist_name=${qArtist}&duration=${durSec}`;
+      const res = await fetch(url).then(r => r.json()).catch(() => null);
+
+      if (res && res.syncedLyrics) {
+        state.player.lyrics = parseLrc(res.syncedLyrics);
+        state.player.lyricsLoadedFor = p.songId;
+        renderLyricsScroll();
+        return;
+      } else if (res && res.plainLyrics) {
+        const lines = res.plainLyrics.split("\n").filter(l => l.trim().length > 0);
+        const step = Math.max(2500, Math.floor((p.durationMs || 180000) / Math.max(1, lines.length)));
+        state.player.lyrics = lines.map((text, idx) => ({
+          timeMs: idx * step,
+          text: text.trim()
+        }));
+        state.player.lyricsLoadedFor = p.songId;
+        renderLyricsScroll();
+        return;
+      }
+    } catch (_e) {}
+
+    // Fallback if no synced lyrics found
+    state.player.lyrics = [
+      { timeMs: 0, text: p.title || "XECEAY Music" },
+      { timeMs: 4000, text: p.artist || "Khmer & Global Hi-Fi" },
+      { timeMs: 8000, text: "♪ Enjoy the music ♪" },
+      { timeMs: 16000, text: "Tap here to toggle back to album artwork" }
+    ];
+    state.player.lyricsLoadedFor = p.songId;
+    renderLyricsScroll();
+  }
+
+  function renderLyricsScroll() {
+    const scrollBox = document.getElementById("fp-lyrics-scroll");
+    if (!scrollBox) return;
+    const lyrics = state.player.lyrics || [];
+    if (lyrics.length === 0) {
+      scrollBox.innerHTML = `<div class="lyric-line placeholder">No lyrics available for this track</div>`;
+      return;
+    }
+    scrollBox.innerHTML = lyrics.map((l, idx) => `
+      <div id="lyric-line-${idx}" class="lyric-line" onclick="event.stopPropagation(); XeceayApp.seekToTimeMs(${l.timeMs})">
+        ${escapeHtml(l.text)}
+      </div>
+    `).join("");
   }
 
   function renderEqualizerModal() {
@@ -791,8 +992,18 @@
         `;
       }).join("");
     }
+    const bassSlider = document.getElementById("eq-bass-slider");
+    const bassVal = document.getElementById("eq-bass-val");
+    if (bassSlider) bassSlider.value = state.player.bassStrength || 0;
+    if (bassVal) bassVal.textContent = Math.round((state.player.bassStrength || 0) / 10) + "%";
+
+    const virtSlider = document.getElementById("eq-virt-slider");
+    const virtVal = document.getElementById("eq-virt-val");
+    if (virtSlider) virtSlider.value = state.player.virtualizerStrength || 0;
+    if (virtVal) virtVal.textContent = Math.round((state.player.virtualizerStrength || 0) / 10) + "%";
+
     const setEq = document.getElementById("settings-eq-summary");
-    if (setEq) setEq.textContent = `Preset: ${state.player.eqPreset} • Sub-Bass ${(state.player.bassStrength / 10).toFixed(0)}%`;
+    if (setEq) setEq.textContent = `Preset: ${state.player.eqPreset} • Sub-Bass ${(state.player.bassStrength / 10).toFixed(0)}% • 3D Spatial ${((state.player.virtualizerStrength || 0) / 10).toFixed(0)}%`;
   }
 
   function renderStorageCard() {
@@ -937,6 +1148,34 @@
     if (fpFav) {
       fpFav.innerHTML = isFav ? SVG.heartFill : SVG.heartOutline;
     }
+
+    // Synced Lyrics autoscroll and line highlight
+    if (state.player.isLyricsOpen && state.player.lyrics && state.player.lyrics.length > 0) {
+      const lyrics = state.player.lyrics;
+      const curMs = p.positionMs || 0;
+      let activeIdx = -1;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (curMs >= lyrics[i].timeMs) {
+          activeIdx = i;
+        } else {
+          break;
+        }
+      }
+      if (activeIdx !== -1 && activeIdx !== state.player.activeLyricIndex) {
+        state.player.activeLyricIndex = activeIdx;
+        document.querySelectorAll(".lyric-line").forEach(el => el.classList.remove("active"));
+        const activeEl = document.getElementById("lyric-line-" + activeIdx);
+        if (activeEl) {
+          activeEl.classList.add("active");
+          activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    }
+
+    // Dynamic ambient color update
+    if (p.artworkUri && p.artworkUri !== currentSampledArtUri) {
+      applyDynamicAmbientColors(p.artworkUri);
+    }
   }
 
   function playSongObject(song) {
@@ -950,6 +1189,12 @@
     state.player.positionMs = 0;
     state.player.format = song.format || "MP3";
     state.player.sourceReference = song.sourceReference || "";
+    state.player.activeLyricIndex = -1;
+
+    applyDynamicAmbientColors(state.player.artworkUri);
+    if (state.player.isLyricsOpen) {
+      loadLyricsForCurrentTrack();
+    }
 
     if (isNative) {
       window.XeceayNative.playSong(
@@ -1345,18 +1590,33 @@
     selectEqPreset(presetName) {
       state.player.eqPreset = presetName;
       state.player.eqBands = (EQ_PRESETS[presetName] || [0, 0, 0, 0, 0]).slice();
+      if (presetName === "3D Spatial") {
+        state.player.virtualizerStrength = 800;
+        state.player.bassStrength = 250;
+      } else if (presetName === "Slowed") {
+        state.player.virtualizerStrength = 400;
+        state.player.bassStrength = 350;
+        this.setPlaybackSpeed(0.85);
+      } else if (presetName === "Nightcore") {
+        state.player.virtualizerStrength = 300;
+        state.player.bassStrength = 150;
+        this.setPlaybackSpeed(1.25);
+      } else if (presetName === "Bass Boost") {
+        state.player.bassStrength = 600;
+        state.player.virtualizerStrength = 200;
+      }
       if (isNative) {
-        window.XeceayNative.setEqualizer(presetName, JSON.stringify(state.player.eqBands), state.player.bassStrength);
+        window.XeceayNative.setEqualizer(presetName, JSON.stringify(state.player.eqBands), state.player.bassStrength, state.player.virtualizerStrength);
       }
       renderEqualizerModal();
-      showToast("Equalizer: " + presetName);
+      showToast("Audio Mode: " + presetName);
     },
 
     onEqBandSlider(bandIdx, dbVal) {
       state.player.eqPreset = "Custom";
       state.player.eqBands[bandIdx] = Number(dbVal);
       if (isNative) {
-        window.XeceayNative.setEqualizer("Custom", JSON.stringify(state.player.eqBands), state.player.bassStrength);
+        window.XeceayNative.setEqualizer("Custom", JSON.stringify(state.player.eqBands), state.player.bassStrength, state.player.virtualizerStrength);
       }
       renderEqualizerModal();
     },
@@ -1366,8 +1626,44 @@
       const label = document.getElementById("eq-bass-val");
       if (label) label.textContent = Math.round(val / 10) + "%";
       if (isNative) {
-        window.XeceayNative.setEqualizer(state.player.eqPreset, JSON.stringify(state.player.eqBands), state.player.bassStrength);
+        window.XeceayNative.setEqualizer(state.player.eqPreset, JSON.stringify(state.player.eqBands), state.player.bassStrength, state.player.virtualizerStrength);
       }
+    },
+
+    onVirtualizerSliderChange(val) {
+      state.player.virtualizerStrength = Number(val);
+      const label = document.getElementById("eq-virt-val");
+      if (label) label.textContent = Math.round(val / 10) + "%";
+      if (isNative) {
+        window.XeceayNative.setEqualizer(state.player.eqPreset, JSON.stringify(state.player.eqBands), state.player.bassStrength, state.player.virtualizerStrength);
+      }
+    },
+
+    toggleLyricsMode() {
+      state.player.isLyricsOpen = !state.player.isLyricsOpen;
+      const artBox = document.getElementById("fp-art-container");
+      const lyrBox = document.getElementById("fp-lyrics-container");
+      const btn = document.getElementById("fp-lyrics-toggle-btn");
+      if (btn) btn.classList.toggle("active", state.player.isLyricsOpen);
+      if (state.player.isLyricsOpen) {
+        if (artBox) artBox.style.display = "none";
+        if (lyrBox) lyrBox.style.display = "block";
+        loadLyricsForCurrentTrack();
+        showToast("Lyrics enabled (tap line to jump)");
+      } else {
+        if (artBox) artBox.style.display = "block";
+        if (lyrBox) lyrBox.style.display = "none";
+      }
+    },
+
+    seekToTimeMs(ms) {
+      if (isNative) {
+        window.XeceayNative.seekTo(ms);
+      } else if (webAudio) {
+        webAudio.currentTime = ms / 1000;
+      }
+      state.player.positionMs = ms;
+      updatePlayerUiOnly();
     },
 
     toggleFav(songId) {

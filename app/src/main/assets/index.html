@@ -327,7 +327,7 @@
                 <svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>App Version & Updates</span>
               </div>
-              <span id="installed-version-badge" class="badge green">v1.1.4</span>
+              <span id="installed-version-badge" class="badge green">v1.1.5</span>
             </div>
             <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">
               Automatically checks <strong>github.com/MEYYYNASH/XECEAY</strong>. Update button only appears when a newer version is released.
@@ -507,16 +507,28 @@
       <div style="text-align:center;">
         <div style="font-size:15px;font-weight:700;color:#FFFFFF;">Now Playing</div>
       </div>
-      <button class="fp-header-btn" onclick="XeceayApp.openEqualizerModal()" title="Equalizer & Queue">
-        <svg class="ico" viewBox="0 0 24 24"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/><path d="M17 16V7l4-1v9"/><circle cx="15" cy="16.5" r="2.2"/></svg>
-      </button>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button id="fp-lyrics-toggle-btn" class="fp-header-btn" onclick="XeceayApp.toggleLyricsMode()" title="Karaoke Synced Lyrics">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+        </button>
+        <button class="fp-header-btn" onclick="XeceayApp.openEqualizerModal()" title="Equalizer & Queue">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/><path d="M17 16V7l4-1v9"/><circle cx="15" cy="16.5" r="2.2"/></svg>
+        </button>
+      </div>
     </div>
 
-    <div class="fp-art-container" style="position:relative;cursor:pointer;" onclick="XeceayApp.chooseCustomArtwork()" title="Tap to change album cover">
+    <div id="fp-art-container" class="fp-art-container" style="position:relative;cursor:pointer;" onclick="XeceayApp.chooseCustomArtwork()" title="Tap to change album cover">
       <img id="fp-art" src="" alt="Album Art" />
       <div style="position:absolute;bottom:12px;right:12px;background:rgba(12,14,21,0.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:700;color:#FFFFFF;display:flex;align-items:center;gap:5px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.5);">
         <svg class="ico ico-sm" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <span>Change Cover</span>
+      </div>
+    </div>
+
+    <!-- Karaoke Synced Lyrics View (Toggled with Lyrics button) -->
+    <div id="fp-lyrics-container" class="fp-lyrics-container" style="display:none;" onclick="XeceayApp.toggleLyricsMode()">
+      <div id="fp-lyrics-scroll" class="fp-lyrics-scroll">
+        <div class="lyric-line placeholder">Loading synced lyrics...</div>
       </div>
     </div>
 
@@ -604,6 +616,13 @@
           <span id="eq-bass-val">15%</span>
         </div>
         <input id="eq-bass-slider" type="range" min="0" max="1000" value="150" class="range-slider" oninput="XeceayApp.onBassSliderChange(this.value)" />
+      </div>
+      <div style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+          <span>3D Surround Spatializer</span>
+          <span id="eq-virt-val">0%</span>
+        </div>
+        <input id="eq-virt-slider" type="range" min="0" max="1000" value="0" class="range-slider" oninput="XeceayApp.onVirtualizerSliderChange(this.value)" />
       </div>
     </div>
   </div>

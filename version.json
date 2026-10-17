@@ -2,8 +2,10 @@
   "versionName": "1.2.1",
   "versionCode": 121,
   "tagName": "v1.2.1",
-  "releaseTitle": "XECEAY v1.2.1 — iOS 27 Liquid Glass Theme, Instant Link Analysis & In-App Video Player",
-  "changelog": "Added stunning iOS 27 Liquid Glass theme with ambient animated mesh gradient orbs, frosted glass dock, specular borders, and floating mini-player. Instant YouTube and direct link analysis (<150ms). Watch videos directly in-app with multi-mirror switcher fallback. Direct in-app MP4 video downloads with progress tracking.",
-  "apkUrl": "https://github.com/MEYYYNASH/XECEAY/raw/main/XECEAY-release.apk",
-  "apkSize": 3063920
+  "releaseTitle": "DCEAY v1.2.1 — One App, All Your Music",
+  "changelog": "DCEAY Official Release: One App, All Your Music.\n• Cover-to-Background Engine: transforms current song album artwork into dynamic blurred, animated gradient background.\n• Syllable-Synced Lyrics Studio: word-by-word karaoke synchronization, translation toggle, and manual timestamp offset calibration.\n• Universal Link Import: YouTube video/playlists, Spotify tracks/playlists metadata import, and direct audio stream vault.\n• Personalization Studio: Cyberpunk Neon, Glassmorphism, and Midnight themes with accent color picker.\n• GitHub In-App Auto-Updater: secure SHA-256 verification and Android PackageInstaller flow.",
+  "apkUrl": "https://github.com/MEYYYNASH/DCEAY/releases/download/v1.2.1/DCEAY-release.apk",
+  "apkName": "DCEAY-release.apk",
+  "apkSize": 3112045,
+  "sha256": "75e6b41d98aa4b253f1e16a531a7be6dd0c385d2c69b83a756f2d1c4eb4a490f"
 }

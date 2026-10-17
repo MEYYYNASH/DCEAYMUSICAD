@@ -78,14 +78,14 @@ public class XeceayDatabase extends SQLiteOpenHelper {
             }
 
             JSONObject prefs = new JSONObject();
-            prefs.put("theme", "dark");
+            prefs.put("theme", "cyberpunk");
             prefs.put("audioQuality", "Hi-Res FLAC / 320kbps");
             prefs.put("eqPreset", "Normal");
-            prefs.put("githubRepo", "MEYYYNASH/XECEAY");
+            prefs.put("githubRepo", "MEYYYNASH/DCEAY");
             prefs.put("autoSync", true);
 
             db.execSQL(
-                    "INSERT OR IGNORE INTO Users (id, displayName, email, createdAt, preferences) VALUES ('local_user', 'XECEAY Audiophile', 'listener@xeceay.app', ?, ?)",
+                    "INSERT OR IGNORE INTO Users (id, displayName, email, createdAt, preferences) VALUES ('local_user', 'DCEAY Audiophile', 'listener@dceay.app', ?, ?)",
                     new Object[]{now, prefs.toString()}
             );
 

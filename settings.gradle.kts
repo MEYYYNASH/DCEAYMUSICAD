@@ -13,5 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "XECEAY"
+rootProject.name = "DCEAY"
 include(":app")
+

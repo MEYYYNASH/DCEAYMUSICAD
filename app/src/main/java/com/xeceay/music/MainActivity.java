@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView.addJavascriptInterface(new XeceayBridge(), "XeceayNative");
+        webView.addJavascriptInterface(new XeceayBridge(), "DceayNative");
 
         FrameLayout rootContainer = new FrameLayout(this);
         rootContainer.setBackgroundColor(0xFF0F1218);
@@ -655,8 +656,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void downloadAndInstallGitHubApk(String apkUrl, String expectedSha256, boolean autoInstall) {
+            githubUpdater.downloadAndInstallApk(apkUrl, expectedSha256, autoInstall);
+        }
+
+        @JavascriptInterface
         public void downloadAndInstallGitHubApk(String apkUrl, boolean autoInstall) {
-            githubUpdater.downloadAndInstallApk(apkUrl, autoInstall);
+            githubUpdater.downloadAndInstallApk(apkUrl, null, autoInstall);
         }
 
         @JavascriptInterface

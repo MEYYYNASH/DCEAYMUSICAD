@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>XECEAY — Music Downloader & Offline Player</title>
+  <title>DCEAY — One App, All Your Music</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+  <!-- 01. Cover-to-Background Engine -->
+  <div id="cover-to-bg-engine" class="cover-bg-engine" aria-hidden="true">
+    <div id="cover-bg-art" class="cover-bg-art"></div>
+    <div id="cover-bg-mesh" class="cover-bg-mesh"></div>
+    <div class="cover-bg-scrim"></div>
+  </div>
+
   <!-- Splash Screen -->
   <div id="splash-screen">
     <div class="splash-logo-ring" style="background:transparent;border:none;">
-      <img src="brand-logo.png" style="width:72px;height:72px;object-fit:contain;display:block;margin:0 auto;" alt="XECEAY" />
+      <img src="brand-logo.svg" style="width:78px;height:78px;object-fit:contain;display:block;margin:0 auto;" alt="DCEAY" />
     </div>
-    <div class="splash-title">XECEAY</div>
-    <div class="splash-tagline">Your Music. Your Quality. Your World.</div>
+    <div class="splash-title">DCEAY</div>
+    <div class="splash-tagline">One App, All Your Music</div>
   </div>
 
   <!-- Toast Notification -->
@@ -32,9 +39,9 @@
     <aside class="desktop-sidebar">
       <div class="brand-pill" style="padding: 8px 10px 18px;">
         <div class="brand-icon-box" style="display:flex;align-items:center;justify-content:center;">
-          <img src="brand-logo.png" style="width:20px;height:20px;object-fit:contain;display:block;" alt="XECEAY" />
+          <img src="brand-logo.svg" style="width:22px;height:22px;object-fit:contain;display:block;" alt="DCEAY" />
         </div>
-        <span class="brand-label-main">XECEAY</span>
+        <span class="brand-label-main">DCEAY</span>
         <span class="brand-label-dot">• Hi-Fi</span>
       </div>
       <div class="song-row" onclick="XeceayApp.switchTab('home')">
@@ -65,10 +72,10 @@
       <header class="top-bar">
         <div class="brand-pill" onclick="XeceayApp.switchTab('home')" style="cursor:pointer;">
           <div class="brand-icon-box" style="display:flex;align-items:center;justify-content:center;">
-            <img src="brand-logo.png" style="width:20px;height:20px;object-fit:contain;display:block;" alt="XECEAY" />
+            <img src="brand-logo.svg" style="width:20px;height:20px;object-fit:contain;display:block;" alt="DCEAY" />
           </div>
-          <span class="brand-label-main">XECEAY</span>
-          <span class="brand-label-dot">• Khmer & Hi-Fi</span>
+          <span class="brand-label-main">DCEAY</span>
+          <span class="brand-label-dot">• All Your Music</span>
         </div>
 
         <div class="top-right-actions">
@@ -171,18 +178,19 @@
             </button>
           </div>
 
-          <!-- YouTube Video & MP3 Link Downloader Card -->
+          <!-- Universal Link Import Card (YouTube, Spotify, Direct Audio) -->
           <div id="yt-link-card" class="yt-downloader-card">
             <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;">
-              <svg class="ico" style="color:#EF4444;" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10,8.5 16,12 10,15.5" fill="currentColor" stroke="none"/></svg>
-              <span>YouTube Video & Full MP3 Link Downloader</span>
+              <svg class="ico" style="color:#00FFFF;" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span>Universal Music Link Importer</span>
             </div>
+            <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px;">Supports YouTube videos & playlists, Spotify tracks & playlists, and direct audio URLs (.mp3, .flac, .wav, .m4a).</p>
 
             <input
               id="link-importer-input"
               class="yt-url-input"
               type="text"
-              placeholder="Paste YouTube link (youtu.be/... or youtube.com/watch?v=...)"
+              placeholder="Paste YouTube, Spotify, or direct audio link..."
             />
 
             <div class="dual-action-row" style="margin:6px 0 0;">
@@ -197,9 +205,10 @@
             </div>
 
             <div class="chip-row" style="margin:10px 0 0;">
-              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=xiw7Wjp9euk','VannDa - Time To Rise')">VannDa - Time To Rise</div>
-              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=dQw4w9WgXcQ','Full Song Stream')">Sample Full Track</div>
-              <div class="chip" onclick="XeceayApp.importLocalFile()">Import Local File</div>
+              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/watch?v=xiw7Wjp9euk','VannDa - Time To Rise')">YouTube: VannDa</div>
+              <div class="chip" onclick="XeceayApp.quickTrySpotify('https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT')">Spotify: Never Gonna Give You Up</div>
+              <div class="chip" onclick="XeceayApp.quickTryYouTube('https://www.youtube.com/playlist?list=PLrEnWoR732-DYW0lMdrT1aJ-sI_k7sBvQ','Pop Playlist')">YouTube Playlist</div>
+              <div class="chip" onclick="XeceayApp.importLocalFile()">Import Local Audio</div>
             </div>
 
             <div id="link-analysis-result"></div>
@@ -584,6 +593,7 @@
 
     <!-- Quick Utility Pills inside Full Player -->
     <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:4px 0 16px;">
+      <button id="fp-lyrics-btn" class="pill-btn white-pill" onclick="XeceayApp.openLyricsStudio()">🎤 Syllable Lyrics Studio</button>
       <button class="pill-btn" onclick="XeceayApp.downloadCurrentPlayingTrack()">Download Full MP3</button>
       <button class="pill-btn" onclick="XeceayApp.promptAddCurrentToPlaylist()">+ Add to Playlist</button>
       <button id="fp-speed-btn" class="pill-btn" onclick="XeceayApp.cyclePlaybackSpeed()">1.0x</button>
@@ -728,6 +738,83 @@
           <button class="pill-btn" onclick="document.getElementById('tag-modal').classList.remove('open')">Cancel</button>
           <button class="pill-btn white-pill" onclick="XeceayApp.saveTagEdits()">Save</button>
         </div>
+      </div>
+    </div>
+  <!-- 02. Syllable-Synced Lyrics Studio Modal -->
+  <div id="lyrics-studio-modal" class="lyrics-studio-modal" onclick="if(event.target===this) XeceayApp.closeLyricsStudio()">
+    <div class="lyrics-studio-sheet">
+      <div class="lyrics-studio-header">
+        <div>
+          <div class="ls-title">Syllable Lyrics Studio</div>
+          <div id="ls-song-meta" class="ls-meta">Word-by-word karaoke synchronization</div>
+        </div>
+        <div class="ls-header-actions">
+          <button id="ls-trans-btn" class="pill-btn ls-pill" onclick="XeceayApp.toggleLyricsTranslation()">Translation: ON</button>
+          <div class="ls-font-size-toggles">
+            <button class="ls-size-btn" onclick="XeceayApp.adjustLyricsFontSize(-1)" title="Smaller font">A-</button>
+            <button class="ls-size-btn" onclick="XeceayApp.adjustLyricsFontSize(1)" title="Larger font">A+</button>
+          </div>
+          <button class="icon-btn" onclick="XeceayApp.openLrcEditorModal()" title="Edit / Import LRC">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="XeceayApp.closeLyricsStudio()">
+            <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Timing Offset Controls -->
+      <div class="lyrics-offset-bar">
+        <span class="offset-label">Sync Offset:</span>
+        <button class="offset-btn" onclick="XeceayApp.adjustLyricsOffset(-200)">-200ms</button>
+        <button class="offset-btn" onclick="XeceayApp.adjustLyricsOffset(-50)">-50ms</button>
+        <span id="lyrics-offset-val" class="offset-display">0 ms</span>
+        <button class="offset-btn" onclick="XeceayApp.adjustLyricsOffset(50)">+50ms</button>
+        <button class="offset-btn" onclick="XeceayApp.adjustLyricsOffset(200)">+200ms</button>
+        <button class="offset-btn reset" onclick="XeceayApp.resetLyricsOffset()">Reset</button>
+      </div>
+
+      <!-- The Syllable-Synchronized Scrolling Karaoke Container -->
+      <div id="lyrics-studio-scroll" class="lyrics-studio-scroll">
+        <div id="lyrics-lines-container" class="lyrics-lines-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smart Playlist Import & Duplicate Review Modal -->
+  <div id="smart-playlist-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closeSmartPlaylistModal()">
+    <div class="modal-box smart-playlist-box">
+      <div class="sp-header">
+        <div>
+          <div id="sp-modal-title" class="sp-title">Smart Playlist Import</div>
+          <div id="sp-modal-summary" class="sp-summary">Detecting tracks & duplicates...</div>
+        </div>
+        <button class="icon-btn" onclick="XeceayApp.closeSmartPlaylistModal()">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="sp-playlist-tracks" class="sp-tracks-list"></div>
+      <div class="sp-actions">
+        <button class="pill-btn" onclick="XeceayApp.toggleSelectAllPlaylistTracks()">Select All</button>
+        <button id="sp-confirm-btn" class="pill-btn white-pill" onclick="XeceayApp.confirmSmartPlaylistImport()">Import to Library</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LRC Timestamp Editor & Import Modal -->
+  <div id="lrc-editor-modal" class="overlay-modal" onclick="if(event.target===this) XeceayApp.closeLrcEditorModal()">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:18px;font-weight:800;">LRC Timestamps & Lyrics Studio</div>
+        <button class="icon-btn" onclick="XeceayApp.closeLrcEditorModal()">
+          <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Paste LRC text with [mm:ss.xx] timestamps or syllable tags:</p>
+      <textarea id="lrc-raw-input" class="yt-url-input" style="height:140px;font-family:monospace;font-size:12px;resize:vertical;" placeholder="[00:14.00] Time to rise&#10;[00:25.00] VannDa feat. Master Kong Nay"></textarea>
+      <div style="display:flex;justify-content:space-between;gap:8px;margin-top:10px;">
+        <button class="pill-btn" onclick="XeceayApp.loadSampleLrc()">Insert Sample Syllable LRC</button>
+        <button class="pill-btn white-pill" onclick="XeceayApp.saveCustomLrc()">Save & Apply</button>
       </div>
     </div>
   </div>

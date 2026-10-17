@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory=$false)]
-    [string]$GitHubRepoUrl = "",
+    [string]$GitHubRepoUrl = "https://github.com/MEYYYNASH/DCEAY.git",
     [Parameter(Mandatory=$false)]
-    [string]$VersionTag = "v1.0.1"
+    [string]$VersionTag = "v1.2.1"
 )
 
-Write-Host "=== XECEAY GitHub Auto-Update Release Publisher ===" -ForegroundColor Cyan
+Write-Host "=== DCEAY GitHub Auto-Update Release Publisher ===" -ForegroundColor Cyan
+Write-Host "Tagline: One App, All Your Music" -ForegroundColor DarkCyan
 
 if (-not (Test-Path ".git")) {
     git init
@@ -13,7 +14,7 @@ if (-not (Test-Path ".git")) {
 }
 
 git add .
-git commit -m "Release XECEAY $VersionTag" --allow-empty
+git commit -m "Release DCEAY $VersionTag — One App, All Your Music" --allow-empty
 
 if ($GitHubRepoUrl -ne "") {
     $existing = git remote
@@ -25,7 +26,7 @@ if ($GitHubRepoUrl -ne "") {
     git tag -f $VersionTag
     Write-Host "Pushing code and tag $VersionTag to $GitHubRepoUrl..." -ForegroundColor Green
     git push -u origin main --tags
-    Write-Host "Done! GitHub Actions will now build and attach XECEAY-release.apk to Release $VersionTag." -ForegroundColor Cyan
+    Write-Host "Done! GitHub Actions will now build DCEAY-release.apk, calculate SHA-256, and publish Release $VersionTag." -ForegroundColor Cyan
 } else {
-    Write-Host "Git commit prepared! Run: .\publish-release.ps1 -GitHubRepoUrl 'https://github.com/YOUR_USER/xeceay-music.git' -VersionTag 'v1.0.1'" -ForegroundColor Yellow
+    Write-Host "Git commit prepared! Run: .\publish-release.ps1 -GitHubRepoUrl 'https://github.com/MEYYYNASH/DCEAY.git' -VersionTag 'v1.2.1'" -ForegroundColor Yellow
 }

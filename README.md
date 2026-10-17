@@ -1,81 +1,119 @@
-# XECEAY — Music Downloader & Offline Player
+# DCEAY — One App, All Your Music
 
-> **Tagline:** *Your Music. Your Quality. Your World.*  
-> **Platforms:** Android (Native APK with In-App GitHub OTA Auto-Updater), Windows Desktop & Web
-
----
-
-## 1. Key Capabilities
-
-### A. In-App GitHub Release Auto-Updater & APK Self-Installer
-- **Native GitHub Releases Check** ([`GitHubAutoUpdater.kt`](app/src/main/java/com/xeceay/music/GitHubAutoUpdater.kt)):
-  - Queries `https://api.github.com/repos/{owner}/{repo}/releases/latest` (or `/releases` fallback).
-  - Compares the remote semantic tag (`v1.0.1`, `v1.1.0`, etc.) against the installed `PackageInfo.versionName`.
-- **In-App APK Downloader**:
-  - Downloads the `.apk` release asset directly inside XECEAY into `getExternalFilesDir("updates")/XECEAY-update.apk` with a live progress bar, byte counter, and transfer speed (`KB/s` / `MB/s`).
-- **In-App Native Package Installer**:
-  - Uses Android `androidx.core.content.FileProvider` (`content://com.xeceay.music.fileprovider/updates/XECEAY-update.apk`) and `Intent.ACTION_VIEW` (`application/vnd.android.package-archive`) to launch the Android System Package Installer directly from the app.
-  - Automatically checks `PackageManager.canRequestPackageInstalls()` on Android 8.0+ and guides the user to `Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES` if not yet enabled.
-- **GitHub Actions CI/CD Workflow** ([`.github/workflows/release-apk.yml`](.github/workflows/release-apk.yml)):
-  - Every push to `main`/`master` or any `v*` tag automatically builds `XECEAY-release.apk` and publishes a GitHub Release so installed apps can auto-update over-the-air.
-
-### B. High-Quality Audio Player & Hardware Equalizer
-- **Native Playback Engine** ([`AudioPlayerEngine.kt`](app/src/main/java/com/xeceay/music/AudioPlayerEngine.kt) & [`MusicPlaybackService.kt`](app/src/main/java/com/xeceay/music/MusicPlaybackService.kt)):
-  - Supports `MP3`, `FLAC`, `WAV`, `AAC`, `M4A`, `OGG`, and `Opus`.
-  - Play/Pause, Previous/Next, interactive seek bar, Shuffle, Repeat (`All`, `One`, `Off`), Playback Speed (`0.5x` – `2.0x`), Volume control, and Sleep Timer.
-  - **Hardware 5-Band Equalizer + Sub-Bass Boost** (`60Hz`, `230Hz`, `910Hz`, `3.6kHz`, `14kHz`) with presets: `Normal`, `Bass Boost`, `Treble Boost`, `Vocal`, `Classical`, `Rock`, `Jazz`, `Electronic`, and `Custom`.
-  - **Foreground Service & Lock-Screen Media Notification** for uninterrupted background playback.
-
-### C. Offline Music Library & Relational SQLite Database
-- **8-Entity SQLite Schema** ([`XeceayDatabase.kt`](app/src/main/java/com/xeceay/music/XeceayDatabase.kt)):
-  - `Users`, `Songs`, `Artists`, `Albums`, `Playlists`, `PlaylistSongs`, `Downloads`, and `PlaybackHistory`.
-- **100% Offline Operation**:
-  - Synthesizes 6 stereo 44.1kHz PCM `.wav` tracks on first launch ([`WavGenerator.kt`](app/src/main/java/com/xeceay/music/WavGenerator.kt)) so offline playback works immediately out of the box.
-  - Scans device `MediaStore.Audio.Media` for local music and supports importing any audio/video file via the Android system file picker.
-  - Includes **Smart Playlists**, **Metadata Tag Editor**, **Duplicate Cleaner**, and **Storage Manager**.
-
-### D. Multi-Threaded Download Manager & Authorized Link Importer
-- **Download Queue Manager** ([`DownloadManagerEngine.kt`](app/src/main/java/com/xeceay/music/DownloadManagerEngine.kt)):
-  - Supports `Waiting`, `Downloading`, `Paused`, `Completed`, `Failed`, and `Cancelled` statuses.
-  - Uses HTTP `Range` headers for real **Pause and Resume**, transfer speed calculation, ETA, duplicate prevention, and `StatFs` storage checks.
-- **YouTube & Direct Media Link Importer** ([`LinkAnalyzerService.kt`](app/src/main/java/com/xeceay/music/LinkAnalyzerService.kt)):
-  - Enforces HTTPS and SSRF protection (blocks loopback/private network ranges).
-  - Recognizes YouTube URLs via official public oEmbed metadata and provides compliant actions (Official Preview, Open in YouTube App, or Import User-Owned File) without bypassing DRM.
-  - Recognizes direct HTTPS audio/video links and inspects format/size via `HEAD` requests for one-tap offline download.
+> **Tagline:** *One App, All Your Music.*  
+> **Brand Symbol:** Inspired by the sharp, angular white geometric emblem.  
+> **GitHub Repository:** [`https://github.com/MEYYYNASH/DCEAY.git`](https://github.com/MEYYYNASH/DCEAY.git)  
+> **Platform:** Android 7.0+ (API 24 to API 36) with Native In-App GitHub Releases Auto-Updater  
 
 ---
 
-## 2. Building the APK Locally
+## 1. Project Vision & Core Differentiators
 
+DCEAY is a futuristic, immersive Android music player built to unite universal streaming links, offline music files, synchronized karaoke lyrics, dynamic ambient backgrounds, and personalized aesthetics under a single unified audio hub.
+
+### 01. Cover-to-Background Engine
+- The currently playing song's album artwork dynamically transforms into the full app background.
+- Samples complementary accent colors in real-time, configuring `--accent-primary` and `--accent-secondary`.
+- Smooth Gaussian blur (`var(--cover-blur, 40px)`), animated mesh gradient pulses, and dark scrim layering to guarantee WCAG AAA typography contrast and battery efficiency.
+- Fallback to an angular vector monogram when artwork is unavailable.
+
+### 02. Syllable-Synced Lyrics Studio
+- Word-by-word and syllable-by-syllable synchronized karaoke text with smooth glowing text highlights.
+- Fallback to line-synced lyrics without fabricated timings when only line-level timestamps exist.
+- Current-line auto-scrolling and vertical centering (`scrollIntoView({ behavior: 'smooth', block: 'center' })`).
+- Adjustable typography sizing (`A-` / `A+` from 14px to 32px).
+- Bilingual lyric translation toggle (displays localized lyrics subtitles underneath original lines).
+- Live timing calibration offset bar (`-200ms`, `-50ms`, `0ms`, `+50ms`, `+200ms`).
+- User LRC import and timestamp editor to paste or modify `.lrc` files locally.
+
+### 03. Universal Link Engine & Smart Import
+- Provider-specific parsers for:
+  - **YouTube Videos & Shorts**: oEmbed metadata detection, in-app video playback, and direct audio stream vault.
+  - **YouTube Playlists**: Extracts collection IDs, triggers Smart Playlist Review.
+  - **Spotify Tracks**: Official oEmbed extraction, rich album artwork, "Open in Spotify" and "Save to DCEAY Library".
+  - **Spotify Playlists & Albums**: Detects collection metadata, presents duplicate review before importing.
+  - **Direct Audio URLs**: Inspects `MP3`, `FLAC`, `WAV`, `M4A`, `AAC`, `OGG`, `OPUS` headers via HTTPS `HEAD` requests.
+  - **Local Device Audio**: Scans device `MediaStore.Audio.Media` for offline tracks.
+- **Smart Playlist Deduplication**: Compares incoming track titles against existing library records, flags duplicates, preserves track order, and allows selective importing.
+
+### 04. Personalization Studio
+- Themes:
+  - **Cyberpunk Neon**: Neon pink (`#ff00ff`) and cyan (`#00ffff`) with distinctive double borders (`3px double #00ffff`) and glowing shadows.
+  - **Glassmorphism**: Semi-transparent dark background (`#14141e99`), soft white text (`#e6e6e6`), and faint white borders (`#ffffff1a`).
+  - **Midnight Slate**: Deep dark `#0A0D14` with electric blue & violet highlights.
+  - **Clean Light**: Clean silver-white surface with deep indigo typography.
+  - **Emerald Forest**: Dark forest obsidian with vibrant emerald green.
+- Accent color picker & dynamic artwork-based palette sampler.
+- Background blur slider controls.
+- Dynamic Island-style floating mini-player docked above navigation.
+- Launcher icon variant switcher via Android activity aliases.
+
+### 05. Playback Engine & Background Service
+- Media playback engine (`AudioPlayerEngine.java`) with multi-hop HTTP/HTTPS redirect resolver (301, 302, 307, 308).
+- `MusicPlaybackService.java`: Foreground Service with media notification, play/pause/prev/next actions, lock-screen controls, and audio focus handling.
+- Professional 5-band equalizer (`60Hz`, `230Hz`, `910Hz`, `3.6kHz`, `14kHz`), sub-bass boost, and 3D surround spatializer.
+- Sleep timer with smooth volume fade-out.
+
+---
+
+## 2. GitHub Online Update System (Mandatory Feature)
+
+DCEAY includes a self-contained, real-time in-app update center powered by the official GitHub Releases API.
+
+### How It Works:
+1. **Detection**:
+   - Queries `https://api.github.com/repos/MEYYYNASH/DCEAY/releases/latest` (with fallback to `releases` array filtering out drafts/prereleases, and raw `version.json` on `main`).
+   - Compares remote semantic tag (`v1.2.1`) against installed package version (`PackageInfo.versionName`).
+2. **Download & Transfer Tracking**:
+   - Downloads `DCEAY-release.apk` to app external files directory.
+   - Dispatches live progress events with percentage, transferred bytes, and transfer rate (`KB/s`).
+3. **Cryptographic SHA-256 Verification**:
+   - Calculates the SHA-256 hash of the downloaded APK using Java's `MessageDigest`.
+   - Compares the hash against the published checksum asset (`DCEAY-release.apk.sha256`) or release notes hash.
+   - If a mismatch is detected, the file is immediately deleted, and a security warning is emitted.
+4. **Package Identity Validation**:
+   - Verifies the APK archive's package name matches `com.xeceay.music` before triggering installation.
+5. **Native Installation Flow**:
+   - Checks `canRequestPackageInstalls()` on Android 8.0+.
+   - Directs user to `Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES` if permissions are required.
+   - Launches Android PackageInstaller via `androidx.core.content.FileProvider`.
+
+---
+
+## 3. GitHub Actions CI/CD Pipeline
+
+File: [`.github/workflows/release-apk.yml`](.github/workflows/release-apk.yml)
+
+Every push to `main` or release tag (`v*`):
+1. Sets up JDK 21 and Android SDK.
+2. Compiles release & debug APKs: `./gradlew assembleRelease assembleDebug`.
+3. Copies `app-release.apk` to `DCEAY-release.apk`.
+4. Computes SHA-256 hash: `sha256sum DCEAY-release.apk > DCEAY-release.apk.sha256`.
+5. Publishes a GitHub Release with both `DCEAY-release.apk` and `DCEAY-release.apk.sha256` attached.
+
+---
+
+## 4. Local Build & Test Instructions
+
+### Prerequisites
+- JDK 17 or JDK 21 (e.g. bundled in Android Studio at `C:\Program Files\Android\Android Studio\jbr`)
+- Android SDK Platform 36
+
+### Run Unit Tests
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-.\gradlew.bat assembleRelease assembleDebug
+.\gradlew.bat test
 ```
+Runs test suite verifying URL parsing, version comparison, SHA-256 computation, and playlist deduplication.
 
-Output APKs:
-- Release APK: `app/build/outputs/apk/release/app-release.apk` (also copied to `XECEAY-release.apk`)
-- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
+### Build Signed Release APK
+```powershell
+.\gradlew.bat assembleRelease
+```
+The output APK is generated at:
+`app/build/outputs/apk/release/app-release.apk`
 
----
-
-## 3. Uploading to GitHub & Publishing an Auto-Update Release
-
-1. Create a new repository on GitHub (for example `https://github.com/YOUR_USERNAME/xeceay-music`).
-2. Run the included [`publish-release.ps1`](publish-release.ps1) script or execute:
-   ```powershell
-   git init
-   git add .
-   git commit -m "Initial release of XECEAY v1.0.0"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/xeceay-music.git
-   git push -u origin main
-   ```
-3. Whenever you want to push a new update to all installed XECEAY apps:
-   - Bump `versionCode` (e.g. `101`) and `versionName` (e.g. `"1.0.1"`) in [`app/build.gradle.kts`](app/build.gradle.kts).
-   - Commit and push a tag:
-     ```powershell
-     git tag v1.0.1
-     git push origin main --tags
-     ```
-   - GitHub Actions will automatically compile `XECEAY-release.apk` and publish it to GitHub Releases.
-   - Inside the XECEAY Android app, go to **Settings → In-App APK Auto-Update**, enter `YOUR_USERNAME/xeceay-music`, tap **Check GitHub Release**, and tap **Download & Auto-Install**!
+### Publishing to GitHub
+Use the automated publisher script:
+```powershell
+.\publish-release.ps1 -GitHubRepoUrl "https://github.com/MEYYYNASH/DCEAY.git" -VersionTag "v1.2.1"
+```

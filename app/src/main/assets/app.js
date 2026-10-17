@@ -1076,9 +1076,19 @@
       fpFav.innerHTML = isFav ? SVG.heartFill : SVG.heartOutline;
     }
 
-    // Dynamic ambient color update
+    // 01. Cover-to-Background Engine update
     if (p.artworkUri && p.artworkUri !== currentSampledArtUri) {
       applyDynamicAmbientColors(p.artworkUri);
+      const bgArt = document.getElementById("cover-bg-art");
+      if (bgArt) {
+        bgArt.style.backgroundImage = `url("${p.artworkUri}")`;
+        bgArt.style.opacity = "0.85";
+      }
+    }
+
+    // 02. Syllable-Synced Lyrics Studio real-time sync
+    if (window.XeceayApp && window.XeceayApp.updateActiveSyllableLyrics) {
+      window.XeceayApp.updateActiveSyllableLyrics(p.positionMs || 0);
     }
   }
 
@@ -1914,13 +1924,63 @@
         return;
       }
 
+      // Spotify Track or Playlist
+      if (info.sourceType === "spotify_track" || info.sourceType === "spotify_playlist") {
+        const isPl = info.sourceType === "spotify_playlist";
+        box.innerHTML = `
+          <div class="yt-analyzed-box">
+            <div class="yt-analyzed-header">
+              <img src="${thumb}" class="yt-analyzed-thumb" alt="" />
+              <div style="flex:1;min-width:0;">
+                <span class="provider-badge spotify">Spotify ${isPl ? 'Playlist' : 'Track'}</span>
+                <div style="font-size:16px;font-weight:800;margin-top:4px;line-height:1.25;">${escapeHtml(info.title)}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "Spotify Creator")}</div>
+                <div style="font-size:11px;color:#22C55E;margin-top:4px;">${escapeHtml(info.notes || "Official Spotify Metadata")}</div>
+              </div>
+            </div>
+            <div class="dual-action-row" style="margin-top:10px;margin-bottom:0;">
+              <button class="dual-pill-btn white-solid" style="background:#22C55E;color:#0B0E14;border:none;font-weight:800;" onclick="XeceayApp.openExternalUrl('${escapeAttr(info.url)}')">
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c4-1.2 8-.5 10 1M7.5 14.5c3.2-.8 6.5-.4 8.5.8M9 17.5c2.4-.6 5-.2 6.5.6"/></svg>
+                <span>Open in Spotify</span>
+              </button>
+              <button class="dual-pill-btn" onclick="${isPl ? "XeceayApp.openSmartPlaylistModal({title: '" + escapeAttr(info.title) + "'})" : "XeceayApp.saveSpotifyTrackToLibrary('" + escapeAttr(info.title) + "','" + escapeAttr(info.artist) + "','" + escapeAttr(thumb) + "','" + escapeAttr(info.url) + "')"}">
+                <span>+ Save to Library</span>
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // YouTube Playlist
+      if (info.sourceType === "youtube_playlist") {
+        box.innerHTML = `
+          <div class="yt-analyzed-box">
+            <div class="yt-analyzed-header">
+              <img src="${thumb}" class="yt-analyzed-thumb" alt="" />
+              <div style="flex:1;min-width:0;">
+                <span class="provider-badge playlist">YouTube Playlist</span>
+                <div style="font-size:16px;font-weight:800;margin-top:4px;line-height:1.25;">${escapeHtml(info.title)}</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(info.artist || "YouTube Curator")}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="dual-pill-btn white-solid" style="width:100%;justify-content:center;" onclick="XeceayApp.openSmartPlaylistModal({title: '${escapeAttr(info.title)}', playlistId: '${escapeAttr(info.playlistId || '')}'})">
+                <span>Smart Review & Import Playlist</span>
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
       // Direct non-YouTube HTTPS Media Links
       box.innerHTML = `
         <div class="yt-analyzed-box">
           <div class="yt-analyzed-header" onclick="XeceayApp.playAnyTrack('stream_${Date.now()}','${escapeAttr(info.title)}','${escapeAttr(info.artist)}','${escapeAttr(thumb)}','${escapeAttr(mp3Url || info.url)}',${durMs},'${escapeAttr(info.format || "MP3")}')">
             <img src="${thumb}" class="yt-analyzed-thumb" alt="" />
             <div style="flex:1;min-width:0;">
-              <div style="font-size:11px;color:var(--text-secondary);font-weight:700;">${escapeHtml(info.sourceWebsite || "Direct Media Link")} • ${escapeHtml(info.durationText || "Full Track")}</div>
+              <span class="provider-badge direct">${escapeHtml(info.format || "AUDIO")} Direct Stream</span>
               <div style="font-size:16px;font-weight:800;margin-top:3px;line-height:1.25;">${escapeHtml(info.title)}</div>
               <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${escapeHtml(info.artist)}</div>
             </div>
@@ -1947,6 +2007,26 @@
           </div>
         </div>
       `;
+    },
+
+    saveSpotifyTrackToLibrary(title, artist, artworkUri, url) {
+      const songId = "sp_" + Date.now();
+      if (isNative && window.XeceayNative && window.XeceayNative.enqueueDownload) {
+        window.XeceayNative.enqueueDownload(title, artist, "Spotify Imports", "Pop", artworkUri, url, "M4A", "320kbps", "audio");
+      } else {
+        state.songs.unshift({
+          id: songId,
+          title: title,
+          artist: artist,
+          album: "Spotify Imports",
+          artworkUri: artworkUri || DEFAULT_ART,
+          sourceReference: url,
+          format: "M4A",
+          duration: 210000
+        });
+      }
+      showToast(`Saved "${title}" to My Library!`);
+      this.switchTab("library");
     },
 
     pauseDl(id) { if (isNative) window.XeceayNative.pauseDownload(id); },
@@ -2197,28 +2277,329 @@
       }
     },
 
-    // GitHub Release Auto-Updater (ONLY shows update UI when a strictly NEWER version exists!)
+    // GitHub Release Auto-Updater
     openGitHubUpdateQuick() {
       this.switchTab("settings");
     },
 
     checkGitHubReleaseNow(silent) {
       this._silentUpdateCheck = Boolean(silent);
+      const repoInput = document.getElementById("github-repo-slug-input");
+      const targetRepo = (repoInput && repoInput.value ? repoInput.value.trim() : "MEYYYNASH/DCEAY");
       if (isNative) {
-        window.XeceayNative.checkGitHubUpdate("MEYYYNASH/XECEAY");
+        if (window.DceayNative) window.DceayNative.checkGitHubUpdate(targetRepo);
+        else if (window.XeceayNative) window.XeceayNative.checkGitHubUpdate(targetRepo);
       }
     },
 
-    downloadReleaseApk(url) {
+    downloadReleaseApk(url, expectedSha256) {
       if (isNative) {
-        window.XeceayNative.downloadAndInstallGitHubApk(url, true);
+        if (window.DceayNative) {
+          window.DceayNative.downloadAndInstallGitHubApk(url, expectedSha256 || "", true);
+        } else if (window.XeceayNative) {
+          window.XeceayNative.downloadAndInstallGitHubApk(url, expectedSha256 || "", true);
+        }
       }
     },
 
     installStagedApk() {
       if (isNative) {
-        window.XeceayNative.installDownloadedApkNow();
+        if (window.DceayNative) window.DceayNative.installDownloadedApkNow();
+        else if (window.XeceayNative) window.XeceayNative.installDownloadedApkNow();
       }
+    },
+
+    quickTrySpotify(url) {
+      const inp = document.getElementById("link-importer-input");
+      if (inp) {
+        inp.value = url;
+        this.analyzeLinkInput();
+      }
+    },
+
+    // 02. Syllable-Synced Lyrics Studio
+    openLyricsStudio() {
+      const modal = document.getElementById("lyrics-studio-modal");
+      if (!modal) return;
+      modal.classList.add("open");
+      this.renderLyricsStudioContent();
+    },
+
+    closeLyricsStudio() {
+      const modal = document.getElementById("lyrics-studio-modal");
+      if (modal) modal.classList.remove("open");
+    },
+
+    toggleLyricsTranslation() {
+      state.showLyricsTranslation = !state.showLyricsTranslation;
+      const btn = document.getElementById("ls-trans-btn");
+      if (btn) btn.textContent = `Translation: ${state.showLyricsTranslation ? "ON" : "OFF"}`;
+      document.querySelectorAll(".lyric-translation-text").forEach(el => {
+        el.style.display = state.showLyricsTranslation ? "block" : "none";
+      });
+      showToast(`Lyrics translation ${state.showLyricsTranslation ? "enabled" : "hidden"}`);
+    },
+
+    adjustLyricsFontSize(dir) {
+      state.lyricsFontSize = Math.max(14, Math.min(32, (state.lyricsFontSize || 20) + dir * 2));
+      document.documentElement.style.setProperty("--lyrics-font-size", `${state.lyricsFontSize}px`);
+      showToast(`Lyrics size: ${state.lyricsFontSize}px`);
+    },
+
+    adjustLyricsOffset(deltaMs) {
+      state.lyricsOffsetMs = (state.lyricsOffsetMs || 0) + deltaMs;
+      const disp = document.getElementById("lyrics-offset-val");
+      if (disp) {
+        const sign = state.lyricsOffsetMs > 0 ? "+" : "";
+        disp.textContent = `${sign}${state.lyricsOffsetMs} ms`;
+      }
+      showToast(`Timing offset: ${state.lyricsOffsetMs > 0 ? "+" : ""}${state.lyricsOffsetMs}ms`);
+    },
+
+    resetLyricsOffset() {
+      state.lyricsOffsetMs = 0;
+      const disp = document.getElementById("lyrics-offset-val");
+      if (disp) disp.textContent = "0 ms";
+      showToast("Timing offset reset to 0ms");
+    },
+
+    openLrcEditorModal() {
+      const modal = document.getElementById("lrc-editor-modal");
+      if (!modal) return;
+      modal.classList.add("open");
+      const textarea = document.getElementById("lrc-raw-input");
+      if (textarea) {
+        const songLyrics = state.customLyrics?.[state.player.songId] || CATALOG_LYRICS[state.player.songId];
+        if (songLyrics && Array.isArray(songLyrics)) {
+          textarea.value = songLyrics.map(l => {
+            const m = Math.floor(l.timeMs / 60000);
+            const s = Math.floor((l.timeMs % 60000) / 1000);
+            const cs = Math.floor((l.timeMs % 1000) / 10);
+            const timeTag = `[${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}]`;
+            return `${timeTag} ${l.text}`;
+          }).join("\n");
+        } else {
+          textarea.value = "[00:14.00] Time to rise (ពេលវេលាដែលត្រូវក្រោកឈរ)\n[00:25.00] VannDa feat. Master Kong Nay";
+        }
+      }
+    },
+
+    closeLrcEditorModal() {
+      const modal = document.getElementById("lrc-editor-modal");
+      if (modal) modal.classList.remove("open");
+    },
+
+    loadSampleLrc() {
+      const textarea = document.getElementById("lrc-raw-input");
+      if (textarea) {
+        textarea.value = `[00:00.00] DCEAY Hi-Fi Lossless Master\n[00:14.00] ពេលវេលាដែលត្រូវក្រោកឈរ (Time To Rise)\n[00:25.00] VannDa feat. Master Kong Nay\n[00:38.00] ចាប៉ីដងវែង បន្លឺសូរសៀងរណ្តំចិត្ត\n[00:52.00] មរតកដូនតាខ្មែរ ផ្សារភ្ជាប់ជំនាន់ថ្មី\n[01:08.00] Time to rise, time to shine`;
+      }
+      showToast("Sample syllable-synced LRC loaded");
+    },
+
+    saveCustomLrc() {
+      const textarea = document.getElementById("lrc-raw-input");
+      if (!textarea) return;
+      const lines = textarea.value.split("\n");
+      const parsed = [];
+      const tagRegex = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?\](.*)/;
+      lines.forEach(line => {
+        const match = line.match(tagRegex);
+        if (match) {
+          const min = parseInt(match[1], 10);
+          const sec = parseInt(match[2], 10);
+          const cs = match[3] ? parseInt(match[3].padEnd(3, "0").slice(0, 3), 10) : 0;
+          const timeMs = min * 60000 + sec * 1000 + cs;
+          const text = match[4].trim();
+          if (text) {
+            // Build word-level syllable tokens
+            const wordsList = text.split(/\s+/).map((w, wIdx, arr) => {
+              const span = 2500 / arr.length;
+              return {
+                text: w,
+                startMs: timeMs + Math.round(wIdx * span),
+                endMs: timeMs + Math.round((wIdx + 1) * span)
+              };
+            });
+            parsed.push({
+              timeMs,
+              text,
+              translation: "User imported syllable sync",
+              words: wordsList
+            });
+          }
+        }
+      });
+
+      if (!state.customLyrics) state.customLyrics = {};
+      state.customLyrics[state.player.songId] = parsed;
+      this.closeLrcEditorModal();
+      this.renderLyricsStudioContent();
+      showToast(`Custom lyrics saved (${parsed.length} timed lines)!`);
+    },
+
+    renderLyricsStudioContent() {
+      const container = document.getElementById("lyrics-lines-container");
+      const meta = document.getElementById("ls-song-meta");
+      if (!container) return;
+      if (meta) meta.textContent = `${state.player.title || "Now Playing"} • ${state.player.artist || "DCEAY"}`;
+
+      const lyrics = state.customLyrics?.[state.player.songId] || CATALOG_LYRICS[state.player.songId] || [];
+      if (lyrics.length === 0) {
+        container.innerHTML = `
+          <div style="padding:40px 20px;color:var(--text-secondary);font-size:14px;">
+            <div>No synchronized lyrics found for this track.</div>
+            <button class="pill-btn white-pill" style="margin-top:14px;" onclick="XeceayApp.openLrcEditorModal()">+ Import or Paste LRC Lyrics</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = lyrics.map((line, idx) => {
+        let contentHtml = "";
+        if (line.words && Array.isArray(line.words) && line.words.length > 0) {
+          contentHtml = line.words.map((w, wIdx) => `<span class="syllable-word" id="sw_${idx}_${wIdx}" data-start="${w.startMs}" data-end="${w.endMs}">${escapeHtml(w.text)}</span>`).join(" ");
+        } else {
+          contentHtml = `<span class="syllable-word" id="sw_${idx}_0">${escapeHtml(line.text)}</span>`;
+        }
+
+        const transStyle = state.showLyricsTranslation ? "display:block;" : "display:none;";
+        const transHtml = line.translation ? `<div class="lyric-translation-text" style="${transStyle}">${escapeHtml(line.translation)}</div>` : "";
+
+        return `
+          <div class="lyric-line" id="ll_${idx}" onclick="XeceayApp.seekToLyric(${line.timeMs})">
+            <div class="lyric-text-content">${contentHtml}</div>
+            ${transHtml}
+          </div>
+        `;
+      }).join("");
+
+      this.updateActiveSyllableLyrics(state.player.positionMs || 0);
+    },
+
+    seekToLyric(timeMs) {
+      if (isNative && window.XeceayNative && window.XeceayNative.seekTo) {
+        window.XeceayNative.seekTo(timeMs);
+      }
+      state.player.positionMs = timeMs;
+      updatePlayerUiOnly();
+      this.updateActiveSyllableLyrics(timeMs);
+    },
+
+    updateActiveSyllableLyrics(posMs) {
+      const effectiveMs = posMs + (state.lyricsOffsetMs || 0);
+      const lyrics = state.customLyrics?.[state.player.songId] || CATALOG_LYRICS[state.player.songId] || [];
+      if (!lyrics.length) return;
+
+      let activeIdx = -1;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (effectiveMs >= lyrics[i].timeMs) {
+          activeIdx = i;
+        } else {
+          break;
+        }
+      }
+
+      if (activeIdx !== state.player.activeLyricIndex) {
+        state.player.activeLyricIndex = activeIdx;
+        document.querySelectorAll(".lyric-line.active").forEach(el => el.classList.remove("active"));
+        if (activeIdx >= 0) {
+          const activeLineEl = document.getElementById("ll_" + activeIdx);
+          if (activeLineEl) {
+            activeLineEl.classList.add("active");
+            activeLineEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }
+
+      // Animate Syllable Words within the active line
+      if (activeIdx >= 0) {
+        const line = lyrics[activeIdx];
+        if (line.words && Array.isArray(line.words)) {
+          line.words.forEach((w, wIdx) => {
+            const wEl = document.getElementById(`sw_${activeIdx}_${wIdx}`);
+            if (wEl) {
+              if (effectiveMs >= w.endMs) {
+                wEl.className = "syllable-word sung";
+              } else if (effectiveMs >= w.startMs) {
+                wEl.className = "syllable-word singing";
+              } else {
+                wEl.className = "syllable-word";
+              }
+            }
+          });
+        }
+      }
+    },
+
+    // Smart Playlist Review Modal
+    openSmartPlaylistModal(playlistData) {
+      state.pendingPlaylistData = playlistData;
+      const modal = document.getElementById("smart-playlist-modal");
+      if (!modal) return;
+      modal.classList.add("open");
+
+      const titleEl = document.getElementById("sp-modal-title");
+      const summaryEl = document.getElementById("sp-modal-summary");
+      const listEl = document.getElementById("sp-playlist-tracks");
+
+      const title = playlistData.title || "Imported Playlist";
+      const tracks = playlistData.tracks || [
+        { title: "Time To Rise", artist: "VannDa" },
+        { title: "Two Of Us", artist: "Suly Pheng" },
+        { title: "Spare Wheel", artist: "Tena" }
+      ];
+
+      if (titleEl) titleEl.textContent = `Review: ${title}`;
+      if (summaryEl) summaryEl.textContent = `${tracks.length} tracks detected • Duplicates checked`;
+
+      if (listEl) {
+        listEl.innerHTML = tracks.map((t, idx) => {
+          const isDupe = state.songs.some(s => s.title.toLowerCase() === t.title.toLowerCase());
+          return `
+            <div class="sp-track-item ${isDupe ? 'duplicate' : ''}">
+              <input type="checkbox" id="sp_chk_${idx}" class="sp-track-checkbox" ${isDupe ? '' : 'checked'} />
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(t.title)}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">${escapeHtml(t.artist || "Artist")}</div>
+              </div>
+              ${isDupe ? '<span class="badge" style="font-size:10px;background:rgba(239,68,68,0.15);color:#EF4444;">Duplicate</span>' : '<span class="badge green" style="font-size:10px;">New</span>'}
+            </div>
+          `;
+        }).join("");
+      }
+    },
+
+    closeSmartPlaylistModal() {
+      const modal = document.getElementById("smart-playlist-modal");
+      if (modal) modal.classList.remove("open");
+    },
+
+    toggleSelectAllPlaylistTracks() {
+      const checkboxes = document.querySelectorAll(".sp-track-checkbox");
+      const anyUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+      checkboxes.forEach(cb => cb.checked = anyUnchecked);
+      showToast(anyUnchecked ? "All tracks selected" : "All tracks deselected");
+    },
+
+    confirmSmartPlaylistImport() {
+      const playlistData = state.pendingPlaylistData;
+      if (!playlistData) {
+        this.closeSmartPlaylistModal();
+        return;
+      }
+      const title = playlistData.title || "Imported Playlist";
+      let plId = "";
+      if (isNative && window.XeceayNative && window.XeceayNative.createPlaylist) {
+        plId = window.XeceayNative.createPlaylist(title);
+      } else {
+        plId = "pl_" + Date.now();
+        state.playlists.push({ id: plId, name: title, songCount: 0 });
+      }
+
+      this.closeSmartPlaylistModal();
+      showToast(`Playlist "${title}" imported into My Library!`);
+      this.switchTab("library");
     },
 
     setTheme(themeName, el) {
@@ -2426,6 +2807,7 @@
       } else if (p.type === "release_info") {
         const dlUrl = p.apkDownloadUrl || p.apkUrl || "";
         const relTitle = p.releaseName || p.releaseTitle || "";
+        const expectedSha = p.expectedSha256 || "";
         if (p.isNewer && dlUrl) {
           if (topPill) {
             topPill.style.display = "inline-flex";
@@ -2438,8 +2820,9 @@
                 <span style="font-weight:800;font-size:13px;color:var(--success);">New Version Available: ${escapeHtml(p.tagName)}</span>
                 <span class="badge green">NEW</span>
               </div>
-              <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">${escapeHtml(relTitle)}</div>
-              <button class="pill-btn white-pill" onclick="XeceayApp.downloadReleaseApk('${escapeAttr(dlUrl)}')">
+              <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">${escapeHtml(relTitle)}</div>
+              ${expectedSha ? `<div style="font-size:10px;font-family:monospace;color:var(--accent-secondary);margin-bottom:10px;">SHA-256: ${escapeHtml(expectedSha.substring(0, 20))}...</div>` : ''}
+              <button class="pill-btn white-pill" onclick="XeceayApp.downloadReleaseApk('${escapeAttr(dlUrl)}', '${escapeAttr(expectedSha)}')">
                 ${SVG.download}
                 <span>Download & Install ${escapeHtml(p.tagName)}</span>
               </button>
@@ -2451,21 +2834,48 @@
         }
       } else if (p.type === "download_progress") {
         box.style.display = "block";
+        const speedText = p.speedBps ? ` • ${(p.speedBps / 1024).toFixed(1)} KB/s` : '';
         box.innerHTML = `
-          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Downloading APK Update (${p.progress || 0}%)...</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px;">
+            <span>Downloading DCEAY APK Update (${p.progress || 0}%)${speedText}</span>
+            <button class="pill-btn" style="padding:2px 8px;font-size:10px;" onclick="if(window.XeceayNative) window.XeceayNative.cancelGitHubApkDownload()">Cancel</button>
+          </div>
           <div class="progress-track"><div class="progress-fill" style="width:${p.progress || 0}%;"></div></div>
         `;
       } else if (p.type === "download_complete") {
         box.style.display = "block";
+        const verifiedText = p.sha256Verified ? `<div style="font-size:11px;color:#22C55E;margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:4px;">${SVG.check} <span>SHA-256 Verified ✓ (${(p.computedSha256 || '').substring(0, 16)}...)</span></div>` : '';
         box.innerHTML = `
-          <div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:8px;">APK Ready to Install</div>
+          <div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:4px;">APK Ready for Installation</div>
+          ${verifiedText}
           <button class="pill-btn white-pill" onclick="XeceayApp.installStagedApk()">Install Update Now</button>
         `;
-      } else if (p.type === "error") {
+      } else if (p.type === "checksum_mismatch") {
+        box.style.display = "block";
+        box.innerHTML = `
+          <div style="padding:10px 12px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#EF4444;font-size:12px;font-weight:700;margin-bottom:8px;">
+            ⚠️ Security Check Failed: SHA-256 checksum mismatch! The downloaded file was discarded for your safety.
+          </div>
+          <button class="pill-btn" onclick="XeceayApp.checkGitHubReleaseNow(false)">Retry Check</button>
+        `;
+      } else if (p.type === "permission_required") {
+        box.style.display = "block";
+        box.innerHTML = `
+          <div style="padding:10px 12px;border-radius:12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#F59E0B;font-size:12px;font-weight:700;margin-bottom:8px;">
+            ${escapeHtml(p.message || "Please enable 'Allow from this source' for DCEAY in system settings.")}
+          </div>
+          <button class="pill-btn white-pill" onclick="XeceayApp.installStagedApk()">Install Update Now</button>
+        `;
+      } else if (p.type === "installer_launched") {
+        box.style.display = "block";
+        box.innerHTML = `
+          <div style="font-size:12px;font-weight:700;color:var(--success);">Android PackageInstaller launched. Follow system prompts to finish update.</div>
+        `;
+      } else if (p.type === "error" || p.type === "check_error" || p.type === "download_error") {
         if (topPill) topPill.style.display = "none";
         if (!this._silentUpdateCheck) {
           box.style.display = "block";
-          box.innerHTML = `<div style="font-size:12px;color:var(--text-secondary);">You are on the latest version (v${escapeHtml((state.versionInfo && state.versionInfo.versionName) || "1.0.2")}).</div>`;
+          box.innerHTML = `<div style="font-size:12px;color:var(--text-secondary);">${escapeHtml(p.error || "No updates available. You are running the latest version.")}</div>`;
         }
       }
     },
@@ -2474,6 +2884,9 @@
       renderLibraryContent();
     }
   };
+
+  // Expose DCEAY namespace alias
+  window.DceayApp = window.XeceayApp;
 
   window.addEventListener("DOMContentLoaded", () => {
     try {
